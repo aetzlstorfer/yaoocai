@@ -1,0 +1,19 @@
+
+builtin function printInteger(value: int) -> vmfunc(1)
+
+function min(a:integer, b:integer):integer {
+  var result:integer;
+  if(a < b) {
+    result = a;
+  } else {
+    result = b;
+  }
+  return result;
+}
+
+function main() {
+  var a:integer = 7;
+  var b:integer = 9;
+  min(a, b);
+  printInteger(5);
+}

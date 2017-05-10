@@ -1,0 +1,20 @@
+builtin function testInput(): integer       -> vmfunc(32000)
+builtin function testOutput(value: integer) -> vmfunc(32001)
+builtin function fail()                     -> vmfunc(32002)
+
+function add(a: integer, b: integer) : integer {
+  return a + b;
+}
+
+function main() {
+  var a:integer = 5;
+  var b:integer = a;
+  var c:integer;
+  c = 7;
+  var d:integer = add(add(1, 2), 3);
+
+  testOutput(a);
+  testOutput(b);
+  testOutput(c);
+  testOutput(d);
+}
