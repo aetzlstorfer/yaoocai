@@ -307,7 +307,11 @@ public class Parser {
 
     private ASTExpression parseMultiplicativeExpression() throws IOException {
         ASTExpression expr = parsePreIncrementExpression();
-        while (scanner.getCurrentSymbol() == ScannerSymbols.MULTIPLICATION_OPERATOR || scanner.getCurrentSymbol() == ScannerSymbols.DIVISION_OPERATOR) {
+        while (
+                scanner.getCurrentSymbol() == ScannerSymbols.MULTIPLICATION_OPERATOR ||
+                        scanner.getCurrentSymbol() == ScannerSymbols.DIVISION_OPERATOR ||
+                        scanner.getCurrentSymbol() == ScannerSymbols.MODULO_OPERATOR
+                ) {
             ASTOperator operator = null;
             if (checkOptionalAndProceed(ScannerSymbols.MULTIPLICATION_OPERATOR)) {
                 operator = ASTOperator.MULTIPLICATION;

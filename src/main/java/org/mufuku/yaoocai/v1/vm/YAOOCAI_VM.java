@@ -20,14 +20,11 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     private final Stack<Object> stack = new Stack<>();
     private final Stack<LocalVariableStack> localVariableStack = new Stack<>();
     private final Stack<Integer> callStack = new Stack<>();
-
+    private final List<Integer> functionPointer = new ArrayList<>();
+    private final Map<Short, BuiltInVMFunction> builtIns;
     private short[] code;
     private int codePointer = 0;
-
-    private final List<Integer> functionPointer = new ArrayList<>();
     private boolean execution = true;
-
-    private final Map<Short, BuiltInVMFunction> builtIns;
 
     public YAOOCAI_VM(InputStream in) {
         this(in, DefaultBuiltIns.getBuiltIns());
@@ -148,6 +145,11 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Short val2 = (Short) stack.pop();
             Short val1 = (Short) stack.pop();
             stack.push((short) (val1 / val2));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.MOD.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push((short) (val1 % val2));
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.CMP_LT.code()) {
             Short val2 = (Short) stack.pop();
