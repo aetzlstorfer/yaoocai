@@ -7,10 +7,7 @@ import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -188,6 +185,16 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Short val2 = (Short) stack.pop();
             Short val1 = (Short) stack.pop();
             stack.push(val1 >= val2);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.CMP_EQ.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push(Objects.equals(val1, val2));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.CMP_NE.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push(!Objects.equals(val1, val2));
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.IF.code()) {
             this.codePointer++;

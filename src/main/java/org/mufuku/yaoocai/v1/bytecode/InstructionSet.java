@@ -40,6 +40,8 @@ public interface InstructionSet {
         CMP_LTE(0x0501, "cmp_lte", 0),
         CMP_GT(0x0502, "cmp_gt", 0),
         CMP_GTE(0x0503, "cmp_gte", 0),
+        CMP_EQ(0x0504, "cmp_eq", 0),
+        CMP_NE(0x0505, "cmp_ne", 0),
 
         // 6. control structure
         IF(0x0600, "if", 1),

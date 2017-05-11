@@ -100,21 +100,23 @@ public class Scanner {
             if (currentCharacter == '=') {
                 currentSymbol = ScannerSymbols.EQUALITY_OPERATOR;
                 nextChar();
-            } else if (currentCharacter == '>') {
-                currentSymbol = ScannerSymbols.GREATER_OR_EQUAL_OPERATOR;
-                nextChar();
-            } else if (currentCharacter == '<') {
-                currentSymbol = ScannerSymbols.LESS_OR_EQUAL_OPERATOR;
-                nextChar();
             } else {
                 currentSymbol = ScannerSymbols.ASSIGNMENT_OPERATOR;
             }
         } else if (currentCharacter == '>') {
             currentSymbol = ScannerSymbols.GREATER_OPERATOR;
             nextChar();
+            if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.GREATER_OR_EQUAL_OPERATOR;
+                nextChar();
+            }
         } else if (currentCharacter == '<') {
             currentSymbol = ScannerSymbols.LESS_OPERATOR;
             nextChar();
+            if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.LESS_OR_EQUAL_OPERATOR;
+                nextChar();
+            }
         } else if (currentCharacter == '{') {
             currentSymbol = ScannerSymbols.BLOCK_START;
             nextChar();

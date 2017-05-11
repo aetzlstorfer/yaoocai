@@ -164,6 +164,10 @@ public class Translator {
                     writeOpCode(InstructionSet.OpCodes.DIV);
                 } else if (expression.getOperator() == ASTOperator.MODULO) {
                     writeOpCode(InstructionSet.OpCodes.MOD);
+                } else if (expression.getOperator() == ASTOperator.EQUAL) {
+                    writeOpCode(InstructionSet.OpCodes.CMP_EQ);
+                } else if (expression.getOperator() == ASTOperator.NOT_EQUAL) {
+                    writeOpCode(InstructionSet.OpCodes.CMP_NE);
                 } else if (expression.getOperator() == ASTOperator.LESS_THAN) {
                     writeOpCode(InstructionSet.OpCodes.CMP_LT);
                 } else if (expression.getOperator() == ASTOperator.LESS_THAN_OR_EQUAL) {

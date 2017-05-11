@@ -28,8 +28,8 @@ public class LanguageIntegrationTest extends BaseLangTest {
     }
 
     @Test
-    public void test_validCodeWithIfBranch_noFailCall() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/if-branches-test.yaoocai");
+    public void test_validComparisonExpressions_noFailCall() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/comparison-test.yaoocai");
         inputFunction.setValue((short) 1);
         vm.execute();
     }

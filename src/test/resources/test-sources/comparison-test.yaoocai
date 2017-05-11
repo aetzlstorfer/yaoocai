@@ -1,0 +1,62 @@
+builtin function testInput(): integer       -> vmfunc(32000)
+builtin function testOutput(value: integer) -> vmfunc(32001)
+builtin function fail()                     -> vmfunc(32002)
+builtin function assertTrue(condition: boolean)      -> vmfunc(32004)
+builtin function assertFalse(antiCondition: boolean) -> vmfunc(32005)
+
+function basicTests() {
+  var input:integer = testInput();
+
+  if(input < 5) {
+    testOutput(0);
+  } else {
+    fail();
+  }
+  if(input <= 1) {
+    testOutput(1);
+  } else {
+    fail();
+  }
+  if(input > 5) {
+    fail();
+  } else {
+    testOutput(2);
+  }
+  if(input >= 1) {
+    testOutput(3);
+  } else {
+    fail();
+  }
+  if(input == 1) {
+    testOutput(3);
+  } else {
+    fail();
+  }
+  if(input != 2) {
+    testOutput(4);
+  } else {
+    fail();
+  }
+}
+
+function testComparisonExpressions() {
+  var a: integer = 5;
+  var b: integer = 6;
+
+  var aEqFive: boolean = a == 5;
+  var aEqB: boolean = a == b;
+
+  assertTrue(aEqFive);
+  assertFalse(aEqB);
+
+  var aNeFive: boolean = a != 5;
+  var aNeB: boolean = a != b;
+
+  assertFalse(aNeFive);
+  assertTrue(aNeB);
+}
+
+function main() {
+  basicTests();
+  testComparisonExpressions();
+}
