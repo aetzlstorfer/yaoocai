@@ -94,8 +94,6 @@ public class Scanner {
             if (currentCharacter == '=') {
                 currentSymbol = ScannerSymbols.INEQUALITY_OPERATOR;
                 nextChar();
-            } else {
-                throw new ParsingException("Unsupported character. = expected.");
             }
         } else if (currentCharacter == '=') {
             nextChar();

@@ -172,6 +172,10 @@ public class Translator {
                     writeOpCode(InstructionSet.OpCodes.CMP_GT);
                 } else if (expression.getOperator() == ASTOperator.GREATER_THAN_OR_EQUAL) {
                     writeOpCode(InstructionSet.OpCodes.CMP_GTE);
+                } else if (expression.getOperator() == ASTOperator.BITWISE_AND) {
+                    writeOpCode(InstructionSet.OpCodes.AND);
+                } else if (expression.getOperator() == ASTOperator.BITWISE_OR) {
+                    writeOpCode(InstructionSet.OpCodes.OR);
                 } else {
                     throw new RuntimeException("invalid operator: " + expression.getOperator());
                 }
@@ -195,6 +199,9 @@ public class Translator {
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.NEGATE) {
             emitExpression(expression.getSubExpression());
             writeOpCode(InstructionSet.OpCodes.NEG);
+        } else if (expression.getUnaryOperator() == ASTUnaryOperator.BITWISE_NOT) {
+            emitExpression(expression.getSubExpression());
+            writeOpCode(InstructionSet.OpCodes.NOT);
         }
     }
 

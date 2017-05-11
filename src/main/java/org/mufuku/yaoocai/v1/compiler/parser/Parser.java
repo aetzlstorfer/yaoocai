@@ -244,7 +244,7 @@ public class Parser {
 
     private ASTExpression parseBitwiseOrExpression() throws IOException {
         ASTExpression expr = parseBitwiseAndExpression();
-        if (checkOptionalAndProceed(ScannerSymbols.BITWISE_OR_OPERATOR)) {
+        while (checkOptionalAndProceed(ScannerSymbols.BITWISE_OR_OPERATOR)) {
             expr = getOrCombineExpression(expr, parseBitwiseAndExpression(), ASTOperator.BITWISE_OR);
         }
         return expr;
@@ -252,7 +252,7 @@ public class Parser {
 
     private ASTExpression parseBitwiseAndExpression() throws IOException {
         ASTExpression expr = parseComparisonExpression();
-        if (checkOptionalAndProceed(ScannerSymbols.BITWISE_AND_OPERATOR)) {
+        while (checkOptionalAndProceed(ScannerSymbols.BITWISE_AND_OPERATOR)) {
             expr = getOrCombineExpression(expr, parseComparisonExpression(), ASTOperator.BITWISE_AND);
         }
         return expr;
@@ -344,7 +344,7 @@ public class Parser {
         if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_OPERATOR)) {
             expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.NEGATE);
         } else if (checkOptionalAndProceed(ScannerSymbols.BITWISE_NEGATION_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.BITWISE_NEGATE);
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.BITWISE_NOT);
         } else {
             expr = parsePrimary();
         }

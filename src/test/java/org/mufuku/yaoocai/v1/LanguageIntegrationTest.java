@@ -1,7 +1,6 @@
 package org.mufuku.yaoocai.v1;
 
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
@@ -58,6 +57,12 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/incremental-test.yaoocai");
         vm.execute();
         vm = compileAndGetTestVM("/test-sources/decremental-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_validBitwiseOperations_correctAsserts() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/bitwiseOperations-test.yaoocai");
         vm.execute();
     }
 }

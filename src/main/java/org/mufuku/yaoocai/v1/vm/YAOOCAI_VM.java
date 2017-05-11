@@ -89,10 +89,10 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             this.codePointer++;
             stack.push(code[codePointer]);
             this.codePointer++;
-        } else if (opCode == InstructionSet.OpCodes.B_CONST_FALSE.code()) {
+        } else if (opCode == InstructionSet.OpCodes.B_CONST_TRUE.code()) {
             stack.push(true);
             this.codePointer++;
-        } else if (opCode == InstructionSet.OpCodes.B_CONST_TRUE.code()) {
+        } else if (opCode == InstructionSet.OpCodes.B_CONST_FALSE.code()) {
             stack.push(false);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.STORE.code()) {
@@ -154,6 +154,20 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         } else if (opCode == InstructionSet.OpCodes.NEG.code()) {
             Short val = (Short) stack.pop();
             stack.push((short) (-val));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.AND.code()) {
+            Boolean v2 = (Boolean) stack.pop();
+            Boolean v1 = (Boolean) stack.pop();
+            stack.push(v2 & v1);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.OR.code()) {
+            Boolean v2 = (Boolean) stack.pop();
+            Boolean v1 = (Boolean) stack.pop();
+            stack.push(v2 | v1);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.NOT.code()) {
+            Boolean v = (Boolean) stack.pop();
+            stack.push(!v);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.CMP_LT.code()) {
             Short val2 = (Short) stack.pop();

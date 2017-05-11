@@ -45,7 +45,12 @@ public interface InstructionSet {
         IF(0x0600, "if", 1),
         GOTO(0x0601, "goto", 1),
         RETURN(0x0602, "return", 0),
-        POP_PARAMS(0x0603, "pop_params", 1);
+        POP_PARAMS(0x0603, "pop_params", 1),
+
+        // 7. bitwise operations
+        AND(0x0700, "and", 0),
+        OR(0x0701, "or", 0),
+        NOT(0x0702, "not", 0);
 
         private static final Map<Short, OpCodes> mapping = new HashMap<>();
         protected final short code;
