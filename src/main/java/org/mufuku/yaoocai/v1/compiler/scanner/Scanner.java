@@ -40,20 +40,44 @@ public class Scanner {
         if (currentCharacter == 0) {
             currentSymbol = ScannerSymbols.EOI;
         } else if (currentCharacter == '+') {
-            currentSymbol = ScannerSymbols.PLUS_OPERATOR;
+            currentSymbol = ScannerSymbols.ADDITION_OPERATOR;
             nextChar();
+            if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.ADDITION_ASSIGNMENT_OPERATOR;
+                nextChar();
+            } else if (currentCharacter == '+') {
+                currentSymbol = ScannerSymbols.INCREMENT_OPERATOR;
+                nextChar();
+            }
         } else if (currentCharacter == '-') {
-            currentSymbol = ScannerSymbols.MINUS_OPERATOR;
+            currentSymbol = ScannerSymbols.SUBTRACTION_OPERATOR;
             nextChar();
             if (currentCharacter == '>') {
                 currentSymbol = ScannerSymbols.BUILTIN_ASSIGNMENT;
+                nextChar();
+            } else if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.SUBTRACTION_ASSIGNMENT_OPERATOR;
+                nextChar();
+            } else if (currentCharacter == '-') {
+                currentSymbol = ScannerSymbols.DECREMENT_OPERATOR;
                 nextChar();
             }
         } else if (currentCharacter == '/') {
             currentSymbol = ScannerSymbols.DIVISION_OPERATOR;
             nextChar();
+            if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.DIVISION_ASSIGNMENT_OPERATOR;
+                nextChar();
+            }
         } else if (currentCharacter == '*') {
             currentSymbol = ScannerSymbols.MULTIPLICATION_OPERATOR;
+            nextChar();
+            if (currentCharacter == '=') {
+                currentSymbol = ScannerSymbols.MULTIPLICATION_ASSIGNMENT_OPERATOR;
+                nextChar();
+            }
+        } else if (currentCharacter == '%') {
+            currentSymbol = ScannerSymbols.MODULO_OPERATOR;
             nextChar();
         } else if (currentCharacter == ',') {
             currentSymbol = ScannerSymbols.COMMA;
@@ -65,6 +89,7 @@ public class Scanner {
             currentSymbol = ScannerSymbols.COLON;
             nextChar();
         } else if (currentCharacter == '!') {
+            currentSymbol = ScannerSymbols.BITWISE_NEGATION_OPERATOR;
             nextChar();
             if (currentCharacter == '=') {
                 currentSymbol = ScannerSymbols.INEQUALITY_OPERATOR;
@@ -104,6 +129,20 @@ public class Scanner {
         } else if (currentCharacter == ')') {
             currentSymbol = ScannerSymbols.PAR_END;
             nextChar();
+        } else if (currentCharacter == '|') {
+            currentSymbol = ScannerSymbols.BITWISE_OR_OPERATOR;
+            nextChar();
+            if (currentCharacter == '|') {
+                currentSymbol = ScannerSymbols.CONDITIONAL_OR_OPERATOR;
+                nextChar();
+            }
+        } else if (currentCharacter == '&') {
+            currentSymbol = ScannerSymbols.BITWISE_AND_OPERATOR;
+            nextChar();
+            if (currentCharacter == '&') {
+                currentSymbol = ScannerSymbols.CONDITIONAL_AND_OPERATOR;
+                nextChar();
+            }
         } else if (currentCharacter == '"') {
             currentSymbol = ScannerSymbols.STRING_LITERAL;
             StringBuilder tmp = new StringBuilder();

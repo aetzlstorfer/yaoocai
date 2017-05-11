@@ -202,14 +202,63 @@ public class Parser {
     }
 
     private ASTExpression parseExpression() throws IOException {
-        ASTExpression expr = parseEqualityExpression();
+        return parseAssignmentExpression();
+    }
+
+    private ASTExpression parseAssignmentExpression() throws IOException {
+        ASTExpression expr = parseConditionalOrExpression();
+        ASTOperator operator = null;
         if (checkOptionalAndProceed(ScannerSymbols.ASSIGNMENT_OPERATOR)) {
-            expr = getOrCombineExpression(expr, parseEqualityExpression(), ASTOperator.ASSIGNMENT);
+            operator = ASTOperator.ASSIGNMENT;
+        } else if (checkOptionalAndProceed(ScannerSymbols.ADDITION_ASSIGNMENT_OPERATOR)) {
+            operator = ASTOperator.ADDITION_ASSIGNMENT;
+        } else if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_ASSIGNMENT_OPERATOR)) {
+            operator = ASTOperator.SUBTRACTION_ASSIGNMENT;
+        } else if (checkOptionalAndProceed(ScannerSymbols.MULTIPLICATION_ASSIGNMENT_OPERATOR)) {
+            operator = ASTOperator.MULTIPLICATION_ASSIGNMENT;
+        } else if (checkOptionalAndProceed(ScannerSymbols.DIVISION_ASSIGNMENT_OPERATOR)) {
+            operator = ASTOperator.DIVISION_ASSIGNMENT;
+        }
+
+        if (operator != null) {
+            expr = getOrCombineExpression(expr, parseConditionalOrExpression(), operator);
         }
         return expr;
     }
 
-    private ASTExpression parseEqualityExpression() throws IOException {
+    private ASTExpression parseConditionalOrExpression() throws IOException {
+        ASTExpression expr = parseConditionalAndExpression();
+        while (checkOptionalAndProceed(ScannerSymbols.CONDITIONAL_OR_OPERATOR)) {
+            expr = getOrCombineExpression(expr, parseConditionalAndExpression(), ASTOperator.CONDITIONAL_OR);
+        }
+        return expr;
+    }
+
+    private ASTExpression parseConditionalAndExpression() throws IOException {
+        ASTExpression expr = parseBitwiseOrExpression();
+        if (checkOptionalAndProceed(ScannerSymbols.CONDITIONAL_AND_OPERATOR)) {
+            expr = getOrCombineExpression(expr, parseBitwiseOrExpression(), ASTOperator.CONDITIONAL_AND);
+        }
+        return expr;
+    }
+
+    private ASTExpression parseBitwiseOrExpression() throws IOException {
+        ASTExpression expr = parseBitwiseAndExpression();
+        if (checkOptionalAndProceed(ScannerSymbols.BITWISE_OR_OPERATOR)) {
+            expr = getOrCombineExpression(expr, parseBitwiseAndExpression(), ASTOperator.BITWISE_OR);
+        }
+        return expr;
+    }
+
+    private ASTExpression parseBitwiseAndExpression() throws IOException {
+        ASTExpression expr = parseComparisonExpression();
+        if (checkOptionalAndProceed(ScannerSymbols.BITWISE_AND_OPERATOR)) {
+            expr = getOrCombineExpression(expr, parseComparisonExpression(), ASTOperator.BITWISE_AND);
+        }
+        return expr;
+    }
+
+    private ASTExpression parseComparisonExpression() throws IOException {
         ASTExpression expr = parseAdditiveExpression();
         while (
                 scanner.getCurrentSymbol() == ScannerSymbols.EQUALITY_OPERATOR ||
@@ -219,7 +268,7 @@ public class Parser {
                         scanner.getCurrentSymbol() == ScannerSymbols.LESS_OPERATOR ||
                         scanner.getCurrentSymbol() == ScannerSymbols.LESS_OR_EQUAL_OPERATOR
                 ) {
-            ASTOperator operator;
+            ASTOperator operator = null;
             if (checkOptionalAndProceed(ScannerSymbols.EQUALITY_OPERATOR)) {
                 operator = ASTOperator.EQUAL;
             } else if (checkOptionalAndProceed(ScannerSymbols.INEQUALITY_OPERATOR)) {
@@ -232,42 +281,68 @@ public class Parser {
                 operator = ASTOperator.LESS_THAN;
             } else if (checkOptionalAndProceed(ScannerSymbols.LESS_OR_EQUAL_OPERATOR)) {
                 operator = ASTOperator.LESS_THAN_OR_EQUAL;
-            } else {
-                throw new ParsingException("operator expected instead of: " + scanner.getCurrentSymbol());
             }
-            expr = getOrCombineExpression(expr, parseAdditiveExpression(), operator);
+            if (operator != null) {
+                expr = getOrCombineExpression(expr, parseAdditiveExpression(), operator);
+            }
         }
         return expr;
     }
 
     private ASTExpression parseAdditiveExpression() throws IOException {
         ASTExpression expr = parseMultiplicativeExpression();
-        ASTOperator operator;
-        while (scanner.getCurrentSymbol() == ScannerSymbols.PLUS_OPERATOR || scanner.getCurrentSymbol() == ScannerSymbols.MINUS_OPERATOR) {
-            if (checkOptionalAndProceed(ScannerSymbols.PLUS_OPERATOR)) {
+        while (scanner.getCurrentSymbol() == ScannerSymbols.ADDITION_OPERATOR || scanner.getCurrentSymbol() == ScannerSymbols.SUBTRACTION_OPERATOR) {
+            ASTOperator operator = null;
+            if (checkOptionalAndProceed(ScannerSymbols.ADDITION_OPERATOR)) {
                 operator = ASTOperator.ADDITION;
-            } else if (checkOptionalAndProceed(ScannerSymbols.MINUS_OPERATOR)) {
+            } else if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_OPERATOR)) {
                 operator = ASTOperator.SUBTRACTION;
-            } else {
-                throw new ParsingException("operator expected instead of: " + scanner.getCurrentSymbol());
             }
-            expr = getOrCombineExpression(expr, parseMultiplicativeExpression(), operator);
+            if (operator != null) {
+                expr = getOrCombineExpression(expr, parseMultiplicativeExpression(), operator);
+            }
         }
         return expr;
     }
 
     private ASTExpression parseMultiplicativeExpression() throws IOException {
-        ASTExpression expr = parsePrimary();
+        ASTExpression expr = parsePreIncrementExpression();
         while (scanner.getCurrentSymbol() == ScannerSymbols.MULTIPLICATION_OPERATOR || scanner.getCurrentSymbol() == ScannerSymbols.DIVISION_OPERATOR) {
-            ASTOperator operator;
+            ASTOperator operator = null;
             if (checkOptionalAndProceed(ScannerSymbols.MULTIPLICATION_OPERATOR)) {
                 operator = ASTOperator.MULTIPLICATION;
             } else if (checkOptionalAndProceed(ScannerSymbols.DIVISION_OPERATOR)) {
                 operator = ASTOperator.DIVISION;
-            } else {
-                throw new ParsingException("operator expected instead of: " + scanner.getCurrentSymbol());
+            } else if (checkOptionalAndProceed(ScannerSymbols.MODULO_OPERATOR)) {
+                operator = ASTOperator.MODULO;
             }
-            expr = getOrCombineExpression(expr, parsePrimary(), operator);
+            if (operator != null) {
+                expr = getOrCombineExpression(expr, parsePreIncrementExpression(), operator);
+            }
+        }
+        return expr;
+    }
+
+    private ASTExpression parsePreIncrementExpression() throws IOException {
+        ASTExpression expr;
+        if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.PRE_INCREMENT);
+        } else if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.PRE_DECREMENT);
+        } else {
+            expr = parsePrefixExpression();
+        }
+        return expr;
+    }
+
+    private ASTExpression parsePrefixExpression() throws IOException {
+        ASTExpression expr;
+        if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_OPERATOR)) {
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.NEGATE);
+        } else if (checkOptionalAndProceed(ScannerSymbols.BITWISE_NEGATION_OPERATOR)) {
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.BITWISE_NEGATE);
+        } else {
+            expr = parsePrimary();
         }
         return expr;
     }
@@ -347,14 +422,14 @@ public class Parser {
     }
 
     private ASTExpression getOrCombineExpression(ASTExpression left, ASTExpression right, ASTOperator operator) {
-        ASTExpression expression = left;
+        ASTExpression expr = left;
         if (right != null) {
             ASTBinaryExpression binaryExpression = new ASTBinaryExpression(left);
             binaryExpression.setRight(right);
             binaryExpression.setOperator(operator);
-            expression = binaryExpression;
+            expr = binaryExpression;
         }
-        return expression;
+        return expr;
     }
 
     private boolean checkOptionalAndProceed(ScannerSymbols symbol) throws IOException {

@@ -8,16 +8,24 @@ public enum ScannerSymbols {
     UNKNOWN("unknown character"),
     EOI("end of input"),
 
-    PLUS_OPERATOR("Plus(+) symbol"),
-    MINUS_OPERATOR("Minus(-) symbol"),
+    ADDITION_OPERATOR("Plus(+) symbol"),
+    SUBTRACTION_OPERATOR("Minus(-) symbol"),
     DIVISION_OPERATOR("Division(/) symbol"),
     MULTIPLICATION_OPERATOR("Multiplication(*) symbol"),
+    MODULO_OPERATOR("Modulo(%) symbol"),
 
     COMMA("Comma(,) symbol"),
     SEMICOLON("Semi(;) colon symbol"),
     COLON("Colon(:) symbol"),
 
     ASSIGNMENT_OPERATOR("Assignment (=) symbol"),
+    ADDITION_ASSIGNMENT_OPERATOR("Addition assignment (+=) symbol"),
+    SUBTRACTION_ASSIGNMENT_OPERATOR("Subtraction assignment (-=) symbol"),
+    MULTIPLICATION_ASSIGNMENT_OPERATOR("Multiplication assignment (*=) symbol"),
+    DIVISION_ASSIGNMENT_OPERATOR("Division assignment (/=) symbol"),
+
+    INCREMENT_OPERATOR("Increment (++) symbol"),
+    DECREMENT_OPERATOR("Increment (++) symbol"),
 
     EQUALITY_OPERATOR("Equality(==) symbol"),
     INEQUALITY_OPERATOR("Inequality(!=) symbol"),
@@ -25,6 +33,13 @@ public enum ScannerSymbols {
     GREATER_OR_EQUAL_OPERATOR("Equal or greater (>=) symbol"),
     LESS_OPERATOR("Less(<) symbol"),
     LESS_OR_EQUAL_OPERATOR("Less or greater (<=) symbol"),
+
+    BITWISE_NEGATION_OPERATOR("Bitwise negation(!) symbol"),
+    BITWISE_OR_OPERATOR("Bitwise or (|) symbol"),
+    BITWISE_AND_OPERATOR("Bitwise and (&) symbol"),
+
+    CONDITIONAL_OR_OPERATOR("Conditional or (||) symbol"),
+    CONDITIONAL_AND_OPERATOR("Conditional and (&&) symbol"),
 
     BLOCK_START("Block start({) symbol"),
     BLOCK_END("Block end(}) symbol"),

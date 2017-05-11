@@ -153,8 +153,22 @@ Parser Rules
 <ReturnStatement>       ::= 'return' Expression SemiColon
 
 <Expression>           ::= AssignmentExpression
-<AssignmentExpression> ::= EqualityExpression [AssignmentOperator  EqualityExpression]
-<EqualityExpression>   ::= AdditiveExpression {(
+<AssignmentExpression> ::= ConditionalOrExpression [(
+                                                        AssignmentOperator |
+                                                        AdditionAssignmentOperator |
+                                                        SubtractionAssignmentOperator |
+                                                        MultiplicationAssignmentOperator |
+                                                        DivisionAssignmentOperator
+                                                    ) ConditionalOrExpression]
+<ConditionalOrExpression>
+                       ::= ConditionalAndExpression {ConditionalOrOperator ConditionalAndExpression}
+<ConditionalAndExpression>
+                       ::= BitwiseOrExpression {ConditionalAndOperator BitwiseOrExpression}
+<BitwiseOrExpression>
+                       ::= BitwiseAndExpression {BitwiseOrOperator BitwiseAndExpression}
+<BitwiseAndExpression>
+                       ::= ComparisonExpression {BitwiseAndOperator BitwiseAndExpression}
+<ComparisonExpression> ::= AdditiveExpression {(
                                                    EqualsOperator |
                                                    NotEqualsOperator |
                                                    GreaterOperator |
@@ -163,20 +177,36 @@ Parser Rules
                                                    LessOperator
                                                ) AdditiveExpression}
 <AdditiveExpression>   ::= MultiplicativeExpression {(
-                                                         PlusOperator |
-                                                         MinusOperator
+                                                         AdditionOperator |
+                                                         SubtractionOperator
                                                      ) MultiplicativeExpression}
 <MultiplicativeExpression>
-                       ::= Primary {(
+                       ::= PreIncrementExpression {(
                                         MultiplicationOperator |
-                                        DivisionOperator
-                                    ) Primary}
+                                        DivisionOperator |
+                                        ModuloOperator
+                                    ) PreIncrementExpression}
+<PreIncrementExpression>
+                     ::= [(
+                              IncrementOperator |
+                              DecrementOperator
+                           )] PrefixExpression
+<PrefixExpression>   ::= {(
+                              NegationOperator |
+                              AdditionOperator |
+                              SubtractionOperator
+                          )} Primary
 <Primary>              ::= (
                                Literal |
                                ParExpression |
-                               Variable |
+                               Variable [PostfixOperations] |
                                FunctionCall
                            )
+<PostfixOperations>    ::= (
+                               IncrementOperator |
+                               DecrementOperator
+                           )
+
 <ParExpression>        ::= ParStart Expression ParEnd
 <Variable>             ::= Identifier
 <FunctionCall>         ::= Identifier ParStart [Arguments] ParEnd
@@ -204,14 +234,36 @@ Scanner Rules:
 <MultiplicationOperator>
                        ::= '*'
 <DivisionOperator>     ::= '/'
+<ModuloOperator>       ::= '%'
 <EqualsOperator>       ::= '=' '='
 <NotEqualsOperator>    ::= '!' '='
+
 <GreaterOperator>      ::= '>
 <GreaterOrEqualOperator>
                        ::= '>' '='
 <LessOperator>         ::= '<'
 <LessOrEqualOperator>  ::= '<' '='
+
 <AssignmentOperator>   ::= '='
+<AdditionAssignmentOperator>
+                       ::= '+' '='
+<SubtractionAssignmentOperator>
+                       ::= '-' '='
+<MultiplicationAssignmentOperator>
+                       ::= '*' '='
+<DivisionAssignmentOperator>
+                       ::= '/' '='
+
+<IncrementOperator>    ::= '+' '+'
+<DecrementOperator>    ::= '-' '-'
+
+<NegationOperator>     ::= '!'
+<BitwiseOrOperator>    ::= '|'
+<BitwiseAndOperator>   ::= '&'
+<ConditionalOrOperator>::= '|' '|'
+<ConditionalAndOperator>
+                       ::= '&' '&'
+
 <BuiltInFunctionDeclarationOperator>
                        ::= '-' '>'
 
