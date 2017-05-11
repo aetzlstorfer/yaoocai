@@ -65,4 +65,10 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/bitwiseOperations-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_validAssignmentStatements_correctChanges() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/assignments-test.yaoocai");
+        vm.execute();
+    }
 }

@@ -150,6 +150,24 @@ public class Translator {
             emitExpression(expression.getRight());
             short variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName());
             writeOpCode(InstructionSet.OpCodes.STORE, variableIndex);
+        } else if (expression.getOperator() == ASTOperator.ADDITION_ASSIGNMENT ||
+                expression.getOperator() == ASTOperator.SUBTRACTION_ASSIGNMENT ||
+                expression.getOperator() == ASTOperator.MULTIPLICATION_ASSIGNMENT ||
+                expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT
+                ) {
+            ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getLeft();
+            emitVariable(variableExpression);
+            emitExpression(expression.getRight());
+            if (expression.getOperator() == ASTOperator.ADDITION_ASSIGNMENT) {
+                writeOpCode(InstructionSet.OpCodes.ADD);
+            } else if (expression.getOperator() == ASTOperator.SUBTRACTION_ASSIGNMENT) {
+                writeOpCode(InstructionSet.OpCodes.SUB);
+            } else if (expression.getOperator() == ASTOperator.MULTIPLICATION_ASSIGNMENT) {
+                writeOpCode(InstructionSet.OpCodes.MUL);
+            } else if (expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT) {
+                writeOpCode(InstructionSet.OpCodes.DIV);
+            }
+            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
         } else {
             emitExpression(expression.getLeft());
             if (expression.getRight() != null) {

@@ -1,0 +1,20 @@
+
+builtin function assertEquals(expected: integer, actual: integer) -> vmfunc(32003)
+
+function main() {
+  var a:integer = 1;
+  a += 1;
+  assertEquals(2, a);
+  a += 2;
+  assertEquals(4, a);
+  a += (2+2);
+  assertEquals(8, a);
+  a += a;
+  assertEquals(16, a);
+  a /= 2;
+  assertEquals(8, a);
+  a *= 4;
+  assertEquals(32, a);
+  a -= 31;
+  assertEquals(1, a);
+}
