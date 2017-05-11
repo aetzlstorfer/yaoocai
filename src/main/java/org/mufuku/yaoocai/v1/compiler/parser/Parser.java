@@ -327,7 +327,7 @@ public class Parser {
         ASTExpression expr;
         if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
             expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.PRE_INCREMENT);
-        } else if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
+        } else if (checkOptionalAndProceed(ScannerSymbols.DECREMENT_OPERATOR)) {
             expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.PRE_DECREMENT);
         } else {
             expr = parsePrefixExpression();

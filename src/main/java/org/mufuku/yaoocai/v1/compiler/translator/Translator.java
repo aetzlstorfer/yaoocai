@@ -139,6 +139,8 @@ public class Translator {
             emitVariable((ASTVariableExpression) expression);
         } else if (expression instanceof ASTBinaryExpression) {
             emitBinaryExpression((ASTBinaryExpression) expression);
+        } else if (expression instanceof ASTUnaryExpression) {
+            emitUnaryExpression((ASTUnaryExpression) expression);
         }
     }
 
@@ -175,12 +177,25 @@ public class Translator {
         }
     }
 
+    private void emitUnaryExpression(ASTUnaryExpression expression) throws IOException {
+        if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_INCREMENT || expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
+            ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getSubExpression();
+            emitVariable(variableExpression);
+            writeOpCode(InstructionSet.OpCodes.I_CONST, (short) 1);
+            if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_INCREMENT) {
+                writeOpCode(InstructionSet.OpCodes.ADD);
+            } else if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
+                writeOpCode(InstructionSet.OpCodes.SUB);
+            }
+            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+            emitVariable(variableExpression);
+        }
+    }
+
     private void emitLiteral(ASTLiteralExpression expression) throws IOException {
         if (expression.getValue() instanceof Boolean) {
             Boolean value = (Boolean) expression.getValue();
-            if (value == null) {
-                throw new IllegalStateException("Invalid boolean literal");
-            } else if (value) {
+            if (value) {
                 writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
             } else {
                 writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);

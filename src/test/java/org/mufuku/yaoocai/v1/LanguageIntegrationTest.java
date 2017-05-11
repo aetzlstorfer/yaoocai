@@ -52,4 +52,12 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/arithmeticExpression-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_validDeAndIncrementalExpressionStatements_correctReturnValues() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/incremental-test.yaoocai");
+        vm.execute();
+        vm = compileAndGetTestVM("/test-sources/decremental-test.yaoocai");
+        vm.execute();
+    }
 }
