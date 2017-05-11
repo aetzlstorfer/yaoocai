@@ -4,7 +4,6 @@ package org.mufuku.yaoocai.v1.compiler.ast;
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public enum ASTOperator {
-
     // comparison
     EQUAL,
     NOT_EQUAL,
@@ -27,13 +26,6 @@ public enum ASTOperator {
     DIVISION,
     MODULO,
 
-    // arithmetic unary
-    NEGATE,
-
-    // unary arithmetic
-    PRE_INCREMENT,
-    PRE_DECREMENT,
-
     // conditional
     CONDITIONAL_OR,
     CONDITIONAL_AND,
@@ -41,8 +33,4 @@ public enum ASTOperator {
     // bitwise
     BITWISE_OR,
     BITWISE_AND,
-
-    // bitwise unary
-    BITWISE_NEGATE
-
 }

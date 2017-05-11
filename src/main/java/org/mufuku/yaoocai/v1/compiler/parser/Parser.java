@@ -326,9 +326,9 @@ public class Parser {
     private ASTExpression parsePreIncrementExpression() throws IOException {
         ASTExpression expr;
         if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.PRE_INCREMENT);
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.PRE_INCREMENT);
         } else if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.PRE_DECREMENT);
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.PRE_DECREMENT);
         } else {
             expr = parsePrefixExpression();
         }
@@ -338,9 +338,9 @@ public class Parser {
     private ASTExpression parsePrefixExpression() throws IOException {
         ASTExpression expr;
         if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.NEGATE);
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.NEGATE);
         } else if (checkOptionalAndProceed(ScannerSymbols.BITWISE_NEGATION_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTOperator.BITWISE_NEGATE);
+            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.BITWISE_NEGATE);
         } else {
             expr = parsePrimary();
         }

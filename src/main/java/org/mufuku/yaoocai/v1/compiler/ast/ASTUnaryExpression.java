@@ -7,9 +7,9 @@ public class ASTUnaryExpression extends ASTExpression {
 
     private final ASTExpression subExpression;
 
-    private final ASTOperator unaryOperator;
+    private final ASTUnaryOperator unaryOperator;
 
-    public ASTUnaryExpression(ASTExpression subExpression, ASTOperator unaryOperator) {
+    public ASTUnaryExpression(ASTExpression subExpression, ASTUnaryOperator unaryOperator) {
         this.subExpression = subExpression;
         this.unaryOperator = unaryOperator;
     }
@@ -18,7 +18,7 @@ public class ASTUnaryExpression extends ASTExpression {
         return subExpression;
     }
 
-    public ASTOperator getUnaryOperator() {
+    public ASTUnaryOperator getUnaryOperator() {
         return unaryOperator;
     }
 }
