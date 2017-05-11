@@ -14,7 +14,7 @@ function testAsExpressionStatement() {
   --a;
   assertEquals(0, a);
   --a;
-  assertEquals(0-1, a);
+  assertEquals(-1, a);
 }
 
 function main() {

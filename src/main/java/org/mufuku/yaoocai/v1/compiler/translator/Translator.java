@@ -180,7 +180,8 @@ public class Translator {
     }
 
     private void emitUnaryExpression(ASTUnaryExpression expression) throws IOException {
-        if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_INCREMENT || expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
+        if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_INCREMENT ||
+                expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
             ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getSubExpression();
             emitVariable(variableExpression);
             writeOpCode(InstructionSet.OpCodes.I_CONST, (short) 1);
@@ -191,6 +192,9 @@ public class Translator {
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
             emitVariable(variableExpression);
+        } else if (expression.getUnaryOperator() == ASTUnaryOperator.NEGATE) {
+            emitExpression(expression.getSubExpression());
+            writeOpCode(InstructionSet.OpCodes.NEG);
         }
     }
 

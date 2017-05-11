@@ -33,6 +33,7 @@ public interface InstructionSet {
         MUL(0x0402, "mul", 0),
         DIV(0x0403, "div", 0),
         MOD(0x0404, "mod", 0),
+        NEG(0x0405, "neg", 0),
 
         // 5. compare operators
         CMP_LT(0x0500, "cmp_lt", 0),

@@ -151,6 +151,10 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Short val1 = (Short) stack.pop();
             stack.push((short) (val1 % val2));
             this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.NEG.code()) {
+            Short val = (Short) stack.pop();
+            stack.push((short) (-val));
+            this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.CMP_LT.code()) {
             Short val2 = (Short) stack.pop();
             Short val1 = (Short) stack.pop();
