@@ -236,7 +236,7 @@ public class Parser {
 
     private ASTExpression parseConditionalAndExpression() throws IOException {
         ASTExpression expr = parseBitwiseOrExpression();
-        if (checkOptionalAndProceed(ScannerSymbols.CONDITIONAL_AND_OPERATOR)) {
+        while (checkOptionalAndProceed(ScannerSymbols.CONDITIONAL_AND_OPERATOR)) {
             expr = getOrCombineExpression(expr, parseBitwiseOrExpression(), ASTOperator.CONDITIONAL_AND);
         }
         return expr;

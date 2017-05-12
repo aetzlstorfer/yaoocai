@@ -8,7 +8,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -168,6 +170,31 @@ public class Translator {
                 writeOpCode(InstructionSet.OpCodes.DIV);
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+        } else if (expression.getOperator() == ASTOperator.CONDITIONAL_OR) {
+            List<ASTExpression> conditionExpressions = new ArrayList<>();
+            flattenConditions(expression, conditionExpressions);
+
+            for (int i = 0; i < conditionExpressions.size(); i++) {
+                ASTExpression conditionExpression = conditionExpressions.get(i);
+
+                emitExpression(conditionExpression);
+                writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
+                writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
+
+                boolean notLast = i < conditionExpressions.size() - 1;
+                if (notLast) {
+                    short offSetEnd = 1;
+                    for (int j = i + 1; j < conditionExpressions.size(); j++) {
+                        short overhead = j < conditionExpressions.size() - 1 ? (short) 5 : (short) 6;
+                        offSetEnd += overhead + calculateExpressionSize(conditionExpressions.get(j));
+                    }
+                    writeOpCode(InstructionSet.OpCodes.GOTO, offSetEnd);
+                } else {
+                    writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
+                    writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
+                }
+            }
+
         } else {
             emitExpression(expression.getLeft());
             if (expression.getRight() != null) {
@@ -202,6 +229,19 @@ public class Translator {
                     throw new RuntimeException("invalid operator: " + expression.getOperator());
                 }
             }
+        }
+    }
+
+    private void flattenConditions(ASTBinaryExpression expression, List<ASTExpression> expressions) {
+        if (expression.getLeft() instanceof ASTBinaryExpression &&
+                ((ASTBinaryExpression) expression.getLeft()).getOperator() == ASTOperator.CONDITIONAL_OR
+                ) {
+            // go down tree on each left node which is a conditional or
+            flattenConditions((ASTBinaryExpression) expression.getLeft(), expressions);
+            expressions.add(expression.getRight());
+        } else {
+            expressions.add(expression.getLeft());
+            expressions.add(expression.getRight());
         }
     }
 
@@ -262,6 +302,15 @@ public class Translator {
         } else if (functionIndex != null) {
             writeOpCode(InstructionSet.OpCodes.INVOKE, functionIndex);
         }
+    }
+
+    private short calculateExpressionSize(ASTExpression expression) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Translator temp = new Translator(script, out);
+        temp.currentLocalVariableStorage = this.currentLocalVariableStorage;
+        temp.functionStorage = this.functionStorage;
+        temp.emitExpression(expression);
+        return (short) (out.size() / 2); //2bytes -> 1 short
     }
 
     private short calculateInstructionSize(ASTBlock block) throws IOException {

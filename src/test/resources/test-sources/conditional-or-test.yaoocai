@@ -1,0 +1,127 @@
+
+builtin function assertTrue(condition: boolean)      -> vmfunc(32004)
+
+function testFourConditionsFirstTrue() {
+  var a:integer = 2;
+  var b:boolean = false;
+  var c:integer = 33;
+  var d:boolean = false;
+  var e:boolean = a == 2 || b || 34 < c || d;
+  assertTrue(e);
+}
+
+function testFourConditionsSecondTrue() {
+  var a:integer = 1;
+  var b:boolean = true;
+  var c:integer = 33;
+  var d:boolean = false;
+  var e:boolean = a == 2 || b || 34 < c || d;
+  assertTrue(e);
+}
+
+function testFourConditionsThirdTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:integer = 35;
+  var d:boolean = false;
+  var e:boolean = a == 2 || b || 34 < c || d;
+  assertTrue(e);
+}
+
+function testFourConditionsLastTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:integer = 33;
+  var d:boolean = true;
+  var e:boolean = a == 2 || b || 34 < c || d;
+  assertTrue(e);
+}
+
+function testFourConditionsNoneTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:integer = 33;
+  var d:boolean = true;
+  var e:boolean = a == 2 || b || 34 < c || !d;
+  assertFalse(e);
+}
+
+function testThreeConditionsFirstTrue() {
+  var a:integer = 2;
+  var b:boolean = false;
+  var c:integer = 35;
+  var d:boolean = a == 2 || b || 34 > c;
+  assertTrue(d);
+}
+
+function testThreeConditionsSecondTrue() {
+  var a:integer = 1;
+  var b:boolean = true;
+  var c:integer = 35;
+  var d:boolean = a == 2 || b || 34 > c;
+  assertTrue(d);
+}
+
+function testThreeConditionsLastTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:integer = 33;
+  var d:boolean = a == 2 || b || 34 > c;
+  assertTrue(d);
+}
+
+function testThreeConditionsNoneTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:integer = 35;
+  var d:boolean = a == 2 || b || 34 > c;
+  assertFalse(d);
+}
+
+function testTwoConditionsFirstTrue() {
+  var a:integer = 2;
+  var b:boolean = false;
+  var c:boolean = a == 2 || b;
+  assertTrue(c);
+}
+
+function testTwoConditionsLastTrue() {
+  var a:integer = 1;
+  var b:boolean = true;
+  var c:boolean = a == 2 || b;
+  assertTrue(c);
+}
+
+function testTwoConditionsNoneTrue() {
+  var a:integer = 1;
+  var b:boolean = false;
+  var c:boolean = a == 2 || b;
+  assertFalse(c);
+}
+
+function testOneCondition() {
+  var a:integer = 1;
+  var c:boolean = a == 1;
+  assertTrue(c);
+  c = a != 1;
+  assertFalse(c);
+}
+
+function main() {
+  testFourConditionsFirstTrue();
+  testFourConditionsSecondTrue();
+  testFourConditionsThirdTrue();
+  testFourConditionsLastTrue();
+  testFourConditionsNoneTrue();
+
+  testThreeConditionsLastTrue();
+  testThreeConditionsSecondTrue();
+  testThreeConditionsFirstTrue();
+  testThreeConditionsNoneTrue();
+
+  testTwoConditionsFirstTrue();
+  testTwoConditionsLastTrue();
+  testTwoConditionsNoneTrue();
+
+  testOneCondition();
+}
