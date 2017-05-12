@@ -5,6 +5,7 @@ import org.mufuku.yaoocai.v1.compiler.YAOOCAI_Compiler;
 import org.mufuku.yaoocai.v1.vm.BuiltInVMFunction;
 import org.mufuku.yaoocai.v1.vm.VirtualMachine;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
+import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -61,6 +62,7 @@ public abstract class BaseLangTest {
         }
 
         Map<Short, BuiltInVMFunction> testBuiltIns = new HashMap<>();
+        testBuiltIns.putAll(DefaultBuiltIns.getBuiltIns());
         testBuiltIns.put((short) 32000, inputFunction);
         testBuiltIns.put((short) 32001, outputFunction);
         testBuiltIns.put((short) 32002, fail);

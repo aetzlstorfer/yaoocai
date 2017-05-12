@@ -14,8 +14,7 @@ public class DefaultBuiltIns {
     private static final Map<Short, BuiltInVMFunction> builtIns = new HashMap<>();
 
     static {
-        builtIns.put((short) 0, new Exit());
-        builtIns.put((short) 1, new PrintInteger());
+        builtIns.put((short) 0, new PrintInteger());
     }
 
     public static Map<Short, BuiltInVMFunction> getBuiltIns() {
