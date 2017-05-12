@@ -14,4 +14,9 @@ public class ASTVariableExpression extends ASTExpression {
     public String getVariableName() {
         return variableName;
     }
+
+    @Override
+    public String toString() {
+        return "<Variable>: " + variableName;
+    }
 }

@@ -14,4 +14,9 @@ public class ASTLiteralExpression<T> extends ASTExpression {
     public T getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "<Literal>: " + value;
+    }
 }
