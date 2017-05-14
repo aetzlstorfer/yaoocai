@@ -22,18 +22,17 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
     public void convert() throws IOException {
         readHeader();
         int functionIndex = 0;
-        short currentOpCode = getNext();
-        while (in.available() > 0 && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
+        Short currentOpCode = getNext();
+        while (in.available() > 0 && currentOpCode != null && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
             System.out.println("Function: #" + functionIndex + (mainFunctionIndex == functionIndex ? " (main)" : ""));
             currentOpCode = getNext();
-            while (currentOpCode != InstructionSet.OpCodes.FUNCTION.code() && currentOpCode != -1) {
+            while (currentOpCode != null && currentOpCode != InstructionSet.OpCodes.FUNCTION.code()) {
                 checkOpCode(currentOpCode);
                 currentOpCode = getNext();
             }
             functionIndex++;
         }
     }
-
 
 
     private void checkOpCode(short currentOpCode) throws IOException {
@@ -46,7 +45,12 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
                     if (i > 0) {
                         out.print(", ");
                     }
-                    out.print(toHex(in.readShort()));
+                    short opCodeOtherByte = in.readShort();
+                    if (opCode.isAddressOpCode()) {
+                        out.print(toAddress(opCodeOtherByte));
+                    } else {
+                        out.print(toHex(opCodeOtherByte));
+                    }
                 }
                 out.print("]");
             }
@@ -54,9 +58,15 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
         }
     }
 
-
-
     private String toHex(short opCode) {
         return String.format("0x%04x", (int) opCode);
+    }
+
+    private String toAddress(short address) {
+        if (address >= 0) {
+            return "+" + address;
+        } else {
+            return Short.toString(address);
+        }
     }
 }

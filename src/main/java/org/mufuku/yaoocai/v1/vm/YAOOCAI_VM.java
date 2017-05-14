@@ -20,14 +20,11 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     private final Stack<Object> stack = new Stack<>();
     private final Stack<LocalVariableStack> localVariableStack = new Stack<>();
     private final Stack<Integer> callStack = new Stack<>();
-
+    private final List<Integer> functionPointer = new ArrayList<>();
+    private final Map<Short, BuiltInVMFunction> builtIns;
     private short[] code;
     private int codePointer = 0;
-
-    private final List<Integer> functionPointer = new ArrayList<>();
     private boolean execution = true;
-
-    private final Map<Short, BuiltInVMFunction> builtIns;
 
     public YAOOCAI_VM(InputStream in) {
         this(in, DefaultBuiltIns.getBuiltIns());
@@ -47,11 +44,11 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     private void readCode() throws IOException {
         this.code = new short[in.available() / 2];
         this.codePointer = 0;
-        short currentOpCode = storeAndGetNext();
-        while (in.available() > 0 && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
+        Short currentOpCode = storeAndGetNext();
+        while (currentOpCode != null && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
             functionPointer.add(this.codePointer - 1);
             currentOpCode = storeAndGetNext();
-            while (currentOpCode != InstructionSet.OpCodes.FUNCTION.code() && currentOpCode != -1) {
+            while (currentOpCode != null && currentOpCode != InstructionSet.OpCodes.FUNCTION.code()) {
                 consumeOpCode(currentOpCode);
                 currentOpCode = storeAndGetNext();
             }
@@ -59,9 +56,9 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         this.codePointer = 0;
     }
 
-    protected short storeAndGetNext() throws IOException {
-        short currentCode = super.getNext();
-        if (currentCode >= 0) {
+    protected Short storeAndGetNext() throws IOException {
+        Short currentCode = super.getNext();
+        if (currentCode != null) {
             this.code[this.codePointer++] = currentCode;
         }
         return currentCode;
