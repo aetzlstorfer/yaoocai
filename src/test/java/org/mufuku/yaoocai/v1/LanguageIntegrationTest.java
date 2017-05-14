@@ -77,4 +77,23 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/conditional-or-test.yaoocai");
         vm.execute();
     }
+
+
+    @Test
+    public void test_codeWithValidComments_normalRun() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-01-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_codeWithInvalidComments1_exception() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-02-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_codeWithInvalidComments2_exception() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-03-test.yaoocai");
+        vm.execute();
+    }
 }

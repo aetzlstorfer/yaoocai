@@ -1,0 +1,27 @@
+
+
+// built in functions
+builtin function fail()                     -> vmfunc(32002)
+
+// this is a test, outside of a function
+/* this is a test, outside of a function */
+
+/*
+ this is a test,
+ outside of a function
+ // blah
+*/
+
+function main() {
+  // variables
+  var a:integer = 5;
+  /* code */
+  if(a > 1) {
+    /*
+     do
+     nothing
+    */
+  } else {
+    fail();
+  }
+}
