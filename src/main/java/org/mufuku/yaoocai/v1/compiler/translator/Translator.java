@@ -91,6 +91,8 @@ public class Translator {
                 emitIfStatement((ASTIfStatement) statement);
             } else if (statement instanceof ASTExpressionStatement) {
                 emitExpressionStatement((ASTExpressionStatement) statement);
+            } else if (statement instanceof ASTWhileStatement) {
+                emitWhileStatement((ASTWhileStatement) statement);
             } else {
                 throw new ParsingException("Unsupported block type " + block.getClass());
             }
@@ -99,6 +101,17 @@ public class Translator {
 
     private void emitExpressionStatement(ASTExpressionStatement statement) throws IOException {
         emitExpression(statement.getExpression());
+    }
+
+    private void emitWhileStatement(ASTWhileStatement statement) throws IOException {
+        // +3 = +1(if) +1(if address) +1 to be ahead of last instruction
+        short blockSize = (short) ((short) 3 + calculateInstructionSize(statement.getBlock()));
+        // jump back = negative size for block + condition
+        short jumpBackSize = (short) (-calculateExpressionSize(statement.getConditionExpression()) - blockSize);
+        emitExpression(statement.getConditionExpression());
+        writeOpCode(InstructionSet.OpCodes.IF, blockSize);
+        emitCode(statement.getBlock());
+        writeOpCode(InstructionSet.OpCodes.GOTO, jumpBackSize);
     }
 
     private void emitIfStatement(ASTIfStatement statement) throws IOException {
@@ -212,6 +225,15 @@ public class Translator {
         } else if (functionIndex != null) {
             writeOpCode(InstructionSet.OpCodes.INVOKE, functionIndex);
         }
+    }
+
+    private short calculateExpressionSize(ASTExpression expression) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Translator temp = new Translator(script, out);
+        temp.currentLocalVariableStorage = this.currentLocalVariableStorage;
+        temp.functionStorage = this.functionStorage;
+        temp.emitExpression(expression);
+        return (short) (out.size() / 2); //2bytes -> 1 short
     }
 
     private short calculateInstructionSize(ASTBlock block) throws IOException {

@@ -13,4 +13,12 @@ public class ASTWhileStatement extends ASTStatement {
         this.conditionExpression = conditionExpression;
         this.block = block;
     }
+
+    public ASTExpression getConditionExpression() {
+        return conditionExpression;
+    }
+
+    public ASTBlock getBlock() {
+        return block;
+    }
 }
