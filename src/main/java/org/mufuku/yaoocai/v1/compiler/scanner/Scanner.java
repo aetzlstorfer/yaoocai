@@ -16,6 +16,7 @@ public class Scanner {
     private String currentIdentifier;
     private String currentString;
     private short currentNumber;
+    private boolean comment;
 
     public Scanner(InputStream in) throws IOException {
         this.reader = new BufferedReader(new InputStreamReader(in));
@@ -33,6 +34,14 @@ public class Scanner {
     }
 
     public void moveToNextSymbol() throws IOException {
+        do {
+            comment = false;
+            moveToNextSymbol0();
+        } while (comment);
+    }
+
+    private void moveToNextSymbol0() throws IOException {
+
         while (Character.isWhitespace(currentCharacter)) {
             nextChar();
         }
@@ -50,8 +59,34 @@ public class Scanner {
                 nextChar();
             }
         } else if (currentCharacter == '/') {
-            currentSymbol = ScannerSymbols.DIVISION_OPERATOR;
             nextChar();
+            if (currentCharacter == '*') { // block comment
+                nextChar();
+                while (currentCharacter != '*' && currentCharacter != 0) {
+                    nextChar();
+                }
+                if (currentCharacter == 0) {
+                    throw new ParsingException("Comment should be closed with a asterisk and slash (*/)");
+                }
+                nextChar();
+                if (currentCharacter != '/') {
+                    throw new ParsingException("Comment should be closed with a slash (/)");
+                }
+                nextChar();
+                comment = true;
+            } else if (currentCharacter == '/') { // line comment
+                nextChar();
+                while (currentCharacter != '\n' && currentCharacter != 0) {
+                    nextChar();
+                }
+                if (currentCharacter == 0) {
+                    currentSymbol = ScannerSymbols.EOI;
+                    return;
+                }
+                comment = true;
+            } else {
+                currentSymbol = ScannerSymbols.DIVISION_OPERATOR;
+            }
         } else if (currentCharacter == '*') {
             currentSymbol = ScannerSymbols.MULTIPLICATION_OPERATOR;
             nextChar();
