@@ -44,8 +44,8 @@ public interface InstructionSet {
         CMP_NE(0x0505, "cmp_ne", 0),
 
         // 6. control structure
-        IF(0x0600, "if", 1),
-        GOTO(0x0601, "goto", 1),
+        IF(0x0600, "if", 1, true),
+        GOTO(0x0601, "goto", 1, true),
         RETURN(0x0602, "return", 0),
         POP_PARAMS(0x0603, "pop_params", 1),
 
@@ -55,14 +55,21 @@ public interface InstructionSet {
         NOT(0x0702, "not", 0);
 
         private static final Map<Short, OpCodes> mapping = new HashMap<>();
+
         protected final short code;
         protected final String disassembleCode;
         protected final int opCodeParam;
+        protected final boolean addressOpCode;
 
         OpCodes(int code, String disassembleCode, int opCodeParam) {
+            this(code, disassembleCode, opCodeParam, false);
+        }
+
+        OpCodes(int code, String disassembleCode, int opCodeParam, boolean addressOpCode) {
             this.code = (short) code;
             this.disassembleCode = disassembleCode;
             this.opCodeParam = opCodeParam;
+            this.addressOpCode = addressOpCode;
         }
 
         public static OpCodes get(short opCode) {
@@ -84,6 +91,10 @@ public interface InstructionSet {
 
         public int opCodeParam() {
             return opCodeParam;
+        }
+
+        public boolean isAddressOpCode() {
+            return addressOpCode;
         }
     }
 }

@@ -41,11 +41,11 @@ public abstract class BasicByteCodeConsumer {
         }
     }
 
-    protected short getNext() throws IOException {
+    protected Short getNext() throws IOException {
         if (in.available() > 0) {
             return in.readShort();
         } else {
-            return -1;
+            return null;
         }
     }
 

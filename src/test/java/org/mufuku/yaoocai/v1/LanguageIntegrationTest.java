@@ -96,4 +96,10 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-03-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_codeWithWhile_normalRun() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/while-test.yaoocai");
+        vm.execute();
+    }
 }
