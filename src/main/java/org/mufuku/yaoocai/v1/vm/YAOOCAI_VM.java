@@ -90,10 +90,10 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             stack.push(code[codePointer]);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.B_CONST_FALSE.code()) {
-            stack.push(true);
+            stack.push(false);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.B_CONST_TRUE.code()) {
-            stack.push(false);
+            stack.push(true);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.STORE.code()) {
             this.codePointer++;
