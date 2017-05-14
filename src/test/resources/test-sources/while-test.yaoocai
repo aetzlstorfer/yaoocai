@@ -1,0 +1,58 @@
+
+builtin function printInteger(value:integer) -> vmfunc(1)
+builtin function fail() -> vmfunc(32002)
+builtin function assertEquals(expected:integer, actual:integer) -> vmfunc(32003)
+
+function endlessLoopTest(): integer {
+  var count:integer = 0;
+  while(true) {
+    count = count + 1;
+    if(count > 1000) {
+      return count;
+    }
+  }
+  fail();
+}
+
+function simpleLoopTest() {
+  var count: integer = 0;
+  var sum: integer = 0;
+  while(count < 5) {
+    count = count + 1;
+    sum = sum + count;
+  }
+  assertEquals(5, count);
+  assertEquals(15, sum);
+}
+
+// try nested whiles
+function nestedLoopsTest() {
+  var i: integer = 0;
+  var j: integer = 0;
+  var sum: integer = 0;
+
+  while(i < 10) {
+    while(j < 10) {
+      if(i < j) {
+        sum = sum + j;
+      }
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  assertEquals(45, sum);
+}
+
+function emptyWhile() {
+  while(false) {
+  }
+}
+
+function main() {
+  var count:integer = endlessLoopTest();
+  assertEquals(1001, count);
+
+  simpleLoopTest();
+  nestedLoopsTest();
+  emptyWhile();
+}
