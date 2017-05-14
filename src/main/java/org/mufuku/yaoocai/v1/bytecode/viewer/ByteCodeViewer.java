@@ -13,6 +13,7 @@ import java.io.PrintStream;
 public class ByteCodeViewer extends BasicByteCodeConsumer {
 
     private final PrintStream out;
+    private int instructionIndex = 0;
 
     public ByteCodeViewer(InputStream in, short expectedMajorVersion, short expectedMinorVersion, PrintStream out) {
         super(in, expectedMajorVersion, expectedMinorVersion);
@@ -20,6 +21,7 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
     }
 
     public void convert() throws IOException {
+        this.instructionIndex = 0;
         readHeader();
         int functionIndex = 0;
         Short currentOpCode = getNext();
@@ -38,7 +40,9 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
     private void checkOpCode(short currentOpCode) throws IOException {
         InstructionSet.OpCodes opCode = InstructionSet.OpCodes.get(currentOpCode);
         if (opCode != null) {
-            out.print("  " + opCode.disassembleCode());
+            out.print("  ");
+            out.print(this.instructionIndex++);
+            out.print(": " + opCode.disassembleCode());
             if (opCode.opCodeParam() > 0) {
                 out.print(" [");
                 for (int i = 0; i < opCode.opCodeParam(); i++) {
@@ -51,6 +55,7 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
                     } else {
                         out.print(toHex(opCodeOtherByte));
                     }
+                    this.instructionIndex++;
                 }
                 out.print("]");
             }
