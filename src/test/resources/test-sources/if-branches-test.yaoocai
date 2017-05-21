@@ -1,0 +1,22 @@
+builtin function testInput(): integer       -> vmfunc(32000)
+builtin function testOutput(value: integer) -> vmfunc(32001)
+builtin function fail()                     -> vmfunc(32002)
+
+function main() {
+  var input:integer = testInput();
+
+  if(input < 5) {
+    testOutput(0);
+  } else {
+    fail();
+  }
+  if(input > 5) {
+    fail();
+  } else {
+    testOutput(0);
+  }
+
+  if(false) {
+    fail();
+  }
+}

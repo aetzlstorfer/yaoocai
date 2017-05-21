@@ -1,34 +1,36 @@
 package org.mufuku.yaoocai.v1.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTIfStatement extends ASTStatement {
+public class ASTIfStatement extends ASTBaseIfStatement {
 
-    private final ASTExpression conditionExpression;
+    private List<ASTBaseIfStatement> elseIfStatements = new ArrayList<>();
 
-    private final ASTBlock block;
-
-    private ASTBlock elseBlock;
+    private ASTBaseIfStatement elseBlockStatement;
 
     public ASTIfStatement(ASTExpression conditionExpression, ASTBlock block) {
-        this.conditionExpression = conditionExpression;
-        this.block = block;
+        super(conditionExpression, block);
     }
 
-    public ASTExpression getConditionExpression() {
-        return conditionExpression;
+    public void setElseBlockStatement(ASTBaseIfStatement elseBlockStatement) {
+        this.elseBlockStatement = elseBlockStatement;
     }
 
-    public ASTBlock getBlock() {
-        return block;
+    public void addElseIfBllock(ASTBaseIfStatement elseIfStatement) {
+        elseIfStatements.add(elseIfStatement);
     }
 
-    public ASTBlock getElseBlock() {
-        return elseBlock;
-    }
-
-    public void setElseBlock(ASTBlock elseBlock) {
-        this.elseBlock = elseBlock;
+    public List<ASTBaseIfStatement> getStatements() {
+        List<ASTBaseIfStatement> statements = new ArrayList<>();
+        statements.add(this);
+        statements.addAll(elseIfStatements);
+        if (elseBlockStatement != null) {
+            statements.add(elseBlockStatement);
+        }
+        return statements;
     }
 }

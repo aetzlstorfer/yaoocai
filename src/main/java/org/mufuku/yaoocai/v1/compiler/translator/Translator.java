@@ -117,18 +117,58 @@ public class Translator {
     }
 
     private void emitIfStatement(ASTIfStatement statement) throws IOException {
-        emitExpression(statement.getConditionExpression());
+        List<ASTBaseIfStatement> ifStatements = statement.getStatements();
 
-        int ifBlockSize = calculateInstructionSize(statement.getBlock());
-        int elseJumpSize = ifBlockSize + 1 + (statement.getElseBlock() != null ? 2 : 0);
-        writeOpCode(InstructionSet.OpCodes.IF, (short) elseJumpSize);
-        emitCode(statement.getBlock());
+        List<Short> blockSizes = new ArrayList<>();
+        List<Short> ifExpressionSizes = new ArrayList<>();
 
-        if (statement.getElseBlock() != null) {
-            int elseBlockSize = calculateInstructionSize(statement.getElseBlock());
-            int jumpToEndSize = elseBlockSize + 1;
-            writeOpCode(InstructionSet.OpCodes.GOTO, (short) jumpToEndSize);
-            emitCode(statement.getElseBlock());
+        for (int i = 0; i < ifStatements.size(); i++) {
+            ASTBaseIfStatement ifStatement = ifStatements.get(i);
+
+            boolean last = i < ifStatements.size() - 1;
+
+            short blockSize = 0;
+            if (last) { // when last
+                blockSize += 2;
+            }
+            blockSize += calculateInstructionSize(ifStatement.getBlock());
+            blockSizes.add(blockSize);
+
+            short expressionSize = 0;
+            if (last) {
+                expressionSize += 2;
+            }
+            if (ifStatement.getConditionExpression() != null) {
+                expressionSize += calculateExpressionSize(ifStatement.getConditionExpression());
+            }
+            ifExpressionSizes.add(expressionSize);
+        }
+
+        for (int i = 0; i < ifStatements.size(); i++) {
+            ASTBaseIfStatement ifStatement = ifStatements.get(i);
+
+            if (ifStatement.getConditionExpression() != null) {
+                emitExpression(ifStatement.getConditionExpression());
+
+                short jumpSize = 1;
+                jumpSize += blockSizes.get(i);
+                writeOpCode(InstructionSet.OpCodes.IF, jumpSize);
+
+                emitCode(ifStatement.getBlock());
+
+                short endJumpSize = 1;
+                for (int j = i + 1; j < ifStatements.size(); j++) {
+                    endJumpSize += blockSizes.get(j);
+                    endJumpSize += ifExpressionSizes.get(j);
+                }
+
+                if (endJumpSize > 1) {
+                    writeOpCode(InstructionSet.OpCodes.GOTO, endJumpSize);
+                }
+            } else { // write else block
+                emitCode(ifStatement.getBlock());
+            }
+
         }
     }
 
