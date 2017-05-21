@@ -148,9 +148,11 @@ Parser Rules
                            )
 <ExpressionStatement>  ::= Expression SemiColon
 
-<IfStatement>          ::= 'if' ParExpression Block ['else' Block]
+<IfStatement>          ::= 'if' ParExpression Block {ElseIfBlock} [ElseBlock]
+<ElseIfBlock>          ::= 'else' 'if' ParExpression Block
+<ElseBlock>            ::= 'else' Block
 <WhileStatement>       ::= 'while' ParExpression Block
-<ReturnStatement>       ::= 'return' Expression SemiColon
+<ReturnStatement>      ::= 'return' Expression SemiColon
 
 <Expression>           ::= AssignmentExpression
 <AssignmentExpression> ::= EqualityExpression [AssignmentOperator  EqualityExpression]

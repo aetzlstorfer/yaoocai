@@ -15,4 +15,8 @@ function main() {
   } else {
     testOutput(0);
   }
+
+  if(false) {
+    fail();
+  }
 }

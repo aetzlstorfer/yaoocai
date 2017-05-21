@@ -75,4 +75,10 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/while-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_codeWithElseIfBranches_normalRun() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/if-elseif-test.yaoocai");
+        vm.execute();
+    }
 }

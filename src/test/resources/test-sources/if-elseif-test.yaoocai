@@ -1,0 +1,94 @@
+
+builtin function fail()                                         -> vmfunc(32002)
+builtin function assertEquals(expected:integer, actual:integer) -> vmfunc(32003)
+
+function test1() {
+  var a:boolean = true;
+  var b:boolean = true;
+  var c:boolean = true;
+  var value:integer;
+  if(a) {
+    value = 1;
+  } else if(b) {
+    fail();
+  } else if(c) {
+    fail();
+  } else {
+    fail();
+  }
+  assertEquals(1, value);
+}
+
+function test2() {
+  var a:boolean = false;
+  var b:boolean = true;
+  var c:boolean = true;
+  var value:integer;
+  if(a) {
+    fail();
+  } else if(b) {
+    value = 2;
+  } else if(c) {
+    fail();
+  } else {
+    fail();
+  }
+  assertEquals(2, value);
+}
+
+function test3() {
+  var a:boolean = false;
+  var b:boolean = false;
+  var c:boolean = true;
+  var value:integer;
+  if(a) {
+    fail();
+  } else if(b) {
+    fail();
+  } else if(c) {
+    value = 3;
+  } else {
+    fail();
+  }
+  assertEquals(3, value);
+}
+
+function test4() {
+  var a:boolean = false;
+  var b:boolean = false;
+  var c:boolean = false;
+  var value:integer;
+  if(a) {
+    fail();
+  } else if(b) {
+    fail();
+  } else if(c) {
+    fail();
+  } else {
+    value = 4;
+  }
+  assertEquals(4, value);
+}
+
+function test5() {
+  var a:boolean = false;
+  var b:boolean = false;
+  var c:boolean = false;
+  var value:integer = 5;
+  if(a) {
+    value = 1;
+  } else if(b) {
+    value = 2;
+  } else if(c) {
+    value = 3;
+  }
+  assertEquals(5, value);
+}
+
+function main() {
+  test1();
+  test2();
+  test3();
+  test4();
+  test5();
+}
