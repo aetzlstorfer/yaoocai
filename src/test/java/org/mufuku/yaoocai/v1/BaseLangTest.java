@@ -1,6 +1,7 @@
 package org.mufuku.yaoocai.v1;
 
 import org.junit.Assert;
+import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.YAOOCAI_Compiler;
 import org.mufuku.yaoocai.v1.vm.BuiltInVMFunction;
 import org.mufuku.yaoocai.v1.vm.VirtualMachine;
@@ -85,6 +86,11 @@ public abstract class BaseLangTest {
         testBuiltIns.put((short) 32003, equals);
 
         ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+
+        ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, (short) 1, (short) 0, System.out);
+        byteCodeViewer.convert();
+
+        byteIn.reset();
         this.lastFile = source;
         return new YAOOCAI_VM(byteIn, testBuiltIns);
     }

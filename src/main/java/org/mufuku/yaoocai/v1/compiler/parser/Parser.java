@@ -159,18 +159,23 @@ public class Parser {
         checkAndProceed(ScannerSymbols.IF);
         ASTExpression expression = parseParExpression();
         ASTBlock block = parseBlock();
-        ASTBlock elseBlock = null;
-        if (scanner.getCurrentSymbol() == ScannerSymbols.ELSE) {
-            elseBlock = parseElseStatement();
-        }
-        ASTIfStatement ifStatement = new ASTIfStatement(expression, block);
-        ifStatement.setElseBlock(elseBlock);
-        return ifStatement;
-    }
 
-    private ASTBlock parseElseStatement() throws IOException {
-        checkAndProceed(ScannerSymbols.ELSE);
-        return parseBlock();
+        ASTIfStatement ifStatement = new ASTIfStatement(expression, block);
+
+        while (checkOptionalAndProceed(ScannerSymbols.ELSE)) {
+            if (checkOptionalAndProceed(ScannerSymbols.IF)) {
+                ASTExpression elseIfConditionExpression = parseParExpression();
+                ASTBlock elseIfBlock = parseBlock();
+
+                ASTBaseIfStatement elseIfStatement = new ASTBaseIfStatement(elseIfConditionExpression, elseIfBlock);
+                ifStatement.addElseIfBllock(elseIfStatement);
+            } else {
+                ASTBlock elseBlock = parseBlock();
+                ASTBaseIfStatement elseStatement = new ASTBaseIfStatement(null, elseBlock);
+                ifStatement.setElseBlockStatement(elseStatement);
+            }
+        }
+        return ifStatement;
     }
 
     private ASTWhileStatement parseWhileStatement() throws IOException {
