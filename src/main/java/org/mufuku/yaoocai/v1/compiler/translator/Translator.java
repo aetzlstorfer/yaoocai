@@ -1,11 +1,11 @@
 package org.mufuku.yaoocai.v1.compiler.translator;
 
+import org.mufuku.yaoocai.v1.bytecode.BasicByteCodeProducer;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.compiler.ast.*;
-import sun.security.pkcs.ParsingException;
+import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -15,22 +15,22 @@ import java.util.List;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class Translator {
+public class Translator extends BasicByteCodeProducer {
 
     private final ASTScript script;
-    private final DataOutputStream out;
 
     private LocalVariableStorage currentLocalVariableStorage;
     private FunctionStorage functionStorage = new FunctionStorage();
 
     public Translator(ASTScript script, OutputStream out) {
+        super(out);
         this.script = script;
-        this.out = new DataOutputStream(out);
     }
 
     public void translate() throws IOException {
         preFillStorage();
-        emitHeader();
+        Short mainIndex = functionStorage.getFunctionIndex("main");
+        emitHeader(script.getMajorVersion(), script.getMinorVersion(), mainIndex);
         emitBody();
     }
 
@@ -43,14 +43,6 @@ public class Translator {
         while (builtinFunctionsIt.hasNext()) {
             functionStorage.addBuiltinFunction(builtinFunctionsIt.next());
         }
-    }
-
-    private void emitHeader() throws IOException {
-        writeString(InstructionSet.PREAMBLE);
-        out.writeShort(script.getMajorVersion());
-        out.writeShort(script.getMinorVersion());
-        Short mainFunctionIndex = functionStorage.getFunctionIndex("main");
-        out.writeShort(mainFunctionIndex);
     }
 
     private void emitBody() throws IOException {
@@ -380,19 +372,5 @@ public class Translator {
         writeOpCode(InstructionSet.OpCodes.LOAD, variableIndex);
     }
 
-    private void writeOpCode(InstructionSet.OpCodes opCode, short... params) throws IOException {
-        out.writeShort(opCode.code());
-        if (opCode.opCodeParam() != params.length) {
-            throw new IllegalStateException("Invalid number of params");
-        }
-        for (short param : params) {
-            out.writeShort(param);
-        }
-    }
 
-    private void writeString(String value) throws IOException {
-        for (char ch : value.toCharArray()) {
-            out.writeChar(ch);
-        }
-    }
 }

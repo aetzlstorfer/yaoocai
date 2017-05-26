@@ -26,7 +26,7 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
         int functionIndex = 0;
         Short currentOpCode = getNext();
         while (in.available() > 0 && currentOpCode != null && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
-            System.out.println("Function: #" + functionIndex + (mainFunctionIndex == functionIndex ? " (main)" : ""));
+            out.println("Function: #" + functionIndex + (mainFunctionIndex == functionIndex ? " (main)" : ""));
             currentOpCode = getNext();
             while (currentOpCode != null && currentOpCode != InstructionSet.OpCodes.FUNCTION.code()) {
                 checkOpCode(currentOpCode);

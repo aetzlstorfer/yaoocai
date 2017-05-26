@@ -55,6 +55,7 @@ public interface InstructionSet {
         NOT(0x0702, "not", 0);
 
         private static final Map<Short, OpCodes> mapping = new HashMap<>();
+        private static final Map<String, OpCodes> mnemonic_mapping = new HashMap<>();
 
         protected final short code;
         protected final String disassembleCode;
@@ -79,6 +80,15 @@ public interface InstructionSet {
                 }
             }
             return mapping.get(opCode);
+        }
+
+        public static OpCodes getByMnemonic(String mnemonic) {
+            if (mnemonic_mapping.isEmpty()) {
+                for (OpCodes opCodes : OpCodes.values()) {
+                    mnemonic_mapping.put(opCodes.disassembleCode(), opCodes);
+                }
+            }
+            return mnemonic_mapping.get(mnemonic);
         }
 
         public short code() {
