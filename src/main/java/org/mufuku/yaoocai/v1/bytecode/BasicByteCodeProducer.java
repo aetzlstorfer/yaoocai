@@ -7,7 +7,7 @@ import java.io.OutputStream;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class BasicByteCodeProducer {
+public abstract class BasicByteCodeProducer {
 
     protected final DataOutputStream out;
 

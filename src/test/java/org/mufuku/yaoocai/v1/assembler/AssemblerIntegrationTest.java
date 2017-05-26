@@ -1,13 +1,20 @@
 package org.mufuku.yaoocai.v1.assembler;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.mufuku.yaoocai.v1.BaseLangTest;
+import org.mufuku.yaoocai.v1.Constants;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -74,5 +81,38 @@ public class AssemblerIntegrationTest extends BaseLangTest {
         assemble("/test-assembler-sources/test-08-asm.yaoocaia", out);
     }
 
+    @Test
+    public void massTest_compiledByteCodesConvertedWithByteCodeViewerConvertedBack_noError() throws IOException {
 
+        Map<String, Boolean> results = new HashMap<>();
+        boolean success = true;
+
+        List<String> sourceFiles = getTestFiles("/test-sources/positive");
+        for (String sourceFile : sourceFiles) {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            compile(sourceFile, byteOut);
+
+            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+            ByteArrayOutputStream byteCodeHumanReadableOut = new ByteArrayOutputStream();
+            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, Constants.MAJOR_VERSION, Constants.MINOR_VERSION, new PrintStream(byteCodeHumanReadableOut));
+            byteCodeViewer.convert();
+
+            ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
+            ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
+            YAOOCAI_AssemblerCompiler assemblerCompiler = new YAOOCAI_AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
+
+            boolean equals;
+            try {
+                assemblerCompiler.compile();
+                equals = Arrays.equals(byteOut.toByteArray(), byteOut2.toByteArray());
+            } catch (Exception e) {
+                e.printStackTrace();
+                equals = false;
+            }
+
+            success = success && equals;
+            results.put(sourceFile, equals);
+        }
+        Assert.assertTrue(success);
+    }
 }

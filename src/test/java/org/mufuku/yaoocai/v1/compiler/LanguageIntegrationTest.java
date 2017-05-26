@@ -18,26 +18,26 @@ public class LanguageIntegrationTest extends BaseLangTest {
 
     @Test(expected = ParsingException.class)
     public void test_invalidSyntax1_failWithParsingException() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/invalid-syntax-01-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/invalid-syntax-01-test.yaoocai");
         vm.execute();
     }
 
     @Test(expected = ParsingException.class)
     public void test_invalidSyntax2_failWithParsingException() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/invalid-syntax-02-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/invalid-syntax-02-test.yaoocai");
         vm.execute();
     }
 
     @Test
     public void test_validCodeWithIfBranch_noFailCall() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/if-branches-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/if-branches-test.yaoocai");
         inputFunction.setValue((short) 1);
         vm.execute();
     }
 
     @Test
     public void test_validCodeHavingLocalVariables_correctReturnValues() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/local-variable-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/local-variable-test.yaoocai");
         vm.execute();
 
         List<Object> reportResult = outputFunction.getValues();
@@ -49,37 +49,37 @@ public class LanguageIntegrationTest extends BaseLangTest {
 
     @Test
     public void test_validExpressionStatements_correctReturnValues() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/arithmeticExpression-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/arithmeticExpression-test.yaoocai");
         vm.execute();
     }
 
     @Test
     public void test_codeWithValidComments_normalRun() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-01-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/commenting-01-test.yaoocai");
         vm.execute();
     }
 
     @Test(expected = ParsingException.class)
     public void test_codeWithInvalidComments1_exception() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-02-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/commenting-02-test.yaoocai");
         vm.execute();
     }
 
     @Test(expected = ParsingException.class)
     public void test_codeWithInvalidComments2_exception() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/commenting-03-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/commenting-03-test.yaoocai");
         vm.execute();
     }
 
     @Test
     public void test_codeWithWhile_normalRun() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/while-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/while-test.yaoocai");
         vm.execute();
     }
 
     @Test
     public void test_codeWithElseIfBranches_normalRun() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/if-elseif-test.yaoocai");
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/if-elseif-test.yaoocai");
         vm.execute();
     }
 }
