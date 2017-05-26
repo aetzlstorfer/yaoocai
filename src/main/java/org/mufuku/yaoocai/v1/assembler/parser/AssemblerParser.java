@@ -113,13 +113,6 @@ public class AssemblerParser {
         scanner.moveToNextSymbol();
     }
 
-//    private String checkIdentifierAndProceed() throws IOException {
-//        check(ScannerSymbols.IDENTIFIER);
-//        String identifier = scanner.getCurrentIdentifier();
-//        scanner.moveToNextSymbol();
-//        return identifier;
-//    }
-
     private void check(AssemblerScannerSymbols symbol) {
         if (scanner.getCurrentSymbol() != symbol) {
             throw new ParsingException("expected " + symbol + ", but got: " + scanner.getCurrentSymbol());

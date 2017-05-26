@@ -11,10 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -83,10 +80,6 @@ public class AssemblerIntegrationTest extends BaseLangTest {
 
     @Test
     public void massTest_compiledByteCodesConvertedWithByteCodeViewerConvertedBack_noError() throws IOException {
-
-        Map<String, Boolean> results = new HashMap<>();
-        boolean success = true;
-
         List<String> sourceFiles = getTestFiles("/test-sources/positive");
         for (String sourceFile : sourceFiles) {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -100,19 +93,9 @@ public class AssemblerIntegrationTest extends BaseLangTest {
             ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
             ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
             YAOOCAI_AssemblerCompiler assemblerCompiler = new YAOOCAI_AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
+            assemblerCompiler.compile();
 
-            boolean equals;
-            try {
-                assemblerCompiler.compile();
-                equals = Arrays.equals(byteOut.toByteArray(), byteOut2.toByteArray());
-            } catch (Exception e) {
-                e.printStackTrace();
-                equals = false;
-            }
-
-            success = success && equals;
-            results.put(sourceFile, equals);
+            Assert.assertArrayEquals(byteOut.toByteArray(), byteOut2.toByteArray());
         }
-        Assert.assertTrue(success);
     }
 }
