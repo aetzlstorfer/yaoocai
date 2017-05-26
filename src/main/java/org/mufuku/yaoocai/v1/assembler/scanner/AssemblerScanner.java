@@ -66,12 +66,12 @@ public class AssemblerScanner {
             }
             this.currentNumber = Short.parseShort(index.toString());
             nextChar();
-        } else if (Character.isDigit(currentCharacter)) {
+        } else if (Character.isDigit(currentCharacter) || currentCharacter == '+' || currentCharacter == '-') {
             StringBuilder number = new StringBuilder();
             number.append(currentCharacter);
             nextChar();
             boolean hex = false;
-            while (Character.isDigit(currentCharacter) || currentCharacter == 'x') {
+            while (isValidNumberCharacter(hex)) {
                 if (currentCharacter == 'x') {
                     hex = true;
                 }
@@ -117,6 +117,23 @@ public class AssemblerScanner {
         } else {
             currentSymbol = AssemblerScannerSymbols.UNKNOWN;
         }
+    }
+
+    private boolean isValidNumberCharacter(boolean hex) {
+        boolean result = true;
+        if (!Character.isDigit(currentCharacter)) {
+            if (!hex) {
+                result = currentCharacter == 'x';
+            } else {
+                result = isHexCharacter(currentCharacter);
+            }
+        }
+        return result;
+    }
+
+    private boolean isHexCharacter(char currentCharacter) {
+        return
+                (currentCharacter >= 'a' && currentCharacter <= 'f') || (currentCharacter >= 'A' && currentCharacter <= 'F');
     }
 
     public AssemblerScannerSymbols getCurrentSymbol() {

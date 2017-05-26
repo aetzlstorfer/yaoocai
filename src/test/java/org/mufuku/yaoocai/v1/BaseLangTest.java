@@ -10,7 +10,9 @@ import org.mufuku.yaoocai.v1.vm.VirtualMachine;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -60,6 +62,21 @@ public abstract class BaseLangTest {
 
     public String getLastFile() {
         return lastFile;
+    }
+
+    protected List<String> getTestFiles(String dir) throws IOException {
+        try {
+            File rootDir = new File(BaseLangTest.class.getResource("/").toURI());
+            File baseDir = new File(BaseLangTest.class.getResource(dir).toURI());
+            File[] files = baseDir.listFiles(f -> f.getName().endsWith(".yaoocai"));
+            if (files == null) {
+                return Collections.emptyList();
+            } else {
+                return Arrays.stream(files).map(f -> "/" + rootDir.toPath().relativize(f.toPath()).toString()).collect(Collectors.toList());
+            }
+        } catch (URISyntaxException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 
     public static class Test_Input implements BuiltInVMFunction {
