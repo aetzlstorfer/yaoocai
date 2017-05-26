@@ -40,6 +40,8 @@ public interface InstructionSet {
         POP_PARAMS(0x0603, "pop_params", 1);
 
         private static final Map<Short, OpCodes> mapping = new HashMap<>();
+        private static final Map<String, OpCodes> mnemonic_mapping = new HashMap<>();
+
         protected final short code;
         protected final String disassembleCode;
         protected final int opCodeParam;
@@ -63,6 +65,15 @@ public interface InstructionSet {
                 }
             }
             return mapping.get(opCode);
+        }
+
+        public static OpCodes getByMnemonic(String mnemonic) {
+            if (mnemonic_mapping.isEmpty()) {
+                for (OpCodes opCodes : OpCodes.values()) {
+                    mnemonic_mapping.put(opCodes.disassembleCode(), opCodes);
+                }
+            }
+            return mnemonic_mapping.get(mnemonic);
         }
 
         public short code() {

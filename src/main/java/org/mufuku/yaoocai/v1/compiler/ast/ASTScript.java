@@ -13,11 +13,11 @@ public class ASTScript {
 
     private final Map<String, ASTFunction> functions = new LinkedHashMap<>();
 
-    private final int majorVersion;
+    private final short majorVersion;
 
-    private final int minorVersion;
+    private final short minorVersion;
 
-    public ASTScript(int majorVersion, int minorVersion) {
+    public ASTScript(short majorVersion, short minorVersion) {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
     }
@@ -38,11 +38,11 @@ public class ASTScript {
         return functions.values().iterator();
     }
 
-    public int getMajorVersion() {
+    public short getMajorVersion() {
         return majorVersion;
     }
 
-    public int getMinorVersion() {
+    public short getMinorVersion() {
         return minorVersion;
     }
 

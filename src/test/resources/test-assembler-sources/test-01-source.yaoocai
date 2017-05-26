@@ -1,0 +1,10 @@
+builtin function printInteger(value: integer)            -> vmfunc(1)
+
+function doSomething():integer {
+  return 1 + 2;
+}
+
+function main() {
+  var result: integer = doSomething();
+  printInteger(result);
+}
