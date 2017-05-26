@@ -1,7 +1,8 @@
-package org.mufuku.yaoocai.v1;
+package org.mufuku.yaoocai.v1.compiler;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.mufuku.yaoocai.v1.BaseLangTest;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 

@@ -1,0 +1,12 @@
+Function: #0
+  00: i_const [0x0001]
+  01: i_const [0x0002]
+  02: add
+  03: return
+
+Function: #1 (main)
+  00: invoke [0x0000]
+  01: store [0x0000]
+  02: load [0x0000]
+  03: invoke_builtin [0x0001]
+  04: return

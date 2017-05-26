@@ -1,4 +1,4 @@
-package org.mufuku.yaoocai.v1;
+package org.mufuku.yaoocai.v1.compiler;
 
 import org.junit.Test;
 import org.mufuku.yaoocai.v1.compiler.ast.ASTScript;
