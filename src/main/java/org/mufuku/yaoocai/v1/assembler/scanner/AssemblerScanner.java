@@ -34,7 +34,6 @@ public class AssemblerScanner {
     }
 
     public void moveToNextSymbol() throws IOException {
-
         while (Character.isWhitespace(currentCharacter)) {
             nextChar();
         }
