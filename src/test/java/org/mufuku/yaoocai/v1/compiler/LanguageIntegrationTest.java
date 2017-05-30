@@ -7,8 +7,11 @@ import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -90,6 +93,21 @@ public class LanguageIntegrationTest extends BaseLangTest {
     public void test_conditionalAndExpressions_NoFail() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-and-test.yaoocai");
         vm.execute();
+    }
+
+    @Test
+    public void test_combinedConditionalExpressions_NoFail() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-combination-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_combinedConditionalExpressions_CorrectPrecedence() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-precedence-test.yaoocai");
+        vm.execute();
+
+        assertThat(outputFunction.getValues(), is(equalTo(
+                Arrays.asList((short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6))));
     }
 
     @Test

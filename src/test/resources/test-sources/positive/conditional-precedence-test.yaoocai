@@ -1,0 +1,36 @@
+builtin function testOutput(value: integer) -> vmfunc(32001)
+
+function valueA(): boolean {
+ testOutput(1);
+ return true;
+}
+
+function valueB(): boolean {
+ testOutput(2);
+ return true;
+}
+
+function valueC(): boolean {
+ testOutput(3);
+ return true;
+}
+
+function valueD(): boolean {
+ testOutput(4);
+ return false;
+}
+
+function valueE(): boolean {
+ testOutput(5);
+ return false;
+}
+
+function valueF(): boolean {
+ testOutput(6);
+ return false;
+}
+
+function main() {
+  assertTrue(valueA() && valueB() && valueC());
+  assertFalse(valueD() || valueE() || valueF());
+}
