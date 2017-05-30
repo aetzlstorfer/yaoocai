@@ -216,30 +216,9 @@ public class Translator extends BasicByteCodeProducer {
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
         } else if (expression.getOperator() == ASTOperator.CONDITIONAL_OR) {
-            List<ASTExpression> conditionExpressions = new ArrayList<>();
-            flattenConditions(expression, conditionExpressions);
-
-            for (int i = 0; i < conditionExpressions.size(); i++) {
-                ASTExpression conditionExpression = conditionExpressions.get(i);
-
-                emitExpression(conditionExpression);
-                writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
-                writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
-
-                boolean notLast = i < conditionExpressions.size() - 1;
-                if (notLast) {
-                    short offSetEnd = 1;
-                    for (int j = i + 1; j < conditionExpressions.size(); j++) {
-                        short overhead = j < conditionExpressions.size() - 1 ? (short) 5 : (short) 6;
-                        offSetEnd += overhead + calculateExpressionSize(conditionExpressions.get(j));
-                    }
-                    writeOpCode(InstructionSet.OpCodes.GOTO, offSetEnd);
-                } else {
-                    writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
-                    writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
-                }
-            }
-
+            emitConditionalOrExpression(expression);
+        } else if (expression.getOperator() == ASTOperator.CONDITIONAL_AND) {
+            emitConditionalAndExpression(expression);
         } else {
             emitExpression(expression.getLeft());
             if (expression.getRight() != null) {
@@ -277,12 +256,74 @@ public class Translator extends BasicByteCodeProducer {
         }
     }
 
-    private void flattenConditions(ASTBinaryExpression expression, List<ASTExpression> expressions) {
+    private void emitConditionalOrExpression(ASTBinaryExpression expression) throws IOException {
+        List<ASTExpression> conditionExpressions = new ArrayList<>();
+        flattenConditions(expression, conditionExpressions, ASTOperator.CONDITIONAL_OR);
+
+        int numExpression = conditionExpressions.size();
+        short[] jumpTable = new short[numExpression - 1];
+        for (int i = 0; i < numExpression - 1; i++) {
+            short jumpOffset = 1;
+            for (int j = i + 1; j < numExpression; j++) {
+                // last if has 5 instructions overhead, others 6
+                short overhead = j < numExpression - 1 ? (short) 5 : (short) 6;
+                jumpOffset += overhead + calculateExpressionSize(conditionExpressions.get(j));
+            }
+            jumpTable[i] = jumpOffset;
+        }
+
+        for (int i = 0; i < numExpression; i++) {
+            ASTExpression conditionExpression = conditionExpressions.get(i);
+
+            emitExpression(conditionExpression);
+            writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
+            writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
+
+            if (i < numExpression - 1) {
+                writeOpCode(InstructionSet.OpCodes.GOTO, jumpTable[i]);
+            } else {
+                writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
+                writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
+            }
+        }
+    }
+
+    private void emitConditionalAndExpression(ASTBinaryExpression expression) throws IOException {
+        List<ASTExpression> conditionExpressions = new ArrayList<>();
+        flattenConditions(expression, conditionExpressions, ASTOperator.CONDITIONAL_AND);
+
+        int numExpression = conditionExpressions.size();
+        short[] jumpTable = new short[numExpression - 1];
+        for (int i = 0; i < numExpression - 1; i++) {
+            short jumpOffset = 1;
+            for (int j = i + 1; j < numExpression; j++) {
+                // last if has 6 instructions overhead, others 2
+                short overhead = j < numExpression - 1 ? (short) 2 : (short) 5;
+                jumpOffset += overhead + calculateExpressionSize(conditionExpressions.get(j));
+            }
+            jumpTable[i] = jumpOffset;
+        }
+
+        for (int i = 0; i < numExpression; i++) {
+            ASTExpression conditionExpression = conditionExpressions.get(i);
+            emitExpression(conditionExpression);
+            if (i < numExpression - 1) { // not last
+                writeOpCode(InstructionSet.OpCodes.IF, jumpTable[i]);
+            }
+        }
+
+        writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
+        writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
+        writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
+        writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
+    }
+
+    private void flattenConditions(ASTBinaryExpression expression, List<ASTExpression> expressions, ASTOperator operator) {
         if (expression.getLeft() instanceof ASTBinaryExpression &&
-                ((ASTBinaryExpression) expression.getLeft()).getOperator() == ASTOperator.CONDITIONAL_OR
+                ((ASTBinaryExpression) expression.getLeft()).getOperator() == operator
                 ) {
             // go down tree on each left node which is a conditional or
-            flattenConditions((ASTBinaryExpression) expression.getLeft(), expressions);
+            flattenConditions((ASTBinaryExpression) expression.getLeft(), expressions, operator);
             expressions.add(expression.getRight());
         } else {
             expressions.add(expression.getLeft());

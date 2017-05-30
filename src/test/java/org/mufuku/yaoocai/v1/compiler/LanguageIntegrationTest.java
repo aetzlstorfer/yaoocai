@@ -86,6 +86,11 @@ public class LanguageIntegrationTest extends BaseLangTest {
         vm.execute();
     }
 
+    @Test
+    public void test_conditionalAndExpressions_NoFail() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-and-test.yaoocai");
+        vm.execute();
+    }
 
     @Test
     public void test_codeWithValidComments_normalRun() throws IOException {
