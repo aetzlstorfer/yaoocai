@@ -7,10 +7,7 @@ import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -89,11 +86,11 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             this.codePointer++;
             stack.push(code[codePointer]);
             this.codePointer++;
-        } else if (opCode == InstructionSet.OpCodes.B_CONST_FALSE.code()) {
-            stack.push(false);
-            this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.B_CONST_TRUE.code()) {
             stack.push(true);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.B_CONST_FALSE.code()) {
+            stack.push(false);
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.STORE.code()) {
             this.codePointer++;
@@ -146,6 +143,29 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Short val1 = (Short) stack.pop();
             stack.push((short) (val1 / val2));
             this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.MOD.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push((short) (val1 % val2));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.NEG.code()) {
+            Short val = (Short) stack.pop();
+            stack.push((short) (-val));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.AND.code()) {
+            Boolean v2 = (Boolean) stack.pop();
+            Boolean v1 = (Boolean) stack.pop();
+            stack.push(v2 & v1);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.OR.code()) {
+            Boolean v2 = (Boolean) stack.pop();
+            Boolean v1 = (Boolean) stack.pop();
+            stack.push(v2 | v1);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.NOT.code()) {
+            Boolean v = (Boolean) stack.pop();
+            stack.push(!v);
+            this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.CMP_LT.code()) {
             Short val2 = (Short) stack.pop();
             Short val1 = (Short) stack.pop();
@@ -165,6 +185,16 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Short val2 = (Short) stack.pop();
             Short val1 = (Short) stack.pop();
             stack.push(val1 >= val2);
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.CMP_EQ.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push(Objects.equals(val1, val2));
+            this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.CMP_NE.code()) {
+            Short val2 = (Short) stack.pop();
+            Short val1 = (Short) stack.pop();
+            stack.push(!Objects.equals(val1, val2));
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.IF.code()) {
             this.codePointer++;

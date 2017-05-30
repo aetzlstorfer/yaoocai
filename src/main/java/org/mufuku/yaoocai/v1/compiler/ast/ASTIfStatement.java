@@ -1,7 +1,6 @@
 package org.mufuku.yaoocai.v1.compiler.ast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**

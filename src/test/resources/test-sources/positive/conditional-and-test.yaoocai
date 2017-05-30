@@ -1,0 +1,92 @@
+
+builtin function assertTrue (condition: boolean) -> vmfunc(32004)
+builtin function assertFalse(condition: boolean) -> vmfunc(32005)
+
+function testFourConditions(a: boolean, b: boolean, c: boolean, d: boolean): boolean {
+  return a && b && c && d;
+}
+
+function testThreeConditions(a: boolean, b: boolean, c: boolean): boolean {
+  return a && b && c;
+}
+
+function testTwoConditions(a: boolean, b: boolean): boolean {
+  return a && b;
+}
+
+function testFourConditions2(a: integer, b: integer, c: integer, d: integer): boolean {
+  return a == 1 && b >= 1 && c > 0 && d != 0;
+}
+
+function testThreeConditions2(a: boolean, b: boolean, c: boolean): boolean {
+  return a == 1 && b >= 1 && c > 0;
+}
+
+function testTwoConditions2(a: boolean, b: boolean): boolean {
+  return a == 1 && b >= 1;
+}
+
+function main() {
+  assertTrue(testFourConditions( true,   true,  true,  true ));
+  assertFalse(testFourConditions(false,  true,  true,  true ));
+  assertFalse(testFourConditions(true,   false, true,  true ));
+  assertFalse(testFourConditions(false,  false, true,  true ));
+  assertFalse(testFourConditions(true,   true,  false, true ));
+  assertFalse(testFourConditions(false,  true,  false, true ));
+  assertFalse(testFourConditions(true,   false, false, true ));
+  assertFalse(testFourConditions(false,  false, false, true ));
+  assertFalse(testFourConditions(true,   true,  true,  false));
+  assertFalse(testFourConditions(false,  true,  true,  false));
+  assertFalse(testFourConditions(true,   false, true,  false));
+  assertFalse(testFourConditions(false,  false, true,  false));
+  assertFalse(testFourConditions(true,   true,  false, false));
+  assertFalse(testFourConditions(false,  true,  false, false));
+  assertFalse(testFourConditions(true,   false, false, false));
+  assertFalse(testFourConditions(false, false, false, false));
+
+  assertTrue(testThreeConditions( true, true, 	true));
+  assertFalse(testThreeConditions(false,  true, true));
+  assertFalse(testThreeConditions(true,  false, true));
+  assertFalse(testThreeConditions(false, false, true));
+  assertFalse(testThreeConditions(true,   true, false));
+  assertFalse(testThreeConditions(false,  true, false));
+  assertFalse(testThreeConditions(true,  false, false));
+  assertFalse(testThreeConditions(false, false, false));
+
+  assertTrue(testTwoConditions( true, true));
+  assertFalse(testTwoConditions(false, true));
+  assertFalse(testTwoConditions(true, false));
+  assertFalse(testTwoConditions(false, false));
+
+  assertTrue(testFourConditions2 (1, 1, 1, 1));
+  assertFalse(testFourConditions2(0, 1, 1, 1));
+  assertFalse(testFourConditions2(1, 0, 1, 1));
+  assertFalse(testFourConditions2(0, 0, 1, 1));
+  assertFalse(testFourConditions2(1, 1, 0, 1));
+  assertFalse(testFourConditions2(0, 1, 0, 1));
+  assertFalse(testFourConditions2(1, 0, 0, 1));
+  assertFalse(testFourConditions2(0, 0, 0, 1));
+  assertFalse(testFourConditions2(1, 1, 1, 0));
+  assertFalse(testFourConditions2(0, 1, 1, 0));
+  assertFalse(testFourConditions2(1, 0, 1, 0));
+  assertFalse(testFourConditions2(0, 0, 1, 0));
+  assertFalse(testFourConditions2(1, 1, 0, 0));
+  assertFalse(testFourConditions2(0, 1, 0, 0));
+  assertFalse(testFourConditions2(1, 0, 0, 0));
+  assertFalse(testFourConditions2(0, 0, 0, 0));
+
+  assertTrue(testThreeConditions2( 1, 1, 1));
+  assertFalse(testThreeConditions2(0, 1, 1));
+  assertFalse(testThreeConditions2(1, 0, 1));
+  assertFalse(testThreeConditions2(0, 0, 1));
+  assertFalse(testThreeConditions2(1, 1, 0));
+  assertFalse(testThreeConditions2(0, 1, 0));
+  assertFalse(testThreeConditions2(1, 0, 0));
+  assertFalse(testThreeConditions2(0, 0, 0));
+
+  assertTrue(testTwoConditions2( 1, 1));
+  assertFalse(testTwoConditions2(0, 1));
+  assertFalse(testTwoConditions2(1, 0));
+  assertFalse(testTwoConditions2(0, 0));
+}
+

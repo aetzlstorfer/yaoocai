@@ -23,15 +23,20 @@ public class ASTBinaryExpression extends ASTExpression {
         return right;
     }
 
-    public ASTOperator getOperator() {
-        return operator;
-    }
-
     public void setRight(ASTExpression right) {
         this.right = right;
     }
 
+    public ASTOperator getOperator() {
+        return operator;
+    }
+
     public void setOperator(ASTOperator operator) {
         this.operator = operator;
+    }
+
+    @Override
+    public String toString() {
+        return "<Binary Expr>: " + left.toString() + (right != null ? " " + operator.name() + " " + right.toString() : "");
     }
 }

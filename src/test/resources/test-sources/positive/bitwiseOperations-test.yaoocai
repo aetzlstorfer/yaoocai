@@ -1,0 +1,55 @@
+
+builtin function assertTrue(condition: boolean)      -> vmfunc(32004)
+builtin function assertFalse(antiCondition: boolean) -> vmfunc(32005)
+
+function basicTests() {
+  assertTrue(true);
+  assertFalse(false);
+  assertTrue(!false);
+  assertFalse(!true);
+  assertTrue(!!true);
+  assertFalse(!!false);
+  assertTrue(!!!false);
+  assertFalse(!!!true);
+}
+
+function andOperatorTests() {
+  assertTrue(true & true);
+  assertTrue(getTrue() & getTrue());
+  assertTrue(true & true & true);
+  assertTrue(true & true & (true & true));
+
+  assertFalse(true & false);
+  assertFalse(true & false & true);
+  assertFalse(true & true & false);
+  assertFalse(getTrue() & getTrue() & getFalse());
+
+  assertFalse(!false & !true);
+  assertFalse(!false & !true & !false);
+  assertFalse(!false & !false & !true);
+  assertFalse(!getFalse() & !getFalse() & !getTrue());
+}
+
+function orOperatorTests() {
+  assertTrue(true | true);
+  assertTrue(true | false);
+  assertTrue(true | true | false);
+  assertFalse(false | false);
+  assertFalse(false | !true);
+  assertFalse(false | !true | getFalse());
+  assertFalse(false | !true | !getTrue());
+}
+
+function getTrue(): boolean {
+  return true;
+}
+
+function getFalse(): boolean {
+  return false;
+}
+
+function main() {
+  basicTests();
+  andOperatorTests();
+  orOperatorTests();
+}

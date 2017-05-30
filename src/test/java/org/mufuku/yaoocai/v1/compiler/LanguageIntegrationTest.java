@@ -7,8 +7,11 @@ import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -25,6 +28,13 @@ public class LanguageIntegrationTest extends BaseLangTest {
     @Test(expected = ParsingException.class)
     public void test_invalidSyntax2_failWithParsingException() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/invalid-syntax-02-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_validComparisonExpressions_noFailCall() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/comparison-test.yaoocai");
+        inputFunction.setValue((short) 1);
         vm.execute();
     }
 
@@ -51,6 +61,53 @@ public class LanguageIntegrationTest extends BaseLangTest {
     public void test_validExpressionStatements_correctReturnValues() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/arithmeticExpression-test.yaoocai");
         vm.execute();
+    }
+
+    @Test
+    public void test_validDeAndIncrementalExpressionStatements_correctReturnValues() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/incremental-test.yaoocai");
+        vm.execute();
+        vm = compileAndGetTestVM("/test-sources/positive/decremental-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_validBitwiseOperations_correctAsserts() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/bitwiseOperations-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_validAssignmentStatements_correctChanges() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/assignments-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_conditionalOrExpressions_NoFail() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-or-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_conditionalAndExpressions_NoFail() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-and-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_combinedConditionalExpressions_NoFail() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-combination-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_combinedConditionalExpressions_CorrectPrecedence() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/conditional-precedence-test.yaoocai");
+        vm.execute();
+
+        assertThat(outputFunction.getValues(), is(equalTo(
+                Arrays.asList((short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6))));
     }
 
     @Test
