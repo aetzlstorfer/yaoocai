@@ -4,11 +4,16 @@ package org.mufuku.yaoocai.v1.compiler.ast;
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public enum ASTUnaryOperator {
+
     // arithmetic
     NEGATE,
+
     PRE_INCREMENT,
     PRE_DECREMENT,
 
+    POST_DECREMENT,
+    BITWISE_NOT,
+
     // bitwise
-    BITWISE_NOT
+    POST_INCREMENT
 }

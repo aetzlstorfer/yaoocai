@@ -64,10 +64,18 @@ public class LanguageIntegrationTest extends BaseLangTest {
     }
 
     @Test
-    public void test_validDeAndIncrementalExpressionStatements_correctReturnValues() throws IOException {
-        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/incremental-test.yaoocai");
+    public void test_validPreDeAndIncrementalExpressionStatements_correctReturnValues() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/pre-incremental-test.yaoocai");
         vm.execute();
-        vm = compileAndGetTestVM("/test-sources/positive/decremental-test.yaoocai");
+        vm = compileAndGetTestVM("/test-sources/positive/pre-decremental-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_validPostDeAndIncrementalExpressionStatements_correctReturnValues() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/post-incremental-test.yaoocai");
+        vm.execute();
+        vm = compileAndGetTestVM("/test-sources/positive/post-decremental-test.yaoocai");
         vm.execute();
     }
 

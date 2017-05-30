@@ -1,0 +1,23 @@
+
+builtin function assertEquals(expected: integer, actual: integer) -> vmfunc(32003)
+
+function testWithVariables() {
+  var a:integer = 1;
+  var b:integer = a--;
+
+  assertEquals(0, a);
+  assertEquals(1, b);
+}
+
+function testAsExpressionStatement() {
+  var a:integer = 1;
+  a--;
+  assertEquals(0, a);
+  a--;
+  assertEquals(-1, a);
+}
+
+function main() {
+  testWithVariables();
+  testAsExpressionStatement();
+}
