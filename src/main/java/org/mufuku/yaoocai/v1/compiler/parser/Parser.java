@@ -364,20 +364,34 @@ public class Parser {
             String identifier = checkIdentifierAndProceed();
             if (scanner.getCurrentSymbol() != ScannerSymbols.PAR_START) {
                 expression = new ASTVariableExpression(identifier);
+                expression = parsePostIncrementExpression(expression);
             } else {
-                ASTFunctionCallExpression function = new ASTFunctionCallExpression(identifier);
-                checkAndProceed(ScannerSymbols.PAR_START);
-                if (scanner.getCurrentSymbol() != ScannerSymbols.PAR_END) {
-                    ASTArguments arguments = parseArguments();
-                    function.setArguments(arguments);
-                }
-                checkAndProceed(ScannerSymbols.PAR_END);
-                expression = function;
+                expression = parseFunctionCall(identifier);
             }
         } else {
             expression = parseLiteral();
         }
         return expression;
+    }
+
+    private ASTExpression parsePostIncrementExpression(ASTExpression expression) throws IOException {
+        if (checkOptionalAndProceed(ScannerSymbols.INCREMENT_OPERATOR)) {
+            return new ASTUnaryExpression(expression, ASTUnaryOperator.POST_INCREMENT);
+        } else if (checkOptionalAndProceed(ScannerSymbols.DECREMENT_OPERATOR)) {
+            return new ASTUnaryExpression(expression, ASTUnaryOperator.POST_DECREMENT);
+        }
+        return expression;
+    }
+
+    private ASTExpression parseFunctionCall(String identifier) throws IOException {
+        ASTFunctionCallExpression function = new ASTFunctionCallExpression(identifier);
+        checkAndProceed(ScannerSymbols.PAR_START);
+        if (scanner.getCurrentSymbol() != ScannerSymbols.PAR_END) {
+            ASTArguments arguments = parseArguments();
+            function.setArguments(arguments);
+        }
+        checkAndProceed(ScannerSymbols.PAR_END);
+        return function;
     }
 
     private ASTArguments parseArguments() throws IOException {

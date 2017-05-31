@@ -344,6 +344,19 @@ public class Translator extends BasicByteCodeProducer {
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
             emitVariable(variableExpression);
+        } else if (expression.getUnaryOperator() == ASTUnaryOperator.POST_INCREMENT ||
+                expression.getUnaryOperator() == ASTUnaryOperator.POST_DECREMENT) {
+            ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getSubExpression();
+            emitVariable(variableExpression);
+            emitVariable(variableExpression);
+            writeOpCode(InstructionSet.OpCodes.I_CONST, (short) 1);
+            if (expression.getUnaryOperator() == ASTUnaryOperator.POST_INCREMENT) {
+                writeOpCode(InstructionSet.OpCodes.ADD);
+            } else if (expression.getUnaryOperator() == ASTUnaryOperator.POST_DECREMENT) {
+                writeOpCode(InstructionSet.OpCodes.SUB);
+            }
+            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.NEGATE) {
             emitExpression(expression.getSubExpression());
             writeOpCode(InstructionSet.OpCodes.NEG);
