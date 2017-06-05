@@ -1,0 +1,39 @@
+
+builtin function testInput(): integer       -> vmfunc(32000)
+
+function testIncrementalOperators1() {
+  var a: integer = 0;
+  a++;
+}
+
+function testIncrementalOperators2() {
+  var a: integer = 0;
+  ++a;
+}
+
+function testIncrementalOperators3() {
+  var a: integer = 0;
+  a--;
+}
+
+function testIncrementalOperators4() {
+  var a: integer = 0;
+  --a;
+}
+
+function testFunctionNoReturn() {
+}
+
+function testFunctionWithReturn(): integer {
+  return 1;
+}
+
+function main() {
+  testIncrementalOperators1();
+  testIncrementalOperators2();
+  testIncrementalOperators3();
+  testIncrementalOperators4();
+  testFunctionNoReturn();
+  testFunctionWithReturn();
+  testInput();
+}

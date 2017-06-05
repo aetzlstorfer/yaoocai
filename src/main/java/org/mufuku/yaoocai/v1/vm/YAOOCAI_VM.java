@@ -15,9 +15,9 @@ import java.util.*;
  */
 public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine {
 
-    private final Deque<Object> stack = new ArrayDeque<>();
+    final Deque<Object> stack = new ArrayDeque<>();
 
-    private final Deque<LocalVariableStack> localVariableStack = new ArrayDeque<>();
+    final Deque<LocalVariableStack> localVariableStack = new ArrayDeque<>();
 
     private final Deque<Integer> callStack = new ArrayDeque<>();
     private final List<Integer> functionPointer = new ArrayList<>();
@@ -32,7 +32,7 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         this(in, DefaultBuiltIns.getBuiltIns());
     }
 
-    public YAOOCAI_VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
+    YAOOCAI_VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
         super(in, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
         this.builtIns = builtIns;
     }
@@ -109,6 +109,9 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             Object value = localVariableStack.peek().getValue(variableIndex);
             stack.push(value);
             this.codePointer++;
+        } else if (opCode == InstructionSet.OpCodes.POP.code()) {
+            this.codePointer++;
+            stack.pop();
         } else if (opCode == InstructionSet.OpCodes.INVOKE.code()) {
             this.codePointer++;
             short functionIndex = code[codePointer];

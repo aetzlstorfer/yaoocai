@@ -12,8 +12,8 @@ public enum ASTUnaryOperator {
     PRE_DECREMENT,
 
     POST_DECREMENT,
-    BITWISE_NOT,
+    POST_INCREMENT,
 
     // bitwise
-    POST_INCREMENT
+    BITWISE_NOT
 }

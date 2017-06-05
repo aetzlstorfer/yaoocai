@@ -1,11 +1,13 @@
 package org.mufuku.yaoocai.v1;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.mufuku.yaoocai.v1.assembler.YAOOCAI_AssemblerCompiler;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.LanguageIntegrationTest;
 import org.mufuku.yaoocai.v1.compiler.YAOOCAI_Compiler;
+import org.mufuku.yaoocai.v1.vm.TestVM;
 import org.mufuku.yaoocai.v1.vm.VirtualMachine;
 import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 import org.mufuku.yaoocai.v1.vm.builtins.BuiltInVMFunction;
@@ -16,15 +18,16 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.*;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public abstract class BaseLangTest {
-
     protected final Test_Input inputFunction = new Test_Input();
+
     protected final Test_Output outputFunction = new Test_Output();
 
     private final BuiltInVMFunction fail = new Fail();
@@ -35,10 +38,26 @@ public abstract class BaseLangTest {
 
     private final AssertFalse assertFalse = new AssertFalse();
 
-    private String lastFile;
+    private TestVM lastVM;
+
+    @After
+    public void afterChecks() {
+        checkIfVmWasClearedUpCorrectly();
+        checkIfInputFunctionWasUsed();
+    }
+
+    private void checkIfVmWasClearedUpCorrectly() {
+        if (lastVM != null) {
+            assertThat(lastVM.getStack(), is(empty()));
+            assertThat(lastVM.getLocalVariableStack(), is(empty()));
+        }
+    }
+
+    private void checkIfInputFunctionWasUsed() {
+        assertTrue(inputFunction.valueStack.isEmpty());
+    }
 
     protected YAOOCAI_Compiler compile(String source, OutputStream byteOut) throws IOException {
-        this.lastFile = source;
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         YAOOCAI_Compiler compiler = new YAOOCAI_Compiler(sourceIn, byteOut);
         compiler.compile();
@@ -46,8 +65,6 @@ public abstract class BaseLangTest {
     }
 
     protected YAOOCAI_AssemblerCompiler assemble(String source, OutputStream byteOut) throws IOException {
-        this.lastFile = source;
-
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         YAOOCAI_AssemblerCompiler compiler = new YAOOCAI_AssemblerCompiler(sourceIn, byteOut);
         compiler.compile();
@@ -55,7 +72,6 @@ public abstract class BaseLangTest {
     }
 
     protected YAOOCAI_VM compileAndGetTestVM(String source) throws IOException {
-
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         compile(source, byteOut);
 
@@ -75,11 +91,8 @@ public abstract class BaseLangTest {
         testBuiltIns.put((short) 32004, assertTrue);
         testBuiltIns.put((short) 32005, assertFalse);
 
-        return new YAOOCAI_VM(byteIn, testBuiltIns);
-    }
-
-    public String getLastFile() {
-        return lastFile;
+        this.lastVM = new TestVM(byteIn, testBuiltIns);
+        return this.lastVM;
     }
 
     protected List<String> getTestFiles(String dir) throws IOException {
@@ -98,15 +111,16 @@ public abstract class BaseLangTest {
     }
 
     public static class Test_Input implements BuiltInVMFunction {
-        private Object value;
+        private final Deque<Object> valueStack = new ArrayDeque<>();
 
         @Override
         public void handle(Deque<Object> stack, VirtualMachine vm) {
-            stack.push(value);
+            Object lastValue = valueStack.pop();
+            stack.push(lastValue);
         }
 
         public void setValue(Object value) {
-            this.value = value;
+            this.valueStack.push(value);
         }
     }
 
@@ -121,10 +135,6 @@ public abstract class BaseLangTest {
 
         public List<Object> getValues() {
             return values;
-        }
-
-        public Object getLast() {
-            return values.getLast();
         }
     }
 

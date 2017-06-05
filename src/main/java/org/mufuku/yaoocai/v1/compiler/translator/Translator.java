@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Translator extends BasicByteCodeProducer {
     private void preFillStorage() {
         Iterator<ASTFunction> functionsIt = script.functions();
         while (functionsIt.hasNext()) {
-            functionStorage.addFunction(functionsIt.next().getIdentifier());
+            functionStorage.addFunction(functionsIt.next());
         }
         Iterator<ASTBuiltinFunction> builtinFunctionsIt = script.builtInFunctions();
         while (builtinFunctionsIt.hasNext()) {
@@ -94,6 +95,27 @@ public class Translator extends BasicByteCodeProducer {
 
     private void emitExpressionStatement(ASTExpressionStatement statement) throws IOException {
         emitExpression(statement.getExpression());
+        if (isExpressionPopNecessary(statement)) {
+            writeOpCode(InstructionSet.OpCodes.POP);
+        }
+    }
+
+    private boolean isExpressionPopNecessary(ASTExpressionStatement statement) {
+        ASTExpression expression = statement.getExpression();
+        boolean popNecessary = false;
+        if (expression instanceof ASTUnaryExpression) {
+            ASTUnaryExpression unaryExpression = (ASTUnaryExpression) expression;
+            popNecessary = EnumSet.of(
+                    ASTUnaryOperator.PRE_INCREMENT,
+                    ASTUnaryOperator.PRE_DECREMENT,
+                    ASTUnaryOperator.POST_INCREMENT,
+                    ASTUnaryOperator.POST_DECREMENT).contains(unaryExpression.getUnaryOperator());
+        } else if (expression instanceof ASTFunctionCallExpression) {
+            ASTFunctionCallExpression astFunctionCallExpression = (ASTFunctionCallExpression) statement.getExpression();
+            ASTType functionReturnType = functionStorage.getFunctionReturnType(astFunctionCallExpression.getFunctionName());
+            popNecessary = functionReturnType != null;
+        }
+        return popNecessary;
     }
 
     private void emitWhileStatement(ASTWhileStatement statement) throws IOException {

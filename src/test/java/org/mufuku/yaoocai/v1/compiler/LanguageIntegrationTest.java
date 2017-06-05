@@ -177,4 +177,11 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/badFunctionIndex-02-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_stackPollutingStatements_ClearStack() throws IOException {
+        inputFunction.setValue(1);
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/clearStack-test.yaoocai");
+        vm.execute();
+    }
 }
