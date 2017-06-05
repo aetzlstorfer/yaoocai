@@ -1,8 +1,12 @@
 package org.mufuku.yaoocai.v1.vm;
 
+import java.io.PrintStream;
+
 /**
- * @author andreas.etzlstorfer@ecx.io
+ * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public interface VirtualMachine {
-    void stop();
+    PrintStream getOut();
+
+    void setOut(PrintStream out);
 }

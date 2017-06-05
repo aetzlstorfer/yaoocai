@@ -15,8 +15,9 @@ public abstract class BasicByteCodeProducer {
         this.out = new DataOutputStream(out);
     }
 
-    protected void emitHeader(short majorVersion, short minorVersion, short mainFunctionIndex) throws IOException {
-        writeString(InstructionSet.PREAMBLE);
+    protected void emitHeader(String preamble, short majorVersion, short minorVersion, short mainFunctionIndex) throws IOException
+    {
+        out.writeChars(preamble);
         out.writeShort(majorVersion);
         out.writeShort(minorVersion);
         out.writeShort(mainFunctionIndex);
@@ -29,12 +30,6 @@ public abstract class BasicByteCodeProducer {
         }
         for (short param : params) {
             out.writeShort(param);
-        }
-    }
-
-    private void writeString(String value) throws IOException {
-        for (char ch : value.toCharArray()) {
-            out.writeChar(ch);
         }
     }
 }

@@ -18,9 +18,4 @@ public class ASTFunction extends ASTBasicFunction {
     public void setBlock(ASTBlock block) {
         this.block = block;
     }
-
-    @Override
-    public String toString() {
-        return "<Function>: " + identifier + "(" + parameters + ")" + (returnType != null ? " : " + returnType : "");
-    }
 }

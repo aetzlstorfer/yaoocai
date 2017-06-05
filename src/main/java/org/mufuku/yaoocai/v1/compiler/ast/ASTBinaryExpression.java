@@ -34,9 +34,4 @@ public class ASTBinaryExpression extends ASTExpression {
     public void setOperator(ASTOperator operator) {
         this.operator = operator;
     }
-
-    @Override
-    public String toString() {
-        return "<Binary Expr>: " + left.toString() + (right != null ? " " + operator.name() + " " + right.toString() : "");
-    }
 }

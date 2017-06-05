@@ -1,6 +1,6 @@
 package org.mufuku.yaoocai.v1.compiler.parser;
 
-import org.mufuku.yaoocai.v1.Constants;
+import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.compiler.ast.*;
 import org.mufuku.yaoocai.v1.compiler.scanner.Scanner;
 import org.mufuku.yaoocai.v1.compiler.scanner.ScannerSymbols;
@@ -18,8 +18,18 @@ public class Parser {
         this.scanner = scanner;
     }
 
-    public ASTScript parse() throws IOException {
-        ASTScript script = parseScript();
+    public ASTScript parse()
+    {
+        ASTScript script;
+        try
+        {
+            scanner.initialize();
+            script = parseScript();
+        }
+        catch (IOException e)
+        {
+            throw new ParsingException("Could not compile file correctly. Error: " + e.getMessage(), e);
+        }
         if (scanner.getCurrentSymbol() != ScannerSymbols.EOI) {
             throw new ParsingException("unexpected " + scanner.getCurrentSymbol());
         }
@@ -27,7 +37,7 @@ public class Parser {
     }
 
     private ASTScript parseScript() throws IOException {
-        ASTScript script = new ASTScript(Constants.MAJOR_VERSION, Constants.MINOR_VERSION);
+        ASTScript script = new ASTScript(InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
         while (scanner.getCurrentSymbol() == ScannerSymbols.BUILTIN) {
             ASTBuiltinFunction builtinFunction = parseBuiltInFunctionDeclaration();
             script.addBuiltInFunction(builtinFunction);
@@ -55,7 +65,15 @@ public class Parser {
         String type = checkIdentifierAndProceed();
         checkAndProceed(ScannerSymbols.PAR_START);
         check(ScannerSymbols.INTEGER_LITERAL);
-        short functionCode = scanner.getCurrentNumber();
+        short functionCode;
+        try
+        {
+            functionCode = scanner.getNumberAsShort(); // can't be negative because of grammar
+        }
+        catch (NumberFormatException e)
+        {
+            throw new ParsingException("Invalid function index used. Range: 0 - " + Short.MAX_VALUE);
+        }
         scanner.moveToNextSymbol();
         checkAndProceed(ScannerSymbols.PAR_END);
 
@@ -168,7 +186,7 @@ public class Parser {
                 ASTBlock elseIfBlock = parseBlock();
 
                 ASTBaseIfStatement elseIfStatement = new ASTBaseIfStatement(elseIfConditionExpression, elseIfBlock);
-                ifStatement.addElseIfBllock(elseIfStatement);
+                ifStatement.addElseIfBlock(elseIfStatement);
             } else {
                 ASTBlock elseBlock = parseBlock();
                 ASTBaseIfStatement elseStatement = new ASTBaseIfStatement(null, elseBlock);
@@ -409,39 +427,33 @@ public class Parser {
     private ASTLiteralExpression parseLiteral() throws IOException {
         ASTLiteralExpression expression;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER_LITERAL) {
-            int value = scanner.getCurrentNumber();
+            int value = scanner.getNumberAsInteger();
             expression = new ASTLiteralExpression<>(value);
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.TRUE) {
             expression = new ASTLiteralExpression<>(true);
-        } else if (scanner.getCurrentSymbol() == ScannerSymbols.FALSE) {
+        }
+        else
+        {
+            check(ScannerSymbols.FALSE);
             expression = new ASTLiteralExpression<>(false);
-        } else if (scanner.getCurrentSymbol() == ScannerSymbols.STRING_LITERAL) {
+        } /*else if (scanner.getCurrentSymbol() == ScannerSymbols.STRING_LITERAL) {
             String value = scanner.getCurrentString();
             expression = new ASTLiteralExpression<>(value);
-        } else {
-            throw new ParsingException("Got unexpected literal.");
-        }
+        } */
         scanner.moveToNextSymbol();
         return expression;
     }
 
     private ASTType parseType() throws IOException {
         String typeName;
-        boolean primitive;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER) {
             typeName = "int";
-            primitive = true;
-        } else if (scanner.getCurrentSymbol() == ScannerSymbols.BOOLEAN) {
-            typeName = "boolean";
-            primitive = true;
-        } else if (scanner.getCurrentSymbol() == ScannerSymbols.IDENTIFIER) {
-            typeName = scanner.getCurrentIdentifier();
-            primitive = false;
         } else {
-            throw new ParsingException("unexpected symbol: " + scanner.getCurrentSymbol());
+            check(ScannerSymbols.BOOLEAN);
+            typeName = "boolean";
         }
         scanner.moveToNextSymbol();
-        return new ASTType(typeName, primitive);
+        return new ASTType(typeName, true);
     }
 
     private ASTExpression getOrCombineExpression(ASTExpression left, ASTExpression right, ASTOperator operator) {

@@ -1,0 +1,9 @@
+
+
+function main() {
+ var a:integer = 5;
+ {
+   var b:integer = 6;
+
+ }
+}

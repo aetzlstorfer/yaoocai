@@ -1,12 +1,10 @@
 package org.mufuku.yaoocai.v1.vm.builtins;
 
-import org.mufuku.yaoocai.v1.vm.BuiltInVMFunction;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author andreas.etzlstorfer@ecx.io
+ * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 // TODO replace with dependency manager
 public class DefaultBuiltIns {
@@ -14,7 +12,7 @@ public class DefaultBuiltIns {
     private static final Map<Short, BuiltInVMFunction> builtIns = new HashMap<>();
 
     static {
-        builtIns.put((short) 0, new PrintInteger());
+        builtIns.put((short) 1, new PrintInteger());
     }
 
     public static Map<Short, BuiltInVMFunction> getBuiltIns() {

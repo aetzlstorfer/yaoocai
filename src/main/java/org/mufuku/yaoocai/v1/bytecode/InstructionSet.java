@@ -9,6 +9,8 @@ import java.util.Map;
 public interface InstructionSet {
 
     String PREAMBLE = "yaoocai";
+    short MAJOR_VERSION = 1;
+    short MINOR_VERSION = 1;
 
     enum OpCodes {
         // 0. functions

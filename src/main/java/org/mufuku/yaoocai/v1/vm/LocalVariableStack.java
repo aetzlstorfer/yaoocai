@@ -6,16 +6,17 @@ import java.util.Map;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class LocalVariableStack {
-
+class LocalVariableStack
+{
     private final Map<Short, Object> variables = new HashMap<>();
 
-    public void setValue(short index, Object value) {
+    void setValue(short index, Object value)
+    {
         variables.put(index, value);
     }
 
-    public Object getValue(short index) {
+    Object getValue(short index)
+    {
         return variables.get(index);
     }
-
 }

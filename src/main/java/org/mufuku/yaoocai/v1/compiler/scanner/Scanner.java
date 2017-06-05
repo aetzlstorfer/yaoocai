@@ -14,14 +14,14 @@ public class Scanner {
     private ScannerSymbols currentSymbol;
 
     private String currentIdentifier;
-    private String currentString;
-    private short currentNumber;
+
+    //    private String currentString;
+    private String currentNumber;
     private boolean comment;
 
-    public Scanner(InputStream in) throws IOException {
+    public Scanner(InputStream in)
+    {
         this.reader = new BufferedReader(new InputStreamReader(in));
-        nextChar();
-        moveToNextSymbol();
     }
 
     private void nextChar() throws IOException {
@@ -31,6 +31,12 @@ public class Scanner {
         } else {
             currentCharacter = 0;
         }
+    }
+
+    public void initialize() throws IOException
+    {
+        nextChar();
+        moveToNextSymbol();
     }
 
     public void moveToNextSymbol() throws IOException {
@@ -177,7 +183,7 @@ public class Scanner {
                 currentSymbol = ScannerSymbols.CONDITIONAL_AND_OPERATOR;
                 nextChar();
             }
-        } else if (currentCharacter == '"') {
+        } /*else if (currentCharacter == '"') {
             currentSymbol = ScannerSymbols.STRING_LITERAL;
             StringBuilder tmp = new StringBuilder();
             nextChar();
@@ -191,14 +197,13 @@ public class Scanner {
                 nextChar();
             }
             this.currentString = tmp.toString();
-        } else if (
-                (currentCharacter >= 'a' && currentCharacter <= 'z') ||
-                        (currentCharacter >= 'A' && currentCharacter <= 'Z')) {
+        }*/
+        else if (Character.isJavaIdentifierStart(currentCharacter))
+        {
             currentIdentifier = "";
             StringBuilder tmp = new StringBuilder();
-            while ((currentCharacter >= 'a' && currentCharacter <= 'z') ||
-                    (currentCharacter >= 'A' && currentCharacter <= 'Z') ||
-                    (currentCharacter >= '0' && currentCharacter <= '9')) {
+            while (Character.isJavaIdentifierPart(currentCharacter))
+            {
                 tmp.append(currentCharacter);
                 nextChar();
             }
@@ -252,11 +257,7 @@ public class Scanner {
                 tmp.append(currentCharacter);
                 nextChar();
             }
-            try {
-                this.currentNumber = Short.parseShort(tmp.toString());
-            } catch (NumberFormatException nfe) {
-                throw new ParsingException("the number " + tmp + " seems to be too long");
-            }
+            this.currentNumber = tmp.toString();
             currentSymbol = ScannerSymbols.INTEGER_LITERAL;
 
         } else {
@@ -272,11 +273,17 @@ public class Scanner {
         return currentIdentifier;
     }
 
-    public String getCurrentString() {
-        return currentString;
+    //    public String getCurrentString() {
+    //        return currentString;
+    //    }
+
+    public short getNumberAsShort() throws NumberFormatException
+    {
+        return Short.parseShort(currentNumber);
     }
 
-    public short getCurrentNumber() {
-        return currentNumber;
+    public int getNumberAsInteger() throws NumberFormatException
+    {
+        return Integer.parseInt(currentNumber);
     }
 }

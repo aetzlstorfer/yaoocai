@@ -21,9 +21,4 @@ public class ASTType {
     public boolean isPrimitive() {
         return primitive;
     }
-
-    @Override
-    public String toString() {
-        return typeName;
-    }
 }

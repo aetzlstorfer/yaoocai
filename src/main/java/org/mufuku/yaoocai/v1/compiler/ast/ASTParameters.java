@@ -15,9 +15,9 @@ public class ASTParameters implements Iterable<ASTParameter> {
         this.astParameters.add(astParameter);
     }
 
-    public ASTParameter getParameter(String identifier) {
-        return astParameters.stream().filter(p -> p.getIdentifier().equals(identifier)).findFirst().orElse(null);
-    }
+    //    public ASTParameter getParameter(String identifier) {
+    //        return astParameters.stream().filter(p -> p.getIdentifier().equals(identifier)).findFirst().orElse(null);
+    //    }
 
     public int getParameterSize() {
         return astParameters.size();
@@ -26,10 +26,5 @@ public class ASTParameters implements Iterable<ASTParameter> {
     @Override
     public Iterator<ASTParameter> iterator() {
         return astParameters.iterator();
-    }
-
-    @Override
-    public String toString() {
-        return astParameters.toString();
     }
 }

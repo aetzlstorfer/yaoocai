@@ -1,0 +1,8 @@
+
+
+function main() {
+/* TODO: this has to be fixed with #3 compiler validations
+  var a: integer = 32767;
+  var b: integer = -32768;
+  */
+}

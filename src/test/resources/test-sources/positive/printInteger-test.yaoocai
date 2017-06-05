@@ -1,0 +1,8 @@
+
+builtin function printInteger(value: integer)            -> vmfunc(1)
+
+function main() {
+  var a:integer = 123;
+  printInteger(a);
+  printInteger(666);
+}

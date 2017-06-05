@@ -62,7 +62,7 @@ public enum ScannerSymbols {
     TRUE("True literal"),
     FALSE("False literal"),
     INTEGER_LITERAL("Integer literal"),
-    STRING_LITERAL("String literal"),
+    //    STRING_LITERAL("String literal"),
 
     IDENTIFIER("Identifier");
 

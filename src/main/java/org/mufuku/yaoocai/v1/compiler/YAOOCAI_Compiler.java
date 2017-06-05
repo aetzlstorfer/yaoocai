@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * @author andreas.etzlstorfer@ecx.io
+ * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public class YAOOCAI_Compiler {
 

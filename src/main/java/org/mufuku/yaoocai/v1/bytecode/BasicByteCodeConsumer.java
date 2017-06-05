@@ -31,14 +31,20 @@ public abstract class BasicByteCodeConsumer {
         short majorVersion = getNext();
         short minorVersion = getNext();
 
-        if (majorVersion != expectedMajorVersion || minorVersion != expectedMinorVersion) {
-            throw new IllegalStateException("Invalid byte code version: " + majorVersion + "." + minorVersion);
+        if (majorVersion > expectedMajorVersion)
+        {
+            throw new IllegalStateException(
+                    "Byte code version (" + majorVersion + "." + minorVersion + ") is not compatible. Major version supported: "
+                            + expectedMajorVersion);
+        }
+
+        if (minorVersion > expectedMinorVersion)
+        {
+            throw new IllegalStateException("Byte code version (" + majorVersion + "." + minorVersion
+                    + ") is not compatible. Major version ok. Minor version supported: " + expectedMinorVersion);
         }
 
         this.mainFunctionIndex = getNext();
-        if (mainFunctionIndex < 0) {
-            throw new IllegalStateException("No main function pointer");
-        }
     }
 
     protected Short getNext() throws IOException {

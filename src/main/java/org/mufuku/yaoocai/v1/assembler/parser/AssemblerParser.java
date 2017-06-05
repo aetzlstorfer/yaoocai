@@ -1,6 +1,5 @@
 package org.mufuku.yaoocai.v1.assembler.parser;
 
-import org.mufuku.yaoocai.v1.Constants;
 import org.mufuku.yaoocai.v1.assembler.ast.ASTAssemblerFunction;
 import org.mufuku.yaoocai.v1.assembler.ast.ASTAssemblerScript;
 import org.mufuku.yaoocai.v1.assembler.scanner.AssemblerScanner;
@@ -27,8 +26,8 @@ public class AssemblerParser {
 
     public ASTAssemblerScript parse() throws IOException {
         ASTAssemblerScript script = new ASTAssemblerScript();
-        script.setMajorVersion(Constants.MAJOR_VERSION);
-        script.setMinorVersion(Constants.MINOR_VERSION);
+        script.setMajorVersion(InstructionSet.MAJOR_VERSION);
+        script.setMinorVersion(InstructionSet.MINOR_VERSION);
 
         while (scanner.getCurrentSymbol() == AssemblerScannerSymbols.FUNCTION) {
             ASTAssemblerFunction function = parseFunction();

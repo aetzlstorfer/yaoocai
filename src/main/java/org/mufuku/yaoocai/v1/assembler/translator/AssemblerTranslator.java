@@ -22,7 +22,7 @@ public class AssemblerTranslator extends BasicByteCodeProducer {
     }
 
     public void translate() throws IOException {
-        emitHeader(script.getMajorVersion(), script.getMinorVersion(), script.getMainFunctionIndex());
+        emitHeader(InstructionSet.PREAMBLE, script.getMajorVersion(), script.getMinorVersion(), script.getMainFunctionIndex());
         for (ASTAssemblerFunction function : script) {
             writeOpCode(InstructionSet.OpCodes.FUNCTION);
             writeFunction(function.getInstructions());

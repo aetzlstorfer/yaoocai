@@ -45,9 +45,4 @@ public class ASTScript {
     public short getMinorVersion() {
         return minorVersion;
     }
-
-    @Override
-    public String toString() {
-        return "<Script>: " + functions.keySet();
-    }
 }

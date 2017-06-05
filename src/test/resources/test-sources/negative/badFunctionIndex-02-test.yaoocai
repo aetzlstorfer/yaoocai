@@ -1,0 +1,5 @@
+
+builtin function test() -> vm_func(32768)
+
+function main() {
+}

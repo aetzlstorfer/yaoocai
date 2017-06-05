@@ -21,9 +21,4 @@ public class ASTParameter {
     public ASTType getType() {
         return type;
     }
-
-    @Override
-    public String toString() {
-        return identifier + ":" + type;
-    }
 }

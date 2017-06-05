@@ -1,12 +1,13 @@
 package org.mufuku.yaoocai.v1.vm;
 
-import org.mufuku.yaoocai.v1.Constants;
 import org.mufuku.yaoocai.v1.bytecode.BasicByteCodeConsumer;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
+import org.mufuku.yaoocai.v1.vm.builtins.BuiltInVMFunction;
 import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 /**
@@ -14,13 +15,17 @@ import java.util.*;
  */
 public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine {
 
-    private final Stack<Object> stack = new Stack<>();
-    private final Stack<LocalVariableStack> localVariableStack = new Stack<>();
-    private final Stack<Integer> callStack = new Stack<>();
+    private final Deque<Object> stack = new ArrayDeque<>();
+
+    private final Deque<LocalVariableStack> localVariableStack = new ArrayDeque<>();
+
+    private final Deque<Integer> callStack = new ArrayDeque<>();
     private final List<Integer> functionPointer = new ArrayList<>();
     private final Map<Short, BuiltInVMFunction> builtIns;
     private short[] code;
     private int codePointer = 0;
+
+    private PrintStream out = System.out;
     private boolean execution = true;
 
     public YAOOCAI_VM(InputStream in) {
@@ -28,7 +33,7 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     }
 
     public YAOOCAI_VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
-        super(in, Constants.MAJOR_VERSION, Constants.MINOR_VERSION);
+        super(in, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
         this.builtIns = builtIns;
     }
 
@@ -53,7 +58,8 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         this.codePointer = 0;
     }
 
-    protected Short storeAndGetNext() throws IOException {
+    private Short storeAndGetNext() throws IOException
+    {
         Short currentCode = super.getNext();
         if (currentCode != null) {
             this.code[this.codePointer++] = currentCode;
@@ -109,14 +115,12 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
             short functionIndex = code[codePointer];
             callStack.push(codePointer + 1);
             this.codePointer = functionPointer.get(functionIndex);
-            // TODO
         } else if (opCode == InstructionSet.OpCodes.INVOKE_BUILTIN.code()) {
             codePointer++;
             short functionIndex = code[codePointer];
             codePointer++;
             BuiltInVMFunction builtInVMFunction = builtIns.get(functionIndex);
             builtInVMFunction.handle(stack, this);
-            // TODO
         } else if (opCode == InstructionSet.OpCodes.RETURN.code()) {
             localVariableStack.pop();
             execution = !localVariableStack.isEmpty();
@@ -224,7 +228,14 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     }
 
     @Override
-    public void stop() {
-        this.execution = false;
+    public PrintStream getOut()
+    {
+        return out;
+    }
+
+    @Override
+    public void setOut(PrintStream out)
+    {
+        this.out = out;
     }
 }

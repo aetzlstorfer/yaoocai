@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class ASTIfStatement extends ASTBaseIfStatement {
 
-    private List<ASTBaseIfStatement> elseIfStatements = new ArrayList<>();
+    private final List<ASTBaseIfStatement> elseIfStatements = new ArrayList<>();
 
     private ASTBaseIfStatement elseBlockStatement;
 
@@ -20,7 +20,8 @@ public class ASTIfStatement extends ASTBaseIfStatement {
         this.elseBlockStatement = elseBlockStatement;
     }
 
-    public void addElseIfBllock(ASTBaseIfStatement elseIfStatement) {
+    public void addElseIfBlock(ASTBaseIfStatement elseIfStatement)
+    {
         elseIfStatements.add(elseIfStatement);
     }
 
