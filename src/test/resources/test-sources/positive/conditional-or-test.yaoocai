@@ -6,7 +6,7 @@ function testFourConditions(a: boolean, b: boolean, c: boolean, d: boolean): boo
   return a || b || c || d;
 }
 
-/*
+
 function testThreeConditions(a: boolean, b: boolean, c: boolean): boolean {
   return a || b || c;
 }
@@ -26,11 +26,11 @@ function testThreeConditions2(a: boolean, b: boolean, c: boolean): boolean {
 function testTwoConditions2(a: boolean, b: boolean): boolean {
   return a == 1 || b >= 1;
 }
-*/
+
 
 function main() {
   assertTrue(testFourConditions(true,   true,  true,  true ));
-  /*
+
   assertTrue(testFourConditions(false,  true,  true,  true ));
   assertTrue(testFourConditions(true,   false, true,  true ));
   assertTrue(testFourConditions(false,  false, true,  true ));
@@ -91,5 +91,4 @@ function main() {
   assertTrue(testTwoConditions2(0, 1));
   assertTrue(testTwoConditions2(1, 0));
   assertFalse(testTwoConditions2(0, 0));
-  */
 }
