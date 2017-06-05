@@ -15,8 +15,7 @@ public abstract class BasicByteCodeProducer {
         this.out = new DataOutputStream(out);
     }
 
-    protected void emitHeader(String preamble, short majorVersion, short minorVersion, short mainFunctionIndex) throws IOException
-    {
+    protected void emitHeader(String preamble, short majorVersion, short minorVersion, short mainFunctionIndex) throws IOException {
         out.writeChars(preamble);
         out.writeShort(majorVersion);
         out.writeShort(minorVersion);

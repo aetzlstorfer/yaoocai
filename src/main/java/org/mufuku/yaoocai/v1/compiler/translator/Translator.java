@@ -86,9 +86,7 @@ public class Translator extends BasicByteCodeProducer {
                 emitExpressionStatement((ASTExpressionStatement) statement);
             } else if (statement instanceof ASTWhileStatement) {
                 emitWhileStatement((ASTWhileStatement) statement);
-            }
-            else if (statement instanceof ASTBlock)
-            {
+            } else if (statement instanceof ASTBlock) {
                 emitCode((ASTBlock) statement);
             }
         }
@@ -117,8 +115,7 @@ public class Translator extends BasicByteCodeProducer {
         for (int i = 0; i < ifStatements.size(); i++) {
             ASTBaseIfStatement ifStatement = ifStatements.get(i);
 
-            if (ifStatement.getConditionExpression() != null)
-            {
+            if (ifStatement.getConditionExpression() != null) {
                 emitExpression(ifStatement.getConditionExpression());
 
                 short jumpSize = ifJumpTable.getIfJumpOffset(i);
@@ -127,24 +124,19 @@ public class Translator extends BasicByteCodeProducer {
                 emitCode(ifStatement.getBlock());
 
                 short endJumpSize = ifJumpTable.getEndJumpOffset(i);
-                if (endJumpSize > 1)
-                {
+                if (endJumpSize > 1) {
                     writeOpCode(InstructionSet.OpCodes.GOTO, endJumpSize);
                 }
-            }
-            else
-            { // write else block
+            } else { // write else block
                 emitCode(ifStatement.getBlock());
             }
 
         }
     }
 
-    private IfJumpTable calculateIfJumpTable(List<ASTBaseIfStatement> ifStatements) throws IOException
-    {
+    private IfJumpTable calculateIfJumpTable(List<ASTBaseIfStatement> ifStatements) throws IOException {
         IfJumpTable ifJumpTable = new IfJumpTable();
-        for (int i = 0; i < ifStatements.size(); i++)
-        {
+        for (int i = 0; i < ifStatements.size(); i++) {
             ASTBaseIfStatement ifStatement = ifStatements.get(i);
 
             boolean last = i < ifStatements.size() - 1;
@@ -203,48 +195,33 @@ public class Translator extends BasicByteCodeProducer {
                 expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT
                 ) {
             emitArithmeticAssignment(expression);
-        }
-        else if (expression.getOperator() == ASTOperator.CONDITIONAL_OR)
-        {
+        } else if (expression.getOperator() == ASTOperator.CONDITIONAL_OR) {
             emitConditionalOrExpression(expression);
-        }
-        else if (expression.getOperator() == ASTOperator.CONDITIONAL_AND)
-        {
+        } else if (expression.getOperator() == ASTOperator.CONDITIONAL_AND) {
             emitConditionalAndExpression(expression);
-        }
-        else
-        {
+        } else {
             emitSimpleBinaryExpression(expression);
         }
     }
 
-    private void emitVariableAssignment(ASTBinaryExpression expression) throws IOException
-    {
+    private void emitVariableAssignment(ASTBinaryExpression expression) throws IOException {
         ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getLeft();
         emitExpression(expression.getRight());
         short variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName());
         writeOpCode(InstructionSet.OpCodes.STORE, variableIndex);
     }
 
-    private void emitArithmeticAssignment(ASTBinaryExpression expression) throws IOException
-    {
+    private void emitArithmeticAssignment(ASTBinaryExpression expression) throws IOException {
         ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getLeft();
         emitVariable(variableExpression);
         emitExpression(expression.getRight());
-        if (expression.getOperator() == ASTOperator.ADDITION_ASSIGNMENT)
-        {
+        if (expression.getOperator() == ASTOperator.ADDITION_ASSIGNMENT) {
             writeOpCode(InstructionSet.OpCodes.ADD);
-        }
-        else if (expression.getOperator() == ASTOperator.SUBTRACTION_ASSIGNMENT)
-        {
+        } else if (expression.getOperator() == ASTOperator.SUBTRACTION_ASSIGNMENT) {
             writeOpCode(InstructionSet.OpCodes.SUB);
-        }
-        else if (expression.getOperator() == ASTOperator.MULTIPLICATION_ASSIGNMENT)
-        {
+        } else if (expression.getOperator() == ASTOperator.MULTIPLICATION_ASSIGNMENT) {
             writeOpCode(InstructionSet.OpCodes.MUL);
-        }
-        else if (expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT)
-        {
+        } else if (expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT) {
             writeOpCode(InstructionSet.OpCodes.DIV);
         }
         writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
@@ -325,62 +302,35 @@ public class Translator extends BasicByteCodeProducer {
         }
     }
 
-    private void emitSimpleBinaryExpression(ASTBinaryExpression expression) throws IOException
-    {
+    private void emitSimpleBinaryExpression(ASTBinaryExpression expression) throws IOException {
         emitExpression(expression.getLeft());
-        if (expression.getRight() != null)
-        {
+        if (expression.getRight() != null) {
             emitExpression(expression.getRight());
-            if (expression.getOperator() == ASTOperator.ADDITION)
-            {
+            if (expression.getOperator() == ASTOperator.ADDITION) {
                 writeOpCode(InstructionSet.OpCodes.ADD);
-            }
-            else if (expression.getOperator() == ASTOperator.SUBTRACTION)
-            {
+            } else if (expression.getOperator() == ASTOperator.SUBTRACTION) {
                 writeOpCode(InstructionSet.OpCodes.SUB);
-            }
-            else if (expression.getOperator() == ASTOperator.MULTIPLICATION)
-            {
+            } else if (expression.getOperator() == ASTOperator.MULTIPLICATION) {
                 writeOpCode(InstructionSet.OpCodes.MUL);
-            }
-            else if (expression.getOperator() == ASTOperator.DIVISION)
-            {
+            } else if (expression.getOperator() == ASTOperator.DIVISION) {
                 writeOpCode(InstructionSet.OpCodes.DIV);
-            }
-            else if (expression.getOperator() == ASTOperator.MODULO)
-            {
+            } else if (expression.getOperator() == ASTOperator.MODULO) {
                 writeOpCode(InstructionSet.OpCodes.MOD);
-            }
-            else if (expression.getOperator() == ASTOperator.EQUAL)
-            {
+            } else if (expression.getOperator() == ASTOperator.EQUAL) {
                 writeOpCode(InstructionSet.OpCodes.CMP_EQ);
-            }
-            else if (expression.getOperator() == ASTOperator.NOT_EQUAL)
-            {
+            } else if (expression.getOperator() == ASTOperator.NOT_EQUAL) {
                 writeOpCode(InstructionSet.OpCodes.CMP_NE);
-            }
-            else if (expression.getOperator() == ASTOperator.LESS_THAN)
-            {
+            } else if (expression.getOperator() == ASTOperator.LESS_THAN) {
                 writeOpCode(InstructionSet.OpCodes.CMP_LT);
-            }
-            else if (expression.getOperator() == ASTOperator.LESS_THAN_OR_EQUAL)
-            {
+            } else if (expression.getOperator() == ASTOperator.LESS_THAN_OR_EQUAL) {
                 writeOpCode(InstructionSet.OpCodes.CMP_LTE);
-            }
-            else if (expression.getOperator() == ASTOperator.GREATER_THAN)
-            {
+            } else if (expression.getOperator() == ASTOperator.GREATER_THAN) {
                 writeOpCode(InstructionSet.OpCodes.CMP_GT);
-            }
-            else if (expression.getOperator() == ASTOperator.GREATER_THAN_OR_EQUAL)
-            {
+            } else if (expression.getOperator() == ASTOperator.GREATER_THAN_OR_EQUAL) {
                 writeOpCode(InstructionSet.OpCodes.CMP_GTE);
-            }
-            else if (expression.getOperator() == ASTOperator.BITWISE_AND)
-            {
+            } else if (expression.getOperator() == ASTOperator.BITWISE_AND) {
                 writeOpCode(InstructionSet.OpCodes.AND);
-            }
-            else if (expression.getOperator() == ASTOperator.BITWISE_OR)
-            {
+            } else if (expression.getOperator() == ASTOperator.BITWISE_OR) {
                 writeOpCode(InstructionSet.OpCodes.OR);
             }
         }

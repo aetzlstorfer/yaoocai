@@ -149,36 +149,31 @@ public class LanguageIntegrationTest extends BaseLangTest {
     }
 
     @Test
-    public void test_subBlock_normalRun() throws IOException
-    {
+    public void test_subBlock_normalRun() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/subBlock-test.yaoocai");
         vm.execute();
     }
 
     @Test
-    public void test_declaringIntegersWithGoodRange_normalRun() throws IOException
-    {
+    public void test_declaringIntegersWithGoodRange_normalRun() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/goodIntegerRanges-test.yaoocai");
         vm.execute();
     }
 
     @Test
-    public void test_declaringIntegersWithBadRange_parsingException() throws IOException
-    {
+    public void test_declaringIntegersWithBadRange_parsingException() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/badIntegerRanges-test.yaoocai");
         vm.execute();
     }
 
     @Test(expected = ParsingException.class)
-    public void test_declareBuiltInFunctionWithNegativeIndex_parsingException() throws IOException
-    {
+    public void test_declareBuiltInFunctionWithNegativeIndex_parsingException() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/badFunctionIndex-01-test.yaoocai");
         vm.execute();
     }
 
     @Test(expected = ParsingException.class)
-    public void test_declareBuiltInFunctionWithOutOfRangeIndex_parsingException() throws IOException
-    {
+    public void test_declareBuiltInFunctionWithOutOfRangeIndex_parsingException() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/badFunctionIndex-02-test.yaoocai");
         vm.execute();
     }

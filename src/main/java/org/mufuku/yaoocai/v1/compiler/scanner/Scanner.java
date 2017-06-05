@@ -19,8 +19,7 @@ public class Scanner {
     private String currentNumber;
     private boolean comment;
 
-    public Scanner(InputStream in)
-    {
+    public Scanner(InputStream in) {
         this.reader = new BufferedReader(new InputStreamReader(in));
     }
 
@@ -33,8 +32,7 @@ public class Scanner {
         }
     }
 
-    public void initialize() throws IOException
-    {
+    public void initialize() throws IOException {
         nextChar();
         moveToNextSymbol();
     }
@@ -197,13 +195,10 @@ public class Scanner {
                 nextChar();
             }
             this.currentString = tmp.toString();
-        }*/
-        else if (Character.isJavaIdentifierStart(currentCharacter))
-        {
+        }*/ else if (Character.isJavaIdentifierStart(currentCharacter)) {
             currentIdentifier = "";
             StringBuilder tmp = new StringBuilder();
-            while (Character.isJavaIdentifierPart(currentCharacter))
-            {
+            while (Character.isJavaIdentifierPart(currentCharacter)) {
                 tmp.append(currentCharacter);
                 nextChar();
             }
@@ -277,13 +272,11 @@ public class Scanner {
     //        return currentString;
     //    }
 
-    public short getNumberAsShort() throws NumberFormatException
-    {
+    public short getNumberAsShort() throws NumberFormatException {
         return Short.parseShort(currentNumber);
     }
 
-    public int getNumberAsInteger() throws NumberFormatException
-    {
+    public int getNumberAsInteger() throws NumberFormatException {
         return Integer.parseInt(currentNumber);
     }
 }

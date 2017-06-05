@@ -58,8 +58,7 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         this.codePointer = 0;
     }
 
-    private Short storeAndGetNext() throws IOException
-    {
+    private Short storeAndGetNext() throws IOException {
         Short currentCode = super.getNext();
         if (currentCode != null) {
             this.code[this.codePointer++] = currentCode;
@@ -228,14 +227,12 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     }
 
     @Override
-    public PrintStream getOut()
-    {
+    public PrintStream getOut() {
         return out;
     }
 
     @Override
-    public void setOut(PrintStream out)
-    {
+    public void setOut(PrintStream out) {
         this.out = out;
     }
 }
