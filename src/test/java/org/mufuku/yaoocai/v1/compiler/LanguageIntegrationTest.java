@@ -184,4 +184,10 @@ public class LanguageIntegrationTest extends BaseLangTest {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/clearStack-test.yaoocai");
         vm.execute();
     }
+
+    @Test
+    public void test_advancedIdentifiers_ValidCompilation() throws IOException {
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/advancedIdentifiers-test.yaoocai");
+        vm.execute();
+    }
 }

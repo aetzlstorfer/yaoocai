@@ -1,0 +1,15 @@
+
+function _some_function() {
+}
+
+function öäüÖÄÜß_umlaut() {
+}
+
+function $_dollar() {
+}
+
+function main() {
+  _some_function();
+  öäüÖÄÜß_umlaut();
+  $_dollar();
+}
