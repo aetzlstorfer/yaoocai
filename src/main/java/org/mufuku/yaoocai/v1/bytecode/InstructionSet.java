@@ -24,6 +24,7 @@ public interface InstructionSet {
         // 2. stack
         STORE(0x0200, "store", 1),
         LOAD(0x0201, "load", 1),
+        POP(0x0202, "pop", 0),
 
         // 3. invoke
         INVOKE(0x0300, "invoke", 1),
@@ -59,10 +60,10 @@ public interface InstructionSet {
         private static final Map<Short, OpCodes> mapping = new HashMap<>();
         private static final Map<String, OpCodes> mnemonic_mapping = new HashMap<>();
 
-        protected final short code;
-        protected final String disassembleCode;
-        protected final int opCodeParam;
-        protected final boolean addressOpCode;
+        final short code;
+        final String disassembleCode;
+        final int opCodeParam;
+        final boolean addressOpCode;
 
         OpCodes(int code, String disassembleCode, int opCodeParam) {
             this(code, disassembleCode, opCodeParam, false);
