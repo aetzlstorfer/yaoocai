@@ -1,7 +1,11 @@
 package org.mufuku.yaoocai.v1;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.mufuku.yaoocai.v1.assembler.YAOOCAI_AssemblerCompiler;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
@@ -15,8 +19,11 @@ import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
@@ -26,19 +33,60 @@ import static org.junit.Assert.*;
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public abstract class BaseLangTest {
-    protected final Test_Input inputFunction = new Test_Input();
 
+    protected static boolean PERFORM_STATISTICS = false;
+    protected static boolean PRINT_BYTECODE = false;
+
+    private static long totalFileSize = 0;
+    private static long totalByteCodeSize = 0;
+    private static ZipOutputStream zipOutputStream;
+    private static ByteArrayOutputStream outputStream;
+
+    protected final Test_Input inputFunction = new Test_Input();
     protected final Test_Output outputFunction = new Test_Output();
 
     private final BuiltInVMFunction fail = new Fail();
-
     private final AssertEquals equals = new AssertEquals();
-
     private final AssertTrue assertTrue = new AssertTrue();
-
     private final AssertFalse assertFalse = new AssertFalse();
 
     private TestVM lastVM;
+
+    @BeforeClass
+    public static void startCollectingStatistics() throws FileNotFoundException {
+        outputStream = new ByteArrayOutputStream();
+        zipOutputStream = new ZipOutputStream(outputStream);
+        totalByteCodeSize = 0;
+        totalFileSize = 0;
+    }
+
+    @AfterClass
+    public static void stopCollectingStatistics() throws IOException {
+        if (PERFORM_STATISTICS) {
+            long compressedByteCodeSize = outputStream.toByteArray().length;
+
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            formatter.setMaximumFractionDigits(0);
+
+            System.out.println("******* compilation result ******* ");
+            System.out.println("total source code size compiled : " + FileUtils.byteCountToDisplaySize(totalFileSize) + " (" + totalFileSize + ")");
+            System.out.println("total byte code size produced   : " + FileUtils.byteCountToDisplaySize(totalByteCodeSize) + " (" + totalByteCodeSize + ")");
+            System.out.println("ratio (source/byte code)        : " + formatter.format((double) totalByteCodeSize / totalFileSize * 100) + "%");
+            System.out.println();
+            System.out.println("compressed byte code size       : " + FileUtils.byteCountToDisplaySize(compressedByteCodeSize) + " (" + compressedByteCodeSize + ")");
+            System.out.println("ratio (compression)             : " + formatter.format((double) compressedByteCodeSize / totalByteCodeSize * 100) + "%");
+            System.out.println();
+            System.out.println("ratio (source/compr. byte code) : " + formatter.format((double) compressedByteCodeSize / totalFileSize * 100) + "%");
+
+            PERFORM_STATISTICS = false;
+        }
+
+        IOUtils.closeQuietly(zipOutputStream);
+
+        if (PRINT_BYTECODE) {
+            PRINT_BYTECODE = false;
+        }
+    }
 
     @After
     public void afterChecks() {
@@ -76,9 +124,30 @@ public abstract class BaseLangTest {
         compile(source, byteOut);
 
         ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-        ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION, System.out);
-        byteCodeViewer.convert();
-        byteIn.reset();
+        if (PERFORM_STATISTICS) {
+            System.out.println("handling file: " + source);
+
+            long fileSize = new File(BaseLangTest.class.getResource(source).getFile()).length();
+            totalFileSize += fileSize;
+
+            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            numberFormat.setMaximumFractionDigits(2);
+            System.out.println("source file size / byte code size / ratio: " + fileSize + " / " + byteOut.toByteArray().length + " / " +
+                    numberFormat.format((double) byteOut.toByteArray().length / (double) fileSize)
+            );
+
+            ZipEntry entry = new ZipEntry("/" + source);
+            zipOutputStream.putNextEntry(entry);
+            int byteCodeSize = IOUtils.copy(byteIn, zipOutputStream);
+            totalByteCodeSize += byteCodeSize;
+            byteIn.reset();
+        }
+
+        if (PRINT_BYTECODE) {
+            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION, System.out);
+            byteCodeViewer.convert();
+            byteIn.reset();
+        }
 
         Map<Short, BuiltInVMFunction> testBuiltIns = new HashMap<>();
 

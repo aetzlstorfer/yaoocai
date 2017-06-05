@@ -1,6 +1,7 @@
 package org.mufuku.yaoocai.v1.compiler;
 
 import org.hamcrest.Matchers;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mufuku.yaoocai.v1.BaseLangTest;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
@@ -18,6 +19,12 @@ import static org.junit.Assert.assertThat;
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public class LanguageIntegrationTest extends BaseLangTest {
+
+    @BeforeClass
+    public static void init() {
+        BaseLangTest.PRINT_BYTECODE = true;
+        BaseLangTest.PERFORM_STATISTICS = true;
+    }
 
     @Test(expected = ParsingException.class)
     public void test_invalidSyntax1_failWithParsingException() throws IOException {
