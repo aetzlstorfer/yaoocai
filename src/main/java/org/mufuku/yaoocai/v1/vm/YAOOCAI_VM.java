@@ -22,8 +22,8 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     private final Deque<Integer> callStack = new ArrayDeque<>();
     private final List<Integer> functionPointer = new ArrayList<>();
     private final Map<Short, BuiltInVMFunction> builtIns;
-    private short[] code;
-    private int codePointer = 0;
+    protected short[] code;
+    protected int codePointer = 0;
 
     private PrintStream out = System.out;
     private boolean execution = true;
@@ -43,7 +43,7 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         executeCode();
     }
 
-    private void readCode() throws IOException {
+    protected void readCode() throws IOException {
         this.code = new short[in.available() / 2];
         this.codePointer = 0;
         Short currentOpCode = storeAndGetNext();
@@ -82,7 +82,7 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         }
     }
 
-    private void executeNextInstruction() {
+    protected void executeNextInstruction() {
         short opCode = this.code[this.codePointer];
         if (opCode == InstructionSet.OpCodes.FUNCTION.code()) {
             localVariableStack.push(new LocalVariableStack());

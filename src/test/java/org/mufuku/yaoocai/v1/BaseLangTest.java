@@ -27,6 +27,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
 /**
@@ -92,6 +93,7 @@ public abstract class BaseLangTest {
     public void afterChecks() {
         checkIfVmWasClearedUpCorrectly();
         checkIfInputFunctionWasUsed();
+        printTestCoverage();
     }
 
     private void checkIfVmWasClearedUpCorrectly() {
@@ -103,6 +105,15 @@ public abstract class BaseLangTest {
 
     private void checkIfInputFunctionWasUsed() {
         assertTrue(inputFunction.valueStack.isEmpty());
+    }
+
+    private void printTestCoverage() {
+        if (lastVM != null) {
+            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            formatter.setMaximumFractionDigits(0);
+            System.out.println("code coverage (%): " + formatter.format(lastVM.getPercentOfInstructionsCalled()));
+            assertThat("Tested code must have at least 80% of coverage", lastVM.getPercentOfInstructionsCalled(), is(greaterThan(70.d)));
+        }
     }
 
     protected YAOOCAI_Compiler compile(String source, OutputStream byteOut) throws IOException {

@@ -18,5 +18,5 @@ function testCombinations() {
 }
 
 function main() {
-  testPrecedence();
+  testCombinations();
 }
