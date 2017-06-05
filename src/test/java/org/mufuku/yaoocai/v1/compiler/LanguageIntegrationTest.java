@@ -177,9 +177,15 @@ public class LanguageIntegrationTest extends BaseLangTest {
     }
 
     @Test(expected = ParsingException.class)
-    public void test_declareBuiltInFunctionWithOutOfRangeIndex_parsingException() throws IOException
-    {
+    public void test_declareBuiltInFunctionWithOutOfRangeIndex_parsingException() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/negative/badFunctionIndex-02-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test
+    public void test_stackPollutingStatements_ClearStack() throws IOException {
+        inputFunction.setValue(1);
+        YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/clearStack-test.yaoocai");
         vm.execute();
     }
 }
