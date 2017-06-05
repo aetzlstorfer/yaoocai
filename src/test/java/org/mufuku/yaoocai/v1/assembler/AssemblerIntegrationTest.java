@@ -24,15 +24,8 @@ public class AssemblerIntegrationTest extends BaseLangTest {
     public void test_validAssemblerCode_equalToCompiledSource() throws IOException {
         ByteArrayOutputStream sourceOut = new ByteArrayOutputStream();
         ByteArrayOutputStream assembleOut = new ByteArrayOutputStream();
-
         compile("/test-assembler-sources/test-01-source.yaoocai", sourceOut);
-
-        ByteArrayInputStream in = new ByteArrayInputStream(sourceOut.toByteArray());
-        ByteCodeViewer codeViewer = new ByteCodeViewer(in, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION, System.out);
-        codeViewer.convert();
-
         assemble("/test-assembler-sources/test-01-asm.yaoocaia", assembleOut);
-
         assertArrayEquals(sourceOut.toByteArray(), assembleOut.toByteArray());
     }
 
