@@ -11,23 +11,19 @@ import java.io.InputStream;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ParserTest
-{
+public class ParserTest {
 
     @Test(expected = ParsingException.class)
-    public void test_invalidIO_parsingException() throws IOException
-    {
+    public void test_invalidIO_parsingException() throws IOException {
         InputStream emptyIn = new FailingInputStream();
         Scanner scanner = new Scanner(emptyIn);
         Parser parser = new Parser(scanner);
         parser.parse();
     }
 
-    private static class FailingInputStream extends InputStream
-    {
+    private static class FailingInputStream extends InputStream {
         @Override
-        public int read() throws IOException
-        {
+        public int read() throws IOException {
             throw new IOException("Test");
         }
     }

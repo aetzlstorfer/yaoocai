@@ -31,15 +31,13 @@ public abstract class BasicByteCodeConsumer {
         short majorVersion = getNext();
         short minorVersion = getNext();
 
-        if (majorVersion > expectedMajorVersion)
-        {
+        if (majorVersion > expectedMajorVersion) {
             throw new IllegalStateException(
                     "Byte code version (" + majorVersion + "." + minorVersion + ") is not compatible. Major version supported: "
                             + expectedMajorVersion);
         }
 
-        if (minorVersion > expectedMinorVersion)
-        {
+        if (minorVersion > expectedMinorVersion) {
             throw new IllegalStateException("Byte code version (" + majorVersion + "." + minorVersion
                     + ") is not compatible. Major version ok. Minor version supported: " + expectedMinorVersion);
         }

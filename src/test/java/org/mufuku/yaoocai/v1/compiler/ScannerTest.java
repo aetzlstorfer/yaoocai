@@ -38,8 +38,7 @@ public class ScannerTest {
     }
 
     @Test
-    public void test_unknownCharacters_UNKNOWN_symbol() throws IOException
-    {
+    public void test_unknownCharacters_UNKNOWN_symbol() throws IOException {
         InputStream in = new ByteArrayInputStream("@".getBytes());
         Scanner scanner = new Scanner(in);
         scanner.initialize();

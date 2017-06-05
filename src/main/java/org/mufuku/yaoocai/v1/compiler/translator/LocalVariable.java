@@ -5,32 +5,27 @@ import org.mufuku.yaoocai.v1.compiler.ast.ASTType;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-class LocalVariable
-{
+class LocalVariable {
 
     private final String name;
     private final ASTType type;
     private final short index;
 
-    LocalVariable(String name, ASTType type, short index)
-    {
+    LocalVariable(String name, ASTType type, short index) {
         this.name = name;
         this.type = type;
         this.index = index;
     }
 
-    String getName()
-    {
+    String getName() {
         return name;
     }
 
-    ASTType getType()
-    {
+    ASTType getType() {
         return type;
     }
 
-    short getIndex()
-    {
+    short getIndex() {
         return index;
     }
 }

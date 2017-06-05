@@ -20,8 +20,7 @@ public class ASTIfStatement extends ASTBaseIfStatement {
         this.elseBlockStatement = elseBlockStatement;
     }
 
-    public void addElseIfBlock(ASTBaseIfStatement elseIfStatement)
-    {
+    public void addElseIfBlock(ASTBaseIfStatement elseIfStatement) {
         elseIfStatements.add(elseIfStatement);
     }
 

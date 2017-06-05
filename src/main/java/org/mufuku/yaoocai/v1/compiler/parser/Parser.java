@@ -18,16 +18,12 @@ public class Parser {
         this.scanner = scanner;
     }
 
-    public ASTScript parse()
-    {
+    public ASTScript parse() {
         ASTScript script;
-        try
-        {
+        try {
             scanner.initialize();
             script = parseScript();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new ParsingException("Could not compile file correctly. Error: " + e.getMessage(), e);
         }
         if (scanner.getCurrentSymbol() != ScannerSymbols.EOI) {
@@ -66,12 +62,9 @@ public class Parser {
         checkAndProceed(ScannerSymbols.PAR_START);
         check(ScannerSymbols.INTEGER_LITERAL);
         short functionCode;
-        try
-        {
+        try {
             functionCode = scanner.getNumberAsShort(); // can't be negative because of grammar
-        }
-        catch (NumberFormatException e)
-        {
+        } catch (NumberFormatException e) {
             throw new ParsingException("Invalid function index used. Range: 0 - " + Short.MAX_VALUE);
         }
         scanner.moveToNextSymbol();
@@ -431,9 +424,7 @@ public class Parser {
             expression = new ASTLiteralExpression<>(value);
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.TRUE) {
             expression = new ASTLiteralExpression<>(true);
-        }
-        else
-        {
+        } else {
             check(ScannerSymbols.FALSE);
             expression = new ASTLiteralExpression<>(false);
         } /*else if (scanner.getCurrentSymbol() == ScannerSymbols.STRING_LITERAL) {

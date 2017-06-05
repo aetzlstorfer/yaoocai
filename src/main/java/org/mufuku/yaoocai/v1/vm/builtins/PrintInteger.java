@@ -7,8 +7,7 @@ import java.util.Deque;
 public class PrintInteger implements BuiltInVMFunction {
 
     @Override
-    public void handle(Deque<Object> stack, VirtualMachine vm)
-    {
+    public void handle(Deque<Object> stack, VirtualMachine vm) {
         Object value = stack.pop();
         vm.getOut().println(value);
     }

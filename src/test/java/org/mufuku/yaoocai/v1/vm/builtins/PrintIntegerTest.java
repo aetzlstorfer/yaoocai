@@ -15,12 +15,10 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class PrintIntegerTest extends BaseLangTest
-{
+public class PrintIntegerTest extends BaseLangTest {
 
     @Test
-    public void test_testProgram_expectedOutput() throws IOException
-    {
+    public void test_testProgram_expectedOutput() throws IOException {
         YAOOCAI_VM vm = compileAndGetTestVM("/test-sources/positive/printInteger-test.yaoocai");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
