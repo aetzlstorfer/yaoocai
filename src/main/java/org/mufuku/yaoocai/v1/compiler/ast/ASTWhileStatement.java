@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTWhileStatement extends ASTStatement {
+public class ASTWhileStatement implements ASTStatement {
 
     private final ASTExpression conditionExpression;
 

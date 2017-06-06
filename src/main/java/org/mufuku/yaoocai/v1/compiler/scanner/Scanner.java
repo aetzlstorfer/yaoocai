@@ -15,7 +15,6 @@ public class Scanner {
 
     private String currentIdentifier;
 
-    //    private String currentString;
     private String currentNumber;
     private boolean comment;
 
@@ -181,21 +180,7 @@ public class Scanner {
                 currentSymbol = ScannerSymbols.CONDITIONAL_AND_OPERATOR;
                 nextChar();
             }
-        } /*else if (currentCharacter == '"') {
-            currentSymbol = ScannerSymbols.STRING_LITERAL;
-            StringBuilder tmp = new StringBuilder();
-            nextChar();
-            while (currentCharacter != '"') {
-                tmp.append(currentCharacter);
-                nextChar(); // TODO add escaping rules
-            }
-            if (currentCharacter != '"') {
-                throw new ParsingException("no quote at the end of the string literal");
-            } else {
-                nextChar();
-            }
-            this.currentString = tmp.toString();
-        }*/ else if (Character.isJavaIdentifierStart(currentCharacter)) {
+        } else if (Character.isJavaIdentifierStart(currentCharacter)) {
             currentIdentifier = "";
             StringBuilder tmp = new StringBuilder();
             while (Character.isJavaIdentifierPart(currentCharacter)) {
@@ -232,9 +217,6 @@ public class Scanner {
                 case "false":
                     currentSymbol = ScannerSymbols.FALSE;
                     break;
-//                case "null":
-//                    currentSymbol = ScannerSymbols.NULL;
-//                    break;
                 case "integer":
                     currentSymbol = ScannerSymbols.INTEGER;
                     break;
@@ -268,15 +250,11 @@ public class Scanner {
         return currentIdentifier;
     }
 
-    //    public String getCurrentString() {
-    //        return currentString;
-    //    }
-
-    public short getNumberAsShort() throws NumberFormatException {
+    public short getNumberAsShort() {
         return Short.parseShort(currentNumber);
     }
 
-    public int getNumberAsInteger() throws NumberFormatException {
+    public int getNumberAsInteger() {
         return Integer.parseInt(currentNumber);
     }
 }

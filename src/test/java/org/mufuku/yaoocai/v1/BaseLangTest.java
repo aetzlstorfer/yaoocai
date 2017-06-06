@@ -6,14 +6,14 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.mufuku.yaoocai.v1.assembler.YAOOCAI_AssemblerCompiler;
+import org.mufuku.yaoocai.v1.assembler.AssemblerCompiler;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
+import org.mufuku.yaoocai.v1.compiler.Compiler;
 import org.mufuku.yaoocai.v1.compiler.LanguageIntegrationTest;
-import org.mufuku.yaoocai.v1.compiler.YAOOCAI_Compiler;
 import org.mufuku.yaoocai.v1.vm.TestVM;
+import org.mufuku.yaoocai.v1.vm.VM;
 import org.mufuku.yaoocai.v1.vm.VirtualMachine;
-import org.mufuku.yaoocai.v1.vm.YAOOCAI_VM;
 import org.mufuku.yaoocai.v1.vm.builtins.BuiltInVMFunction;
 import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
@@ -116,21 +116,21 @@ public abstract class BaseLangTest {
         }
     }
 
-    protected YAOOCAI_Compiler compile(String source, OutputStream byteOut) throws IOException {
+    protected Compiler compile(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
-        YAOOCAI_Compiler compiler = new YAOOCAI_Compiler(sourceIn, byteOut);
+        Compiler compiler = new Compiler(sourceIn, byteOut);
         compiler.compile();
         return compiler;
     }
 
-    protected YAOOCAI_AssemblerCompiler assemble(String source, OutputStream byteOut) throws IOException {
+    protected AssemblerCompiler assemble(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
-        YAOOCAI_AssemblerCompiler compiler = new YAOOCAI_AssemblerCompiler(sourceIn, byteOut);
+        AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
         compiler.compile();
         return compiler;
     }
 
-    protected YAOOCAI_VM compileAndGetTestVM(String source) throws IOException {
+    protected VM compileAndGetTestVM(String source) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         compile(source, byteOut);
 

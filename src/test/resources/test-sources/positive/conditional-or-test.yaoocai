@@ -19,11 +19,11 @@ function testFourConditions2(a: integer, b: integer, c: integer, d: integer): bo
   return a == 1 || b >= 1 || c > 0 || d != 0;
 }
 
-function testThreeConditions2(a: boolean, b: boolean, c: boolean): boolean {
+function testThreeConditions2(a: integer, b: integer, c: integer): boolean {
   return a == 1 || b >= 1 || c > 0;
 }
 
-function testTwoConditions2(a: boolean, b: boolean): boolean {
+function testTwoConditions2(a: integer, b: integer): boolean {
   return a == 1 || b >= 1;
 }
 

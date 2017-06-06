@@ -86,7 +86,7 @@ public class AssemblerIntegrationTest extends BaseLangTest {
 
             ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
             ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
-            YAOOCAI_AssemblerCompiler assemblerCompiler = new YAOOCAI_AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
+            AssemblerCompiler assemblerCompiler = new AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
             assemblerCompiler.compile();
 
             Assert.assertArrayEquals(byteOut.toByteArray(), byteOut2.toByteArray());

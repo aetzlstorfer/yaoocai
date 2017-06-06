@@ -1,0 +1,8 @@
+
+
+function main() {
+  var a:integer = 2;
+  if(a) {
+    a++;
+  }
+}

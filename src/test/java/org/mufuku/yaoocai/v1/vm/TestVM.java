@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class TestVM extends YAOOCAI_VM {
+public class TestVM extends VM {
 
     private BitSet executedOpCodes;
 
@@ -36,11 +36,6 @@ public class TestVM extends YAOOCAI_VM {
 
     public double getPercentOfInstructionsCalled() {
         return 100 * executedOpCodes.cardinality() / (double) executedOpCodes.length();
-    }
-
-    @Override
-    public void execute() throws IOException {
-        super.execute();
     }
 
     public Deque<Object> getStack() {

@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -25,7 +26,7 @@ public class ScannerTest {
         Scanner scanner = new Scanner(in);
         Parser parser = new Parser(scanner);
         ASTScript script = parser.parse();
-        assertThat(script.functions().hasNext(), is(false));
+        assertThat(script.declaredFunctions(), is(empty()));
     }
 
     @Test
@@ -34,7 +35,7 @@ public class ScannerTest {
         Scanner scanner = new Scanner(in);
         Parser parser = new Parser(scanner);
         ASTScript script = parser.parse();
-        assertThat(script.functions().hasNext(), is(false));
+        assertThat(script.declaredFunctions(), is(empty()));
     }
 
     @Test

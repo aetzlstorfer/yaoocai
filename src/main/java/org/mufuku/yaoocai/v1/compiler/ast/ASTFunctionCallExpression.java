@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTFunctionCallExpression extends ASTExpression {
+public class ASTFunctionCallExpression implements ASTExpression {
 
     private final String functionName;
     private ASTArguments arguments;

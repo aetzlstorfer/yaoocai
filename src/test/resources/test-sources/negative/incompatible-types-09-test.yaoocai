@@ -1,0 +1,5 @@
+
+function main() {
+  var a: integer;
+  a = true;
+}

@@ -1,0 +1,5 @@
+
+function main() {
+  var a: boolean;
+  a++;
+}

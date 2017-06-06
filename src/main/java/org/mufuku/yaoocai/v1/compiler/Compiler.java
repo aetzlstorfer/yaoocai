@@ -12,12 +12,12 @@ import java.io.OutputStream;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class YAOOCAI_Compiler {
+public class Compiler {
 
     private final InputStream in;
     private final OutputStream out;
 
-    public YAOOCAI_Compiler(InputStream in, OutputStream out) {
+    public Compiler(InputStream in, OutputStream out) {
         this.in = in;
         this.out = out;
     }

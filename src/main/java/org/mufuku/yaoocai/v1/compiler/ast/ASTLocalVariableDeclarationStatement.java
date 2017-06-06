@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTLocalVariableDeclarationStatement extends ASTStatement {
+public class ASTLocalVariableDeclarationStatement implements ASTStatement {
 
     private final String identifier;
 

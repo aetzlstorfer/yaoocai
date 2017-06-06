@@ -21,34 +21,37 @@ class FunctionStorage {
 
     private short functionCount = 0;
 
-    public void addBuiltinFunction(ASTBuiltinFunction function) {
+    void addBuiltinFunction(ASTBuiltinFunction function) {
         builtinIndex.put(function.getIdentifier(), function);
     }
 
-    public ASTBuiltinFunction getBuiltinFunction(String name) {
+    ASTBuiltinFunction getBuiltinFunction(String name) {
         return builtinIndex.get(name);
     }
 
-    public void addFunction(ASTFunction astFunction) {
+    void addFunction(ASTFunction astFunction) {
         String name = astFunction.getIdentifier();
         functionIndex.put(name, functionCount++);
         functions.put(name, astFunction);
     }
 
-    public Short getFunctionIndex(String name) {
+    Short getFunctionIndex(String name) {
         return functionIndex.get(name);
     }
 
-    @SuppressWarnings("unchecked")
-    public ASTType getFunctionReturnType(String functionName) {
-        Map<String, ASTBasicFunction> localFunctions = (Map<String, ASTBasicFunction>) (Map<String, ?>) this.functions;
-        Map<String, ASTBasicFunction> builtInFunctions = (Map<String, ASTBasicFunction>) (Map<String, ?>) this.builtinIndex;
-
-        ASTBasicFunction function = localFunctions.getOrDefault(functionName, builtInFunctions.get(functionName));
+    ASTType getFunctionReturnType(String functionName) {
+        ASTBasicFunction function = resolveFunction(functionName);
         ASTType returnType = null;
         if (function != null) {
             returnType = function.getReturnType();
         }
         return returnType;
+    }
+
+    @SuppressWarnings("unchecked")
+    ASTBasicFunction resolveFunction(String functionName) {
+        Map<String, ASTBasicFunction> localFunctions = (Map<String, ASTBasicFunction>) (Map<String, ?>) this.functions;
+        Map<String, ASTBasicFunction> builtInFunctions = (Map<String, ASTBasicFunction>) (Map<String, ?>) this.builtinIndex;
+        return localFunctions.getOrDefault(functionName, builtInFunctions.get(functionName));
     }
 }

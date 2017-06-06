@@ -1,0 +1,8 @@
+
+function max(a: integer, b: integer): integer {
+  return 99;
+}
+
+function main() {
+  max(1);
+}

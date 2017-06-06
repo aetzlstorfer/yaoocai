@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTBlock extends ASTStatement implements Iterable<ASTStatement> {
+public class ASTBlock implements ASTStatement, Iterable<ASTStatement> {
 
     private final List<ASTStatement> statements = new ArrayList<>();
 

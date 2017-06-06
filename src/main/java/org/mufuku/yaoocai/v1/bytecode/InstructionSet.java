@@ -6,13 +6,13 @@ import java.util.Map;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public interface InstructionSet {
+public final class InstructionSet {
 
-    String PREAMBLE = "yaoocai";
-    short MAJOR_VERSION = 1;
-    short MINOR_VERSION = 1;
+    public static final String PREAMBLE = "yaoocai";
+    public static final short MAJOR_VERSION = 1;
+    public static final short MINOR_VERSION = 1;
 
-    enum OpCodes {
+    public enum OpCodes {
         // 0. functions
         FUNCTION(0x0000, "function", 0),
 

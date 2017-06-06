@@ -1,0 +1,9 @@
+
+builtin function f1(a: integer): boolean -> vm_func(0)
+
+function f1(a: boolean):integer {
+}
+
+function main() {
+  f1();
+}

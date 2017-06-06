@@ -1,0 +1,5 @@
+
+function main() {
+  var variable:integer = 1;
+  printInteger(variable_);
+}

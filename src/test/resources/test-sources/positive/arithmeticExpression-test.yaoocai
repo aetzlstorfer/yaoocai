@@ -1,7 +1,7 @@
 builtin function testInput(): integer       -> vmfunc(32000)
 builtin function testOutput(value: integer) -> vmfunc(32001)
 builtin function fail()                     -> vmfunc(32002)
-builtin function assertEquals()             -> vmfunc(32003)
+builtin function assertEquals(expected: integer, actual: integer) -> vmfunc(32003)
 
 function testLiterals() {
   assertEquals(0, 0+0);

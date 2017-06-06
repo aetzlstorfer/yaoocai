@@ -68,10 +68,6 @@ public enum ScannerSymbols {
 
     private final String symbolDescription;
 
-    ScannerSymbols() {
-        this.symbolDescription = null;
-    }
-
     ScannerSymbols(String symbolDescription) {
         this.symbolDescription = symbolDescription;
     }

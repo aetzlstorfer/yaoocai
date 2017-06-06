@@ -1,0 +1,7 @@
+
+function test(a: integer, a: boolean) {
+}
+
+function main() {
+ test(3, true);
+}

@@ -1,0 +1,7 @@
+
+function main() {
+  var a:integer = 1;
+  while(a) {
+    a++;
+  }
+}

@@ -1,0 +1,8 @@
+
+function test(a: integer) {
+  var a: boolean = true;
+}
+
+function main() {
+ test(3);
+}

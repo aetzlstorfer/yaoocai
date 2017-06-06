@@ -15,6 +15,10 @@ public class ASTArguments implements Iterable<ASTExpression> {
         expressions.add(expression);
     }
 
+    public int getArgumentsSize() {
+        return expressions.size();
+    }
+
     @Override
     public Iterator<ASTExpression> iterator() {
         return expressions.iterator();

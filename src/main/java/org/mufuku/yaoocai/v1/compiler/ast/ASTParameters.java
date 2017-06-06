@@ -9,22 +9,18 @@ import java.util.List;
  */
 public class ASTParameters implements Iterable<ASTParameter> {
 
-    private final List<ASTParameter> astParameters = new ArrayList<>();
+    private final List<ASTParameter> parameters = new ArrayList<>();
 
     public void addParameter(ASTParameter astParameter) {
-        this.astParameters.add(astParameter);
+        this.parameters.add(astParameter);
     }
 
-    //    public ASTParameter getParameter(String identifier) {
-    //        return astParameters.stream().filter(p -> p.getIdentifier().equals(identifier)).findFirst().orElse(null);
-    //    }
-
     public int getParameterSize() {
-        return astParameters.size();
+        return parameters.size();
     }
 
     @Override
     public Iterator<ASTParameter> iterator() {
-        return astParameters.iterator();
+        return parameters.iterator();
     }
 }

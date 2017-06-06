@@ -5,13 +5,13 @@ package org.mufuku.yaoocai.v1.compiler.ast;
  */
 public abstract class ASTBasicFunction {
 
-    protected final String identifier;
+    private final String identifier;
 
-    protected ASTType returnType;
+    private ASTType returnType;
 
-    protected ASTParameters parameters;
+    private ASTParameters parameters;
 
-    public ASTBasicFunction(String identifier) {
+    ASTBasicFunction(String identifier) {
         this.identifier = identifier;
     }
 

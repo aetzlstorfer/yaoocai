@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTBinaryExpression extends ASTExpression {
+public class ASTBinaryExpression implements ASTExpression {
 
     private final ASTExpression left;
 

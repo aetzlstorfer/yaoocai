@@ -1,0 +1,6 @@
+
+function main() {
+  var a: integer = 1;
+  var b: boolean = true;
+  var c: boolean = a + b;
+}

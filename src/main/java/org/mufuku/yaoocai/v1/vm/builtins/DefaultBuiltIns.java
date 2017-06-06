@@ -6,13 +6,15 @@ import java.util.Map;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-// TODO replace with dependency manager
 public class DefaultBuiltIns {
 
     private static final Map<Short, BuiltInVMFunction> builtIns = new HashMap<>();
 
     static {
         builtIns.put((short) 1, new PrintInteger());
+    }
+
+    private DefaultBuiltIns() {
     }
 
     public static Map<Short, BuiltInVMFunction> getBuiltIns() {

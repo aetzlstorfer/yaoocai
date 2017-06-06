@@ -1,6 +1,8 @@
 package org.mufuku.yaoocai.v1.compiler.ast;
 
-import java.util.Iterator;
+import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
+
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,9 +11,7 @@ import java.util.Map;
  */
 public class ASTScript {
 
-    private final Map<String, ASTBuiltinFunction> builtinFunctions = new LinkedHashMap<>();
-
-    private final Map<String, ASTFunction> functions = new LinkedHashMap<>();
+    private final Map<String, ASTBasicFunction> declaredFunctions = new LinkedHashMap<>();
 
     private final short majorVersion;
 
@@ -22,20 +22,15 @@ public class ASTScript {
         this.minorVersion = minorVersion;
     }
 
-    public void addBuiltInFunction(ASTBuiltinFunction builtinFunction) {
-        builtinFunctions.put(builtinFunction.getIdentifier(), builtinFunction);
+    public void addDeclaredFunction(ASTBasicFunction declaredFunction) {
+        if (declaredFunctions.containsKey(declaredFunction.getIdentifier())) {
+            throw new ParsingException("Already defined function: " + declaredFunction.getIdentifier());
+        }
+        declaredFunctions.put(declaredFunction.getIdentifier(), declaredFunction);
     }
 
-    public void addFunction(ASTFunction function) {
-        functions.put(function.getIdentifier(), function);
-    }
-
-    public Iterator<ASTBuiltinFunction> builtInFunctions() {
-        return builtinFunctions.values().iterator();
-    }
-
-    public Iterator<ASTFunction> functions() {
-        return functions.values().iterator();
+    public Collection<ASTBasicFunction> declaredFunctions() {
+        return declaredFunctions.values();
     }
 
     public short getMajorVersion() {

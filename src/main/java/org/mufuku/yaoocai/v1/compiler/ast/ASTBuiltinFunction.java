@@ -6,19 +6,13 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 public class ASTBuiltinFunction extends ASTBasicFunction {
 
     private final short functionCode;
-    private final String type;
 
-    public ASTBuiltinFunction(String identifier, short functionCode, String type) {
+    public ASTBuiltinFunction(String identifier, short functionCode) {
         super(identifier);
         this.functionCode = functionCode;
-        this.type = type;
     }
 
     public short getFunctionCode() {
         return functionCode;
-    }
-
-    public String getType() {
-        return type;
     }
 }

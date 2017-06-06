@@ -1,0 +1,10 @@
+
+function f1() {
+}
+
+function f1():integer {
+}
+
+function main() {
+  f1();
+}

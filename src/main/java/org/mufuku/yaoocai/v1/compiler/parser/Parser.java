@@ -36,11 +36,11 @@ public class Parser {
         ASTScript script = new ASTScript(InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
         while (scanner.getCurrentSymbol() == ScannerSymbols.BUILTIN) {
             ASTBuiltinFunction builtinFunction = parseBuiltInFunctionDeclaration();
-            script.addBuiltInFunction(builtinFunction);
+            script.addDeclaredFunction(builtinFunction);
         }
         while (scanner.getCurrentSymbol() == ScannerSymbols.FUNCTION) {
             ASTFunction function = parseFunctionDeclaration();
-            script.addFunction(function);
+            script.addDeclaredFunction(function);
         }
         return script;
     }
@@ -59,18 +59,16 @@ public class Parser {
 
         checkAndProceed(ScannerSymbols.BUILTIN_ASSIGNMENT);
         String type = checkIdentifierAndProceed();
+        if (!"vmfunc".equals(type)) {
+            throw new ParsingException("Currently only virtual machine functions (vm_func) is allowed");
+        }
         checkAndProceed(ScannerSymbols.PAR_START);
         check(ScannerSymbols.INTEGER_LITERAL);
-        short functionCode;
-        try {
-            functionCode = scanner.getNumberAsShort(); // can't be negative because of grammar
-        } catch (NumberFormatException e) {
-            throw new ParsingException("Invalid function index used. Range: 0 - " + Short.MAX_VALUE);
-        }
+        short functionCode = scanner.getNumberAsShort(); // can't be negative because of grammar
         scanner.moveToNextSymbol();
         checkAndProceed(ScannerSymbols.PAR_END);
 
-        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, functionCode, type);
+        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, functionCode);
         function.setParameters(parameters);
         function.setReturnType(returnType);
         return function;
@@ -421,30 +419,27 @@ public class Parser {
         ASTLiteralExpression expression;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER_LITERAL) {
             int value = scanner.getNumberAsInteger();
-            expression = new ASTLiteralExpression<>(value);
+            expression = new ASTLiteralExpression<>(value, ASTType.INTEGER);
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.TRUE) {
-            expression = new ASTLiteralExpression<>(true);
+            expression = new ASTLiteralExpression<>(true, ASTType.BOOLEAN);
         } else {
             check(ScannerSymbols.FALSE);
-            expression = new ASTLiteralExpression<>(false);
-        } /*else if (scanner.getCurrentSymbol() == ScannerSymbols.STRING_LITERAL) {
-            String value = scanner.getCurrentString();
-            expression = new ASTLiteralExpression<>(value);
-        } */
+            expression = new ASTLiteralExpression<>(false, ASTType.BOOLEAN);
+        }
         scanner.moveToNextSymbol();
         return expression;
     }
 
     private ASTType parseType() throws IOException {
-        String typeName;
+        ASTType type;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER) {
-            typeName = "int";
+            type = ASTType.INTEGER;
         } else {
             check(ScannerSymbols.BOOLEAN);
-            typeName = "boolean";
+            type = ASTType.BOOLEAN;
         }
         scanner.moveToNextSymbol();
-        return new ASTType(typeName, true);
+        return type;
     }
 
     private ASTExpression getOrCombineExpression(ASTExpression left, ASTExpression right, ASTOperator operator) {

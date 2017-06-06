@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine {
+public class VM extends BasicByteCodeConsumer implements VirtualMachine {
 
     final Deque<Object> stack = new ArrayDeque<>();
 
@@ -25,14 +25,14 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
     protected short[] code;
     protected int codePointer = 0;
 
-    private PrintStream out = System.out;
+    private PrintStream out = System.out; // NOSONAR
     private boolean execution = true;
 
-    public YAOOCAI_VM(InputStream in) {
+    public VM(InputStream in) {
         this(in, DefaultBuiltIns.getBuiltIns());
     }
 
-    YAOOCAI_VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
+    VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
         super(in, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
         this.builtIns = builtIns;
     }
@@ -161,12 +161,12 @@ public class YAOOCAI_VM extends BasicByteCodeConsumer implements VirtualMachine 
         } else if (opCode == InstructionSet.OpCodes.AND.code()) {
             Boolean v2 = (Boolean) stack.pop();
             Boolean v1 = (Boolean) stack.pop();
-            stack.push(v2 & v1);
+            stack.push(v2 & v1); // NOSONAR
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.OR.code()) {
             Boolean v2 = (Boolean) stack.pop();
             Boolean v1 = (Boolean) stack.pop();
-            stack.push(v2 | v1);
+            stack.push(v2 | v1); // NOSONAR
             this.codePointer++;
         } else if (opCode == InstructionSet.OpCodes.NOT.code()) {
             Boolean v = (Boolean) stack.pop();
