@@ -1,23 +1,16 @@
 package org.mufuku.yaoocai.v1.vm.builtins;
 
-import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
+
 import java.util.Map;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class DefaultBuiltIns {
-
-    private static final Map<Short, BuiltInVMFunction> builtIns = new HashMap<>();
-
-    static {
-        builtIns.put((short) 1, new PrintInteger());
-    }
-
-    private DefaultBuiltIns() {
-    }
-
-    public static Map<Short, BuiltInVMFunction> getBuiltIns() {
-        return builtIns;
-    }
+@SuppressWarnings("squid:S1214")
+public interface DefaultBuiltIns {
+    Map<Short, BuiltInVMFunction> STANDARD_BUILT_INS = ImmutableMap
+            .<Short, BuiltInVMFunction>builder()
+            .put((short) 1, new PrintInteger())
+            .build();
 }

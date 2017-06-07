@@ -492,22 +492,7 @@ public class Translator extends BasicByteCodeProducer {
         }
 
         if (expression.getArguments() != null) {
-            if (basicFunction.getParameters().getParameterSize() != expression.getArguments().getArgumentsSize()) {
-                throw new ParsingException("No function with name " + functionName + " found for compatible types");
-            }
-
-            Iterator<ASTParameter> parameterIterator = basicFunction.getParameters().iterator();
-            for (ASTExpression argExpression : expression.getArguments()) {
-                if (parameterIterator.hasNext()) {
-                    ASTType expectedParameterType = parameterIterator.next().getType();
-                    ASTType actualParameterType = typeRegistry.resolveType(argExpression);
-                    if (typeRegistry.compatible(expectedParameterType, actualParameterType)) {
-                        emitExpression(argExpression);
-                    } else {
-                        throw new ParsingException(INCOMPATIBLE_TYPE_ERROR_MESSAGE);
-                    }
-                }
-            }
+            emitFunctionArguments(expression, basicFunction);
         }
 
         ASTBuiltinFunction builtinFunction = functionStorage.getBuiltinFunction(functionName);
@@ -516,6 +501,27 @@ public class Translator extends BasicByteCodeProducer {
             writeOpCode(InstructionSet.OpCodes.INVOKE_BUILTIN, builtinFunction.getFunctionCode());
         } else if (functionIndex != null) {
             writeOpCode(InstructionSet.OpCodes.INVOKE, functionIndex);
+        }
+    }
+
+    private void emitFunctionArguments(ASTFunctionCallExpression expression, ASTBasicFunction basicFunction) throws IOException {
+        String functionName = expression.getFunctionName();
+
+        if (basicFunction.getParameters().getParameterSize() != expression.getArguments().getArgumentsSize()) {
+            throw new ParsingException("No function with name " + functionName + " found for compatible types");
+        }
+
+        Iterator<ASTParameter> parameterIterator = basicFunction.getParameters().iterator();
+        for (ASTExpression argExpression : expression.getArguments()) {
+            if (parameterIterator.hasNext()) {
+                ASTType expectedParameterType = parameterIterator.next().getType();
+                ASTType actualParameterType = typeRegistry.resolveType(argExpression);
+                if (typeRegistry.compatible(expectedParameterType, actualParameterType)) {
+                    emitExpression(argExpression);
+                } else {
+                    throw new ParsingException(INCOMPATIBLE_TYPE_ERROR_MESSAGE);
+                }
+            }
         }
     }
 
