@@ -73,7 +73,7 @@ public class AssemblerIntegrationTest extends BaseLangTest {
 
     @Test
     public void massTest_compiledByteCodesConvertedWithByteCodeViewerConvertedBack_noError() throws IOException {
-        List<String> sourceFiles = getTestFiles("/test-sources/positive");
+        List<String> sourceFiles = getTestFiles("/test-language-integration/positive");
         for (String sourceFile : sourceFiles) {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             compile(sourceFile, byteOut);
