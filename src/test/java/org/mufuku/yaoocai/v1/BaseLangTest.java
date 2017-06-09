@@ -194,6 +194,11 @@ public abstract class BaseLangTest {
         return this.lastVM;
     }
 
+    protected void execute(String source) throws IOException {
+        VM vm = compileAndGetTestVM(source);
+        vm.execute();
+    }
+
     public static class Test_Input implements BuiltInVMFunction {
         private final Deque<Object> valueStack = new ArrayDeque<>();
 

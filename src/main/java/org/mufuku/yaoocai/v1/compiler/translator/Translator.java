@@ -69,8 +69,34 @@ public class Translator extends BasicByteCodeProducer {
         emitCode(function.getBlock());
         if (function.getReturnType() == null) {
             writeOpCode(InstructionSet.OpCodes.RETURN);
+        } else {
+            if (branchDoesNotReturn(function.getBlock())) {
+                throw new ParsingException("Function does not return properly");
+            }
         }
     }
+
+    private boolean branchDoesNotReturn(ASTBlock block) {
+        if (block.isEmpty()) {
+            return true;
+        } else {
+            ASTStatement lastStatement = block.getLastStatement();
+            if (lastStatement instanceof ASTReturnStatement) {
+                return false;
+            } else if (lastStatement instanceof ASTIfStatement) {
+                List<ASTBaseIfStatement> ifStatements = ((ASTIfStatement) lastStatement).getStatements();
+                for (ASTBaseIfStatement ifStatement : ifStatements) {
+                    if (branchDoesNotReturn(ifStatement.getBlock())) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
 
     private void populateParametersOnLocalVariableStorage(ASTParameters parameters) {
         for (ASTParameter parameter : parameters) {
