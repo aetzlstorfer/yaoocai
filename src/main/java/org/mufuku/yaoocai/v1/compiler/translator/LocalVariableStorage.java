@@ -24,7 +24,11 @@ class LocalVariableStorage {
     }
 
     short getVariableIndex(String name) {
-        return getLocalVariable(name).getIndex();
+        LocalVariable localVariable = getLocalVariable(name);
+        if (!localVariable.isInitialized()) {
+            throw new ParsingException("Variable " + name + " not initialized");
+        }
+        return localVariable.getIndex();
     }
 
     ASTType getVariableType(String name) {
@@ -37,5 +41,9 @@ class LocalVariableStorage {
             throw new ParsingException("Invalid variable " + name + " used");
         }
         return localVariable;
+    }
+
+    void markInitialized(String variableName) {
+        localVariables.get(variableName).setInitialized();
     }
 }

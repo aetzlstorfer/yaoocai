@@ -5,13 +5,13 @@ package org.mufuku.yaoocai.v1.compiler.ast;
  */
 public class ASTVariableExpression implements ASTExpression {
 
-    private final String variableName;
+    private final String identifier;
 
-    public ASTVariableExpression(String variableName) {
-        this.variableName = variableName;
+    public ASTVariableExpression(String identifier) {
+        this.identifier = identifier;
     }
 
-    public String getVariableName() {
-        return variableName;
+    public String getIdentifier() {
+        return identifier;
     }
 }
