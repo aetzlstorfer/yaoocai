@@ -9,6 +9,7 @@ class LocalVariable {
 
     private final ASTType type;
     private final short index;
+    private boolean initialized;
 
     LocalVariable(ASTType type, short index) {
         this.type = type;
@@ -21,5 +22,13 @@ class LocalVariable {
 
     short getIndex() {
         return index;
+    }
+
+    boolean isInitialized() {
+        return initialized;
+    }
+
+    void setInitialized() {
+        this.initialized = true;
     }
 }

@@ -277,6 +277,18 @@ public class LanguageIntegrationTest extends BaseLangTest {
     }
 
     @Test(expected = ParsingException.class)
+    public void test_invalidStatement06_ParsingException() throws IOException {
+        VM vm = compileAndGetTestVM("/test-language-integration/negative/invalid-statement-06-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_invalidStatement07_ParsingException() throws IOException {
+        VM vm = compileAndGetTestVM("/test-language-integration/negative/invalid-statement-07-test.yaoocai");
+        vm.execute();
+    }
+
+    @Test(expected = ParsingException.class)
     public void test_incompatibleTypes01_ParsingException() throws IOException {
         VM vm = compileAndGetTestVM("/test-language-integration/negative/incompatible-types-01-test.yaoocai");
         vm.execute();

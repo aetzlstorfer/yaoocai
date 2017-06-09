@@ -74,7 +74,9 @@ public class Translator extends BasicByteCodeProducer {
 
     private void populateParametersOnLocalVariableStorage(ASTParameters parameters) {
         for (ASTParameter parameter : parameters) {
-            currentLocalVariableStorage.addVariable(parameter.getIdentifier(), parameter.getType());
+            String variableName = parameter.getIdentifier();
+            currentLocalVariableStorage.addVariable(variableName, parameter.getType());
+            currentLocalVariableStorage.markInitialized(variableName);
         }
     }
 
@@ -234,11 +236,13 @@ public class Translator extends BasicByteCodeProducer {
     }
 
     private void emitLocalVariable(ASTLocalVariableDeclarationStatement localVariableDeclarationStatement) throws IOException {
-        short index = currentLocalVariableStorage.addVariable(localVariableDeclarationStatement.getIdentifier(), localVariableDeclarationStatement.getType());
+        String variableName = localVariableDeclarationStatement.getIdentifier();
+        short index = currentLocalVariableStorage.addVariable(variableName, localVariableDeclarationStatement.getType());
         if (localVariableDeclarationStatement.getInitializationExpression() != null) {
             validateInitializationExpression(localVariableDeclarationStatement);
             emitExpression(localVariableDeclarationStatement.getInitializationExpression());
             writeOpCode(InstructionSet.OpCodes.STORE, index);
+            currentLocalVariableStorage.markInitialized(variableName);
         }
     }
 
@@ -286,7 +290,8 @@ public class Translator extends BasicByteCodeProducer {
         validateLeftRightCompatibility(expression);
         ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getLeft();
         emitExpression(expression.getRight());
-        short variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName());
+        currentLocalVariableStorage.markInitialized(variableExpression.getIdentifier());
+        short variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier());
         writeOpCode(InstructionSet.OpCodes.STORE, variableIndex);
     }
 
@@ -304,7 +309,7 @@ public class Translator extends BasicByteCodeProducer {
         } else if (expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT) {
             writeOpCode(InstructionSet.OpCodes.DIV);
         }
-        writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+        writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
     }
 
     private void validateLeftRightCompatibility(ASTBinaryExpression expression) {
@@ -436,7 +441,7 @@ public class Translator extends BasicByteCodeProducer {
             } else if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
                 writeOpCode(InstructionSet.OpCodes.SUB);
             }
-            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
             emitVariable(variableExpression);
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.POST_INCREMENT ||
                 expression.getUnaryOperator() == ASTUnaryOperator.POST_DECREMENT) {
@@ -450,7 +455,7 @@ public class Translator extends BasicByteCodeProducer {
             } else if (expression.getUnaryOperator() == ASTUnaryOperator.POST_DECREMENT) {
                 writeOpCode(InstructionSet.OpCodes.SUB);
             }
-            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getVariableName()));
+            writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
 
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.NEGATE) {
             validateNumericExpression(expression.getSubExpression());
@@ -548,7 +553,7 @@ public class Translator extends BasicByteCodeProducer {
     }
 
     private void emitVariable(ASTVariableExpression variable) throws IOException {
-        short variableIndex = currentLocalVariableStorage.getVariableIndex(variable.getVariableName());
+        short variableIndex = currentLocalVariableStorage.getVariableIndex(variable.getIdentifier());
         writeOpCode(InstructionSet.OpCodes.LOAD, variableIndex);
     }
 }
