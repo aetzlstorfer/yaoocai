@@ -6,13 +6,14 @@ import java.util.Map;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public final class InstructionSet {
+@SuppressWarnings("squid:S1214")
+public interface InstructionSet {
 
-    public static final String PREAMBLE = "yaoocai";
-    public static final short MAJOR_VERSION = 1;
-    public static final short MINOR_VERSION = 1;
+    String PREAMBLE = "yaoocai";
+    short MAJOR_VERSION = 1;
+    short MINOR_VERSION = 1;
 
-    public enum OpCodes {
+    enum OpCodes {
         // 0. functions
         FUNCTION(0x0000, "function", 0),
 

@@ -24,7 +24,7 @@ class TypeRegistry {
         } else if (expression instanceof ASTLiteralExpression) {
             type = ((ASTLiteralExpression) expression).getType();
         } else if (expression instanceof ASTVariableExpression) {
-            String variableName = ((ASTVariableExpression) expression).getVariableName();
+            String variableName = ((ASTVariableExpression) expression).getIdentifier();
             type = localVariableStorage.getVariableType(variableName);
         } else if (expression instanceof ASTFunctionCallExpression) {
             String functionName = ((ASTFunctionCallExpression) expression).getFunctionName();

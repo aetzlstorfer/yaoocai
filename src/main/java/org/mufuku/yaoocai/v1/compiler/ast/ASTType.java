@@ -1,7 +1,5 @@
 package org.mufuku.yaoocai.v1.compiler.ast;
 
-import java.util.Objects;
-
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
@@ -28,16 +26,17 @@ public class ASTType {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ASTType)) return false;
         ASTType type = (ASTType) o;
-        return primitive == type.primitive &&
-                Objects.equals(typeName, type.typeName);
+        return primitive == type.primitive && typeName.equals(type.typeName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(typeName, primitive);
+        int result = typeName.hashCode();
+        result = 31 * result + (primitive ? 1 : 0);
+        return result;
     }
 }

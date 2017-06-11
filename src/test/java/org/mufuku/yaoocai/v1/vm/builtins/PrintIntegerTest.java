@@ -2,7 +2,7 @@ package org.mufuku.yaoocai.v1.vm.builtins;
 
 import org.junit.Test;
 import org.mufuku.yaoocai.v1.BaseLangTest;
-import org.mufuku.yaoocai.v1.vm.VM;
+import org.mufuku.yaoocai.v1.vm.VirtualMachine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class PrintIntegerTest extends BaseLangTest {
 
     @Test
     public void test_testProgram_expectedOutput() throws IOException {
-        VM vm = compileAndGetTestVM("/test-sources/positive/printInteger-test.yaoocai");
+        VirtualMachine vm = compileAndGetTestVM("/test-sources/built-ins/printInteger-test.yaoocai");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printOut = new PrintStream(out);

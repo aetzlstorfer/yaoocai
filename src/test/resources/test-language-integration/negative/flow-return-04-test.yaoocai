@@ -1,0 +1,10 @@
+
+builtin function fail()                     -> vmfunc(32002)
+
+function noReturn(): integer {
+}
+
+function main() {
+  noReturn();
+  fail();
+}

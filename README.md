@@ -12,6 +12,9 @@ This is just a fun and educational project where a small compiler and a _Virtual
 too big. The aim is to write code and execute it platform independently.
 
 ### 1.1 Project status
+**Build**:
+![Build status](https://api.travis-ci.org/aetzlstorfer/yaoocai.svg?branch=master)
+
 **Language**:
  - \+ Functional part of the language is mostly working
  - \+ Functions/Functions calls are working fine. Distinction between normal procedures and functions with return

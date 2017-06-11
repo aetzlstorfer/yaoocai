@@ -19,4 +19,12 @@ public class ASTBlock implements ASTStatement, Iterable<ASTStatement> {
     public Iterator<ASTStatement> iterator() {
         return statements.iterator();
     }
+
+    public boolean isEmpty() {
+        return statements.isEmpty();
+    }
+
+    public ASTStatement getLastStatement() {
+        return statements.get(statements.size() - 1);
+    }
 }
