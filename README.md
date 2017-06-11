@@ -15,53 +15,30 @@ too big. The aim is to write code and execute it platform independently.
 **Build**:
 ![Build status](https://api.travis-ci.org/aetzlstorfer/yaoocai.svg?branch=master)
 
-**Language**:
- - \+ Functional part of the language is mostly working
- - \+ Functions/Functions calls are working fine. Distinction between normal procedures and functions with return
-      values are done by language in a very clean way.
- - \- Object oriented part of the language is missing (no classes, no inheritance, ...)
- - \- No elseif currently supported (just if/else)
- - \- No while loops are supported
- - \- No for loops are supported
- - \- No break/continue is supported
- - \- Strings not fully supported. No specification about how to handle Strings
-      (maybe to be put on hold until OO part has been finished)
- - \- No logical operators: &, |, !
- - \- No short circuit evaluation operators: &&, ||
- - \- Just integer, boolean, String as supported data types. No decimals are supported, no chars are supported
- - \- No cast operator supported between primitive data types
+**Language (high level)**:
+ - \+ Functional language part completely implemented
+ - \+ Validation on a higher level (Type safety, duplications, proper return flow, ...)
+ - \- Object oriented part of the language is missing (no classes, no inheritance, no generics, ...)
  - \- No concept to organize code (modules, name spaces, packages) -\> necessary for runtime!
- - \- Language documentation incomplete
- - \- No equality/inequality operator possible
- - \- No arrays are supported
+ - \- Advanced validation missing (Don't skip compilation on first error, bring proper error messages with line number, ...)
+ 
+**Language (control structure)**
+ - \+ Standard control structures are implemented (if/else/elseif/while)
+ - \- Advanced control structures are missing (break/continue/for-loop)
 
-**Scanner**:
- - \- No escape functionality
- - \- Support other chars on identifiers than a-z0-9
-
-**Compiler/Translator**:
- - \+ Basic compilation working
- - \- No type security checks
- - \- No check on flow to return safely
- - \- Translator is producing stack pollution
- - \- No warn/error messages
- - \- no indication on main function missing
- - \- no check for duplicates (functions, variable names, ...)
+**Data types and operations**
+ - \+ Default data types (integer, boolean) are fully supported with all possible operators
+ - \- Advanced data types aren't supported (decimal data type, string, array)
 
 **Byte code**
- - \+ Byte code instruction set fully specified
  - \- No metadata available (e.g. line number, function name, variable name, script name)
-      -\> necessary to print stack traces
- - \- No constant pool for integers/strings
- - \- Extend operations to be aware of data type
+ - \- No constant pool for integers
 
 **Virtual Machine**:
- - \+ Current Instruction set fully supported
- - \- No possibility to print stack trace
+ - \- No possibility to print stack trace (need byte code meta data)
 
 **Byte Code Viewer**:
- - \+ Current Instruction set can be interpreted and converted to human readable format
- - \- No function/variable names available (dependent on meta data in byte code)
+ - \- No function/variable names available (need byte code meta data)
 
 **Runtime**:
  - \+ Built-In _Virtual Machine_ Functions are possible. exit/print is available.
@@ -83,36 +60,190 @@ can then be interpreted by a _Virtual Machine_. It is also planned to provide a 
 runtime with extended libraries containing at least collections, IO operations and
 many other stuff.
 
+Currently everything is written in Java. VM might be a candidate for other languages like C++
+(just for the fun)
+
 ## 2. Language
 ### 2.1. Language characteristics
-#### 2.1.1. Comments
-TODO
 #### 2.1.2. Keywords
-TODO add list of keywords (if, else, while, function, var, builtin, return, true, false, integer, boolean)
+These keywords are currently reserved for the language:
+ - boolean
+ - builtin
+ - else
+ - false
+ - function
+ - if
+ - integer
+ - return
+ - true
+ - var
+ - while
+#### 2.1.2. Comments
+Two types of comments are supported:
 
+**Line comment**:
+```
+  function main() {
+    // implement code here
+  }
+```
+
+**Block comment**:
+```
+  function main() {
+    /*
+      implement code
+      here
+    */
+  }
+```
 #### 2.1.3. Control structure
-TODO currently supported if/else, while
+Three control structure's are supported. For loop to be implemented in v1.2 or v1.3.
+
+**If/Else/Else if**:
+```
+  function main() {
+    if(condition) {
+      // do something on condtion
+    } else if(otherCondition) {
+      // do something on the other condition
+    } else {
+      // do something if conditon and otherCondition do not met
+    }
+  }
+```
+
+**While loop**:
+```
+  function main() {
+    while(conditon) {
+      // loop while condition mets
+    }
+  }
+```
 
 #### 2.1.4. Data types and Variables
-TODO add basic description of supported data types. how to introduce variables
+Type    | Size   | Range               | Supported operators | Operators to be implemented
+--------|--------|---------------------|---------------------|-----
+integer | 2 Byte | `-32768` to `32767` | `+`, `-`, `*`, `/`, `>`, `<`, `>=`, `<=`, `==`, `!=` | bitwise operators 
+boolean | 1 Byte | `true` or `false`   | `&`, <code>&#124;</code>
+
+To be implemented data types:
+* String and character combination
+* Integer's in different sizes (4byte, 8byte)
+* Decimal data types
 
 #### 2.1.5. Literals
-TODO how to write literals, string literals later. what character set is supported for strings, ...
+Currently two literals are supported:
+
+**Integer**: Just plain numbers
+```
+  function main() {
+    var someValue: integer = 1234;
+  }
+```
+
+**Boolean**: Just true or false
+```
+  functon main() {
+    var bf: boolean = true;
+    var bt: boolean = false;
+  }
+```
+
+There is no escaping functionality like in other languages that
+are aware of exponents or different decimal systems.
 
 #### 2.1.6. Identifier
-TODO What is a valid identifier
+Valid identifiers are names with the following rules:
+* Identifier must start with a *character*, *dollar* or *underscore*
+* Followed by *characters*, *digits*, *dollar* or *underscores*
+* Identifier cannot be same like a reserved keyword
+
 
 #### 2.1.7. Operators
-TODO Structure operators. What can be used for what? Operator priority order.
+These are the supported operators and the operator precedence
 
-#### 2.1.8. Functions
-TODO how to write functions, no need define in order
+| Name                      | Level | Example                                           |
+|:--------------------------|------:|:-------------------------------------------------|
+| Parentheses               | 1     | `(subexpression)` 
+| Post increment/decrement  | 1     | `a++` `a--`  
+| Unary plus/minus          | 2     | `b = -a`
+| Pre increment             | 2     | `++a` `--a` 
+| Negation                  | 2     | `!condition`
+| Multiplicative            | 3     | `a * b` `c / d`  `e % 2` 
+| Additive                  | 4     | `a + b` `c + d` 
+| Comparison                | 5     | `<` `<=` `>` `>=` `!=` `==`
+| Bitwise AND               | 6     | `a & b`
+| Bitwise OR                | 7     | <code>a &#124; b</code> 
+| Conditional AND           | 8     | `a && b`
+| Conditional OR            | 9     | <code>a &#124;&#124; b</code>
+| Assignment                | 10    | `x = 1` `x += 2` `x -= 3` `x *= 4` `x /= 5` 
 
-#### 2.1.9. Built-in Functions
-TODO how to define built-in functions
+Notes:
+ * No support for unary plus operator as not needed.
+
+#### 2.1.8. Functions and Procedures
+It is possible to write functions and procedures (without return type).
+
+**Function**: Functions have a return type and must have valid return statements.
+```
+  function min(a: integer, b: integer) {
+    if(a < b) {
+      return a;
+    } else {
+      return b;
+    }
+  }
+  
+  function main() {
+    min(1, 2); // 2
+  }
+```
+**Procedures**: Functions without a return type are called procedures and do not need a return statement. The main function is actually a procedure.
+```
+  function doSomething() {
+    // do something, do not need a return
+  }
+  
+  function main() {
+    doSomething();
+  }
+```
+
+#### 2.1.9. Built-in Functions and Procedures
+Currently the connection to the outside can be done over so called *builtin* functions or procedures.
+Built-In functions are declared with the `builtin` keyword, an `origin` and the `function index`.
+
+**Declaration examples**:
+```
+  builtin function func(a: integer, b: boolean): integer -> vm_func(9123)
+  builtin function proc(a: integer)                      -> vm_func(9124)
+```
+
+**Origin**:
+The origin identifier clarifies where the built-in function is coming from.
+Currently `vm_func` is the only one supported and means that the functions is coming from the
+*Virtual machine*.
+
+Note: It could be that this mechanism could be used for other origins in the future.
+
+**Function index**: The function index is a reference to the function within the origin.
+
+**VM-Funcs**
+
+| Name           | Description | Declaration              |
+|----------------|----------------------------------------|---------------------|
+| `printInteger` | Prints an integer value to the console | `vm_func(1)`
 
 #### 2.1.10 Runtime
-TODO how to have access to the language runtime. explain vmfunc, maybe other sys calls possible? or get rid of vmfunc?
+The idea is to provide a runtime written in YAOOCAI language that internally
+relies on the builtin/vm_func functions. So the idea is that builtin functions are
+marked as deprecated at some time.
+
+TODO document this
+
+see [4. Runtime](#4-runtime)
 
 ### 2.2. Grammar
 #### 2.2.1. Convention
@@ -286,21 +417,20 @@ Scanner Rules:
 ```
 
 ### 2.3. Examples
-#### 2.3.1. Basic Hello World
-TODO Add basic hello world example
-#### 2.3.2. Other examples
-TODO Add other examples
+TODO Add basic hello world example when strings are supported
+TODO Add other examples as well
 
 ## 3. Compiler
-TODO how to handle the compiler
+Currently there is just an API to call the compiler. It is planned to
+have a standalone tool that compiles single .yaoocai files or a whole directory.
 
-## 3. Virtual machine
-### 3.1 Introduction
+## 4. Virtual machine
+### 4.1 Introduction
 The compiler reads the source code and translates it into the _YAOOCAI_ byte code. This sequence of binary
 data can be executed with a _Virtual Machine_ which is a simple stack machine which follows a limited instruction
 set (see following section). Each sequence is a Word (2 Bytes) long.
 
-### 3.2 Instruction set
+### 4.2 Instruction set
 Mnemonic          | OpCode (hex)   | Params         | Stack change                        | Description
 ------------------|----------------|----------------|-------------------------------------|---
 `function`        | `0x0000`       |                |                                     | Indicator for the _Virtual Machine_ to determine where a function starts within the sequence.
@@ -309,25 +439,33 @@ Mnemonic          | OpCode (hex)   | Params         | Stack change              
 `b_const_false`   | `0x0102`       |                | &rarr; `false`                      | Pushes `false` onto the stack
 `store`           | `0x0200`       | `1: index`     | `value` &rarr;                      | Pops `value` and stores the value on local variable stack at position `index`
 `load`            | `0x0201`       | `1: index`     | &rarr; `value`                      | Pushes `value` onto the stack from local variable stack from position `index`
+`pop`             | `0x0202`       |                | `value` &rarr;                      | Pops the last `value` from the stack.
 `invoke`          | `0x0300`       | `1: funcIndex` | `[arg1, arg2, ...]` &rarr; `result` | Invokes function from function index `funcIndex`. Pops the arguments `arg1, arg2, ...` with help of `pop_params`. Pushes the `result` onto the stack with help of the `return` instruction.
 `invoke_builtin`  | `0x0301`       | `1: funcIndex` | `[arg1, arg2, ...]` &rarr; `result` | Invokes a built-in function from the _Virtual Machine_ with the index `funcIndex`. The _Virtual Machine_ takes care to pop the arguments `arg1, arg2, ...` and use it for the function call. The `result` internally is pushed onto the stack.
 `add`             | `0x0400`       |                | `v1`, `v2` &rarr; `result`          | Adds two integers `v1` and `v2` and pushes the `result` onto the stack.
 `sub`             | `0x0401`       |                | `v1`, `v2` &rarr; `result`          | Subtract two integers `v1` and `v2` and pushes the `result` onto the stack.
 `mul`             | `0x0402`       |                | `v1`, `v2` &rarr; `result`          | Multiply two integers `v1` and `v2` and pushes the `result` onto the stack.
 `div`             | `0x0403`       |                | `v1`, `v2` &rarr; `result`          | Divides two integers `v1` and `v2` and pushes the `result` onto the stack.
+`mod`             | `0x0404`       |                | `v1`, `v2` &rarr; `result`          | Divides two integers `v1` and `v2` and pushes the remainder `result` onto the stack (aka modulo).
+`neg`             | `0x0405`       |                | `value` &rarr; `result`             | Pops `value` from the stack and pushes the negated `result` onto the stack. 
 `cmp_lt`          | `0x0500`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is less than `v2`. Pushes `true` or `false` onto the stack as `result`
 `cmp_lte`         | `0x0501`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is less than or equal to `v2`. Pushes `true` or `false` onto the stack as `result`
 `cmp_gt`          | `0x0502`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is greater than `v2`. Pushes `true` or `false` onto the stack as `result`
 `cmp_gte`         | `0x0503`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is greater than or equal to `v2`. Pushes `true` or `false` onto the stack as `result`
+`cmp_eq`          | `0x0504`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is equal to `v2`. Pushes `true` or `false` onto the stack as `result`
+`cmp_ne`          | `0x0505`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is not equal to `v2`. Pushes `true` or `false` onto the stack as `result`
 `if`              | `0x0600`       | `1: elseJump`  | `condition` &rarr;                  | Pops the `condition` from stack. If `condition` does met the _Virtual Machine_ jumps one instruction further. If the `condition` does not met the _Virtual Machine_ jumps `elseJump` instructions further or back (relative).
-`goto`            | `0x0601`       | `1: jump`      |                                     | Jumps `jump` instructions further or back (relative).
-`return`          | `0x0602`       |                |                                     | Indicator for the _Virtual Machine_ that the execution of current function ends. Jumps back to last function or if not possible ends the execution of the code.
+`goto`            | `0x0601`       | `1: jump`      |                                     | Jumps `jump` instructions further or back (ative).
+`return`          | `0x0602`       |                |                                     | Indicator for the _Virtual Machine_ that the execution of current relfunction ends. Jumps back to last function or if not possible ends the execution of the code.
 `pop_params`      | `0x0603`       | `1: params`    | `[arg1, arg2, ...]` &rarr;          | Pops `params` number of items (`arg1, arg2, ...`) from the stack and adds them to the local variable register.
+`and`             | `0x0700`       |                | `v1`, `v2` &rarr; `result`          | Pops two booleans `v1` and `v2` performs bitwise *and* operation and pushes the `result` onto the stack.   
+`or`              | `0x0701`       |                | `v1`, `v2` &rarr; `result`          | Pops two booleans `v1` and `v2` performs bitwise *or* operation and pushes the `result` onto the stack.
+`not`             | `0x0702`       |                | `value` &rarr; `result`             | Pops boolean `value` from the stack performs bitwise *not* operation and pushes the `result` onto the stack.
 
 
 
 ### 3.3 Byte code grammar
-*Byte code*
+**Byte code**
 
 See [2.2.1. Convention](#221-convention) for convention styles.
 ```
@@ -343,7 +481,8 @@ See [2.2.1. Convention](#221-convention) for convention styles.
                               InvokeOperations |
                               ArithmeticalOperations |
                               CompareOperations |
-                              ControlOperations
+                              ControlOperations |
+                              BitwiseOperations
                           )
 
 <ConstantOperations>  ::= (
@@ -358,10 +497,12 @@ See [2.2.1. Convention](#221-convention) for convention styles.
 
 <StackOperations>     ::= (
                               StoreOperation |
-                              LoadOperation
+                              LoadOperation |
+                              PopOperation
                           )
 <StoreOperation>      ::= <StoreOpCode> index=Word
 <LoadOperation>       ::= <LoadOpCode> index=Word
+<PopOperation>        ::= <PopOpCode>
 
 <InvokeOperations>    ::= (
                               InvokeOperation |
@@ -376,23 +517,31 @@ See [2.2.1. Convention](#221-convention) for convention styles.
                               AddOperation |
                               SubOperation |
                               MulOperation |
-                              DivOperation
+                              DivOperation |
+                              ModOperation |
+                              NegOperation
                           )
 <AddOperation>        ::= AddOpCode
 <SubOperation>        ::= SubOpCode
 <MulOperation>        ::= MulOpCode
 <DivOperation>        ::= DivOpCode
+<ModOperation>        ::= ModOpCode
+<NegOperation>        ::= NegOpCode
 
 <CompareOperations>   ::= (
                               LTComparison |
                               LTEComparison |
                               GTComparison |
-                              GTEComparison
+                              GTEComparison |
+                              EQComparison |
+                              NEQComparison
                           )
 <LTComparison>        ::= LTOpCode
 <LTEComparison>       ::= LTEOpCode
 <GTComparison>        ::= GTOpCode
 <GTEComparison>       ::= GTEOpCode
+<EQComparison>        ::= EQOpCode
+<NEQComparison>       ::= NEQOpCode
 
 <ControlOperations>   ::= (
                               IfOperation |
@@ -405,8 +554,17 @@ See [2.2.1. Convention](#221-convention) for convention styles.
 <ReturnOperation>     ::= ReturnOpCode
 <PopParamsOperation>  ::= PopParamsOpCode numParams=Word
 
+<BitwiseOperations>   ::= (
+                              BitwiseAndOperation |
+                              BitwiseOrOperation |
+                              BitwiseNotOperation
+                          )
+<BitwiseAndOperation> ::= BitwiseAndOpCode
+<BitwiseOrOperation>  ::= BitwiseOrOpCode
+<BitwiseNotOperation> ::= BitwiseNotOpCode
+
 ```
-*OpCode-Level*
+**OpCode-Level**
 ```
 <FunctionOpCode>      ::= 0x0000
 
@@ -416,6 +574,7 @@ See [2.2.1. Convention](#221-convention) for convention styles.
 
 <StoreOpCode>         ::= 0x0200
 <LoadOpCode>          ::= 0x0201
+<PopOpCode>           ::= 0x0202
 
 <InvokeOpCode>        ::= 0x0300
 <InvokeBuiltInOpCode> ::= 0x0301
@@ -424,16 +583,24 @@ See [2.2.1. Convention](#221-convention) for convention styles.
 <SubOpCode>           ::= 0x0401
 <MulOpCode>           ::= 0x0402
 <DivOpCode>           ::= 0x0403
+<ModOpCode>           ::= 0x0404
+<NegOpCode>           ::= 0x0405
 
 <LTOpCode>            ::= 0x0500
 <LTEOpCode>           ::= 0x0501
 <GTOpCode>            ::= 0x0502
 <GTEOpCode>           ::= 0x0503
+<EQOpCode>            ::= 0x0504
+<NEQOpCode>           ::= 0x0505
 
 <IfOpCode>            ::= 0x0600
 <GotoOpCode>          ::= 0x0601
 <ReturnOpCode>        ::= 0x0602
 <PopParamsOpCode>     ::= 0x0603
+
+<BitwiseAndOpCode>    ::= 0x0700
+<BitwiseOrOpCode>     ::= 0x0701
+<BitwiseNotOpCode>    ::= 0x0702
 
 <Word>                ::= Byte Byte
 ```
