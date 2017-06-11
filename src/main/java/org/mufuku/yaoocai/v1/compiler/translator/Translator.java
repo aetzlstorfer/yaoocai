@@ -511,6 +511,10 @@ public class Translator extends BasicByteCodeProducer {
             }
         } else if (expression.getValue() instanceof Integer) {
             int value = (int) expression.getValue();
+            if (value > Short.MAX_VALUE || value < Short.MIN_VALUE) {
+                throw new ParsingException("Integer must be in the range of " + Short.MIN_VALUE + " and " + Short.MAX_VALUE);
+            }
+
             writeOpCode(InstructionSet.OpCodes.I_CONST, (short) value);
         }
     }

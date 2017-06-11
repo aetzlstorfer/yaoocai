@@ -158,9 +158,14 @@ public class LanguageIntegrationTest extends BaseLangTest {
         execute("/test-language-integration/positive/goodIntegerRanges-test.yaoocai");
     }
 
-    @Test
-    public void test_declaringIntegersWithBadRange_parsingException() throws IOException {
-        execute("/test-language-integration/negative/badIntegerRanges-test.yaoocai");
+    @Test(expected = ParsingException.class)
+    public void test_declaringIntegersWithBadRange_01_parsingException() throws IOException {
+        execute("/test-language-integration/negative/badIntegerRanges-01-test.yaoocai");
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_declaringIntegersWithBadRange_02_parsingException() throws IOException {
+        execute("/test-language-integration/negative/badIntegerRanges-02-test.yaoocai");
     }
 
     @Test(expected = ParsingException.class)
