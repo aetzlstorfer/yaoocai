@@ -1,0 +1,12 @@
+
+builtin function fail()                     -> vmfunc(32002)
+
+function noReturn(): integer {
+  var a: integer = 1;
+  var b: integer = 2;
+}
+
+function main() {
+  var result: integer = noReturn();
+  fail();
+}

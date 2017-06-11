@@ -12,6 +12,9 @@ This is just a fun and educational project where a small compiler and a _Virtual
 too big. The aim is to write code and execute it platform independently.
 
 ### 1.1 Project status
+**Build**:
+![Build status](https://api.travis-ci.org/aetzlstorfer/yaoocai.svg?branch=master)
+
 **Language (high level)**:
  - \+ Functional language part completely implemented
  - \+ Validation on a higher level (Type safety, duplications, proper return flow, ...)

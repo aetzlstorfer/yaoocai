@@ -1,0 +1,17 @@
+
+builtin function assertEquals(expected: integer, actual: integer) -> vmfunc(32003)
+
+function withReturn(): integer {
+  var a: integer = 1;
+  var b: integer = 2;
+  if(true) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+function main() {
+  var result: integer = withReturn();
+  assertEquals(1, result);
+}

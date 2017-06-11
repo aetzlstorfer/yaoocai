@@ -10,8 +10,8 @@ import java.io.InputStream;
 public abstract class BasicByteCodeConsumer {
 
     protected final DataInputStream in;
-    protected final short expectedMajorVersion;
-    protected final short expectedMinorVersion;
+    private final short expectedMajorVersion;
+    private final short expectedMinorVersion;
 
     protected short mainFunctionIndex;
 
@@ -53,7 +53,7 @@ public abstract class BasicByteCodeConsumer {
         }
     }
 
-    protected String readString(int length) throws IOException {
+    private String readString(int length) throws IOException {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
             sb.append(in.readChar());

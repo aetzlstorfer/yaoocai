@@ -37,6 +37,7 @@ public abstract class BaseLangTest {
 
     protected static boolean PERFORM_STATISTICS = false;
     protected static boolean PRINT_BYTECODE = false;
+    protected static Set<String> executedFiles;
 
     private static long totalFileSize = 0;
     private static long totalByteCodeSize = 0;
@@ -59,6 +60,7 @@ public abstract class BaseLangTest {
         zipOutputStream = new ZipOutputStream(outputStream);
         totalByteCodeSize = 0;
         totalFileSize = 0;
+        executedFiles = new HashSet<>();
     }
 
     @AfterClass
@@ -86,6 +88,23 @@ public abstract class BaseLangTest {
 
         if (PRINT_BYTECODE) {
             PRINT_BYTECODE = false;
+        }
+
+        executedFiles.clear();
+    }
+
+    protected static List<String> getTestFiles(String dir) throws IOException {
+        try {
+            File rootDir = new File(BaseLangTest.class.getResource("/").toURI());
+            File baseDir = new File(BaseLangTest.class.getResource(dir).toURI());
+            File[] files = baseDir.listFiles(f -> f.getName().endsWith(".yaoocai"));
+            if (files == null) {
+                return Collections.emptyList();
+            } else {
+                return Arrays.stream(files).map(f -> "/" + rootDir.toPath().relativize(f.toPath()).toString().replace('\\', '/')).collect(Collectors.toList());
+            }
+        } catch (URISyntaxException e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 
@@ -116,21 +135,21 @@ public abstract class BaseLangTest {
         }
     }
 
-    protected Compiler compile(String source, OutputStream byteOut) throws IOException {
+    protected void compile(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         Compiler compiler = new Compiler(sourceIn, byteOut);
         compiler.compile();
-        return compiler;
     }
 
-    protected AssemblerCompiler assemble(String source, OutputStream byteOut) throws IOException {
+    protected void assemble(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
         compiler.compile();
-        return compiler;
     }
 
     protected VM compileAndGetTestVM(String source) throws IOException {
+        executedFiles.add(source);
+
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         compile(source, byteOut);
 
@@ -162,7 +181,7 @@ public abstract class BaseLangTest {
 
         Map<Short, BuiltInVMFunction> testBuiltIns = new HashMap<>();
 
-        testBuiltIns.putAll(DefaultBuiltIns.getBuiltIns());
+        testBuiltIns.putAll(DefaultBuiltIns.STANDARD_BUILT_INS);
 
         testBuiltIns.put((short) 32000, inputFunction);
         testBuiltIns.put((short) 32001, outputFunction);
@@ -175,19 +194,9 @@ public abstract class BaseLangTest {
         return this.lastVM;
     }
 
-    protected List<String> getTestFiles(String dir) throws IOException {
-        try {
-            File rootDir = new File(BaseLangTest.class.getResource("/").toURI());
-            File baseDir = new File(BaseLangTest.class.getResource(dir).toURI());
-            File[] files = baseDir.listFiles(f -> f.getName().endsWith(".yaoocai"));
-            if (files == null) {
-                return Collections.emptyList();
-            } else {
-                return Arrays.stream(files).map(f -> "/" + rootDir.toPath().relativize(f.toPath()).toString()).collect(Collectors.toList());
-            }
-        } catch (URISyntaxException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+    protected void execute(String source) throws IOException {
+        VM vm = compileAndGetTestVM(source);
+        vm.execute();
     }
 
     public static class Test_Input implements BuiltInVMFunction {

@@ -12,6 +12,7 @@ function endlessLoopTest(): integer {
     }
   }
   fail();
+  return count;
 }
 
 function simpleLoopTest() {

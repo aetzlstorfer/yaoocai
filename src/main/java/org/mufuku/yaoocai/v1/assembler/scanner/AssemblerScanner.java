@@ -37,7 +37,6 @@ public class AssemblerScanner {
         while (Character.isWhitespace(currentCharacter)) {
             nextChar();
         }
-
         if (currentCharacter == 0) {
             currentSymbol = AssemblerScannerSymbols.EOI;
         } else if (currentCharacter == ':') {
@@ -56,65 +55,76 @@ public class AssemblerScanner {
             currentSymbol = AssemblerScannerSymbols.FUNCTION_PARAM_END;
             nextChar();
         } else if (currentCharacter == '#') {
-            currentSymbol = AssemblerScannerSymbols.FUNCTION_INDEX;
-            nextChar();
-            StringBuilder index = new StringBuilder();
-            while (Character.isDigit(currentCharacter)) {
-                index.append(currentCharacter);
-                nextChar();
-            }
-            this.currentNumber = Short.parseShort(index.toString());
-            nextChar();
+            scanFunctionIndex();
         } else if (Character.isDigit(currentCharacter) || currentCharacter == '+' || currentCharacter == '-') {
-            StringBuilder number = new StringBuilder();
-            number.append(currentCharacter);
-            nextChar();
-            boolean hex = false;
-            while (isValidNumberCharacter(hex)) {
-                if (currentCharacter == 'x') {
-                    hex = true;
-                }
-                number.append(currentCharacter);
-                nextChar();
-            }
-            if (currentCharacter == ':') {
-                if (hex) {
-                    throw new ParsingException("Hex number is not allowed as line number");
-                }
-                this.currentNumber = Short.parseShort(number.toString());
-                this.currentSymbol = AssemblerScannerSymbols.LINE_NUMBER;
-                nextChar();
-            } else {
-                if (hex) {
-                    this.currentNumber = Short.decode(number.toString());
-                } else {
-                    this.currentNumber = Short.parseShort(number.toString());
-                }
-                this.currentSymbol = AssemblerScannerSymbols.OPCODE_PARAM;
-            }
-
+            scanAddressOffset();
         } else if (Character.isJavaIdentifierStart(currentCharacter)) {
-            currentString = "";
-            StringBuilder tmp = new StringBuilder();
-            while (Character.isJavaIdentifierPart(currentCharacter)) {
-                tmp.append(currentCharacter);
-                nextChar();
-            }
-            currentString = tmp.toString();
-
-            if ("Function".equals(currentString)) {
-                currentSymbol = AssemblerScannerSymbols.FUNCTION;
-            } else {
-                InstructionSet.OpCodes opCode = InstructionSet.OpCodes.getByMnemonic(currentString);
-                if (opCode != null) {
-                    currentOpCode = opCode;
-                    currentSymbol = AssemblerScannerSymbols.MNEMONIC;
-                } else {
-                    currentSymbol = AssemblerScannerSymbols.IDENTIFIER;
-                }
-            }
+            scanFunction();
         } else {
             currentSymbol = AssemblerScannerSymbols.UNKNOWN;
+        }
+    }
+
+    private void scanFunctionIndex() throws IOException {
+        currentSymbol = AssemblerScannerSymbols.FUNCTION_INDEX;
+        nextChar();
+        StringBuilder index = new StringBuilder();
+        while (Character.isDigit(currentCharacter)) {
+            index.append(currentCharacter);
+            nextChar();
+        }
+        this.currentNumber = Short.parseShort(index.toString());
+        nextChar();
+    }
+
+    private void scanAddressOffset() throws IOException {
+        StringBuilder number = new StringBuilder();
+        number.append(currentCharacter);
+        nextChar();
+        boolean hex = false;
+        while (isValidNumberCharacter(hex)) {
+            if (currentCharacter == 'x') {
+                hex = true;
+            }
+            number.append(currentCharacter);
+            nextChar();
+        }
+        if (currentCharacter == ':') {
+            if (hex) {
+                throw new ParsingException("Hex number is not allowed as line number");
+            }
+            this.currentNumber = Short.parseShort(number.toString());
+            this.currentSymbol = AssemblerScannerSymbols.LINE_NUMBER;
+            nextChar();
+        } else {
+            if (hex) {
+                this.currentNumber = Short.decode(number.toString());
+            } else {
+                this.currentNumber = Short.parseShort(number.toString());
+            }
+            this.currentSymbol = AssemblerScannerSymbols.OPCODE_PARAM;
+        }
+    }
+
+    private void scanFunction() throws IOException {
+        currentString = "";
+        StringBuilder tmp = new StringBuilder();
+        while (Character.isJavaIdentifierPart(currentCharacter)) {
+            tmp.append(currentCharacter);
+            nextChar();
+        }
+        currentString = tmp.toString();
+
+        if ("Function".equals(currentString)) {
+            currentSymbol = AssemblerScannerSymbols.FUNCTION;
+        } else {
+            InstructionSet.OpCodes opCode = InstructionSet.OpCodes.getByMnemonic(currentString);
+            if (opCode != null) {
+                currentOpCode = opCode;
+                currentSymbol = AssemblerScannerSymbols.MNEMONIC;
+            } else {
+                currentSymbol = AssemblerScannerSymbols.IDENTIFIER;
+            }
         }
     }
 
