@@ -87,7 +87,11 @@ public class AssemblerIntegrationTest extends BaseLangTest {
             ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
             ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
             AssemblerCompiler assemblerCompiler = new AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
-            assemblerCompiler.compile();
+            try {
+                assemblerCompiler.compile();
+            } catch (Exception e) {
+                Assert.fail(sourceFile + " failed. Error: " + e.getMessage());
+            }
 
             Assert.assertArrayEquals(byteOut.toByteArray(), byteOut2.toByteArray());
         }
