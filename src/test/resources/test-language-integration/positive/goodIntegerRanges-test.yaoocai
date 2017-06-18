@@ -1,8 +1,12 @@
 
 
 function main() {
-/* TODO: this has to be fixed with #3 compiler validations
-  var a: integer = 32767;
-  var b: integer = -32768;
+  var a: integer = 2147483647;
+  var b: integer = -2147483648;
+  /* later on the optimizer can hopefully optimize this:
+  var i: integer = b;
+  while(i <= a) {
+    i++;
+  }
   */
 }

@@ -352,7 +352,7 @@ public class Parser {
             // optimization for literals to negate them on the fly
             if (subExpression instanceof ASTLiteralExpression) {
                 ASTLiteralExpression subLiteralExpression = (ASTLiteralExpression) subExpression;
-                Integer originalValue = (Integer) subLiteralExpression.getValue();
+                Long originalValue = (Long) subLiteralExpression.getValue();
                 expr = new ASTLiteralExpression<>(-originalValue, subLiteralExpression.getType());
             } else {
                 expr = new ASTUnaryExpression(subExpression, ASTUnaryOperator.NEGATE);
@@ -418,7 +418,7 @@ public class Parser {
     private ASTLiteralExpression parseLiteral() throws IOException {
         ASTLiteralExpression expression;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER_LITERAL) {
-            int value = scanner.getNumberAsInteger();
+            long value = scanner.getNumberAsLong();
             expression = new ASTLiteralExpression<>(value, ASTType.INTEGER);
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.TRUE) {
             expression = new ASTLiteralExpression<>(true, ASTType.BOOLEAN);

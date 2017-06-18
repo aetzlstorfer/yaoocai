@@ -325,7 +325,7 @@ public class Scanner {
         return currentIdentifier;
     }
 
-    public int getNumberAsInteger() {
-        return Integer.parseInt(currentNumber);
+    public long getNumberAsLong() {
+        return Long.parseLong(currentNumber);
     }
 }

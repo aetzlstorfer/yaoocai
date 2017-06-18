@@ -586,16 +586,16 @@ public class Translator {
             } else {
                 writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
             }
-        } else if (expression.getValue() instanceof Integer) {
+        } else if (expression.getValue() instanceof Long) {
             emitIntegerLiteral(expression);
         }
     }
 
     private void emitIntegerLiteral(ASTLiteralExpression expression) {
-        int value = (int) expression.getValue();
+        long value = (long) expression.getValue();
 
-        if (value > Short.MAX_VALUE || value < Short.MIN_VALUE) {
-            throw new ParsingException("Integer must be in the range of " + Short.MIN_VALUE + " and " + Short.MAX_VALUE);
+        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
+            throw new ParsingException("Integer must be in the range of " + Integer.MIN_VALUE + " and " + Integer.MAX_VALUE);
         }
 
         if (value == 0) {
@@ -603,7 +603,7 @@ public class Translator {
         } else if (value == 1) {
             writeOpCode(InstructionSet.OpCodes.I_CONST_1);
         } else {
-            short largeIntegerIndex = constantPoolBuilder.getIntegerIndex(value);
+            short largeIntegerIndex = constantPoolBuilder.getIntegerIndex((int) value);
             if (largeIntegerIndex <= 0xFF) {
                 byte smallIntegerIndex = (byte) largeIntegerIndex;
                 writeOpCode(InstructionSet.OpCodes.CONST_P1B, smallIntegerIndex);
