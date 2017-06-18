@@ -1,51 +1,70 @@
 package org.mufuku.yaoocai.v1.compiler.translator;
 
-import org.mufuku.yaoocai.v1.bytecode.BasicByteCodeProducer;
+import org.mufuku.yaoocai.v1.bytecode.ByteCodeWriter;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
+import org.mufuku.yaoocai.v1.bytecode.data.*;
 import org.mufuku.yaoocai.v1.compiler.ast.*;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class Translator extends BasicByteCodeProducer {
+public class Translator {
 
     private static final String INCOMPATIBLE_TYPE_ERROR_MESSAGE = "Incompatible types";
     private static final String NOT_A_STATEMENT_ERROR_MESSAGE = "Not a statement";
 
     private final ASTScript script;
+    private final OutputStream out;
 
     private LocalVariableStorage currentLocalVariableStorage;
     private FunctionStorage functionStorage = new FunctionStorage();
     private TypeRegistry typeRegistry;
     private ASTFunction currentFunction;
 
+    private BCConstantPoolBuilder constantPoolBuilder;
+    private BCUnit unit;
+    private BCCodeBuilder codeBuilder;
+
     public Translator(ASTScript script, OutputStream out) {
-        super(out);
         this.script = script;
+        this.out = out;
     }
 
     public void translate() throws IOException {
+
+        this.constantPoolBuilder = new BCConstantPoolBuilder();
+        short unitNameIndex = constantPoolBuilder.getSymbolIndex("main_unit");
+        this.unit = new BCUnit(unitNameIndex);
+        this.unit.setItems(new ArrayList<>());
+
+        BCUnits units = new BCUnits(Collections.singletonList(unit));
+
+        BCFile bcFile = new BCFile();
+        bcFile.setPreamble(InstructionSet.PREAMBLE);
+        bcFile.setMajorVersion(script.getMajorVersion());
+        bcFile.setMinorVersion(script.getMinorVersion());
+        bcFile.setConstantPool(this.constantPoolBuilder.build());
+        bcFile.setUnits(units);
+
         preFillStorage();
-        Short mainIndex = functionStorage.getFunctionIndex("main");
-        emitHeader(InstructionSet.PREAMBLE, script.getMajorVersion(), script.getMinorVersion(), mainIndex);
         emitBody();
+
+        ByteCodeWriter byteCodeWriter = new ByteCodeWriter(out);
+        byteCodeWriter.writeByteCode(bcFile);
     }
 
     private void preFillStorage() {
-        for (ASTBasicFunction function : script.declaredFunctions()) {
-            if (function instanceof ASTFunction) {
-                functionStorage.addFunction((ASTFunction) function);
-            } else if (function instanceof ASTBuiltinFunction) {
-                functionStorage.addBuiltinFunction((ASTBuiltinFunction) function);
+        for (ASTBasicFunction declaredFunction : script.declaredFunctions()) {
+            if (declaredFunction instanceof ASTFunction) {
+                functionStorage.addFunction((ASTFunction) declaredFunction);
+            } else if (declaredFunction instanceof ASTBuiltinFunction) {
+                functionStorage.addBuiltinFunction((ASTBuiltinFunction) declaredFunction);
             }
         }
     }
@@ -55,17 +74,15 @@ public class Translator extends BasicByteCodeProducer {
             if (basicFunction instanceof ASTFunction) {
                 this.currentLocalVariableStorage = new LocalVariableStorage();
                 this.typeRegistry = new TypeRegistry(currentLocalVariableStorage, functionStorage);
-                ASTFunction function = (ASTFunction) basicFunction;
-                this.currentFunction = function;
-                emitFunction(function);
+                this.currentFunction = (ASTFunction) basicFunction;
+                emitFunction(currentFunction);
             }
         }
     }
 
     private void emitFunction(ASTFunction function) throws IOException {
-        writeOpCode(InstructionSet.OpCodes.FUNCTION);
+        this.codeBuilder = new BCCodeBuilder();
         populateParametersOnLocalVariableStorage(function.getParameters());
-        takeOverParams(function.getParameters());
         emitCode(function.getBlock());
         if (function.getReturnType() == null) {
             writeOpCode(InstructionSet.OpCodes.RETURN);
@@ -74,6 +91,72 @@ public class Translator extends BasicByteCodeProducer {
                 throw new ParsingException("Function does not return properly");
             }
         }
+
+        short functionNameIndex = constantPoolBuilder.getSymbolIndex(function.getIdentifier());
+
+        BCUnitItemFunction unitItemFunction = new BCUnitItemFunction(functionNameIndex);
+        unitItemFunction.setCode(codeBuilder.build());
+        unitItemFunction.setParameters(convertParametersMetadata(function.getParameters()));
+        unitItemFunction.setReturnType(convertType(function.getReturnType()));
+        unitItemFunction.setLocalVariableTable(convertLocalVariableTable());
+
+        this.unit.getItems().add(unitItemFunction);
+    }
+
+    private BCParameters convertParametersMetadata(ASTParameters parameters) {
+        List<BCNameAndType> nameAndTypes = new ArrayList<>();
+        for (ASTParameter parameter : parameters) {
+            BCType type = convertType(parameter.getType());
+            short parameterNameIndex = constantPoolBuilder.getSymbolIndex(parameter.getIdentifier());
+            BCNameAndType nameAndType = new BCNameAndType(type, parameterNameIndex);
+            nameAndTypes.add(nameAndType);
+        }
+        return new BCParameters(nameAndTypes);
+    }
+
+    private BCLocalVariableTable convertLocalVariableTable() {
+        List<BCNameAndType> nameAndTypes = new ArrayList<>();
+        for (Map.Entry<String, LocalVariable> localVariableEntry : currentLocalVariableStorage.getRealLocalVariables()) {
+
+            String variableName = localVariableEntry.getKey();
+            LocalVariable localVariable = localVariableEntry.getValue();
+
+            short variableIndex = constantPoolBuilder.getSymbolIndex(variableName);
+            BCType type = convertType(localVariable.getType());
+
+            BCNameAndType nameAndType = new BCNameAndType(type, variableIndex);
+            nameAndTypes.add(nameAndType);
+        }
+        return new BCLocalVariableTable(nameAndTypes);
+    }
+
+    private BCType convertType(ASTType type) {
+        if (type == null) {
+            return new BCType(BCTypeType.NO);
+        } else if (type.isPrimitive()) {
+            return convertPrimitiveType(type);
+        } else {
+            return convertReferenceType(type);
+        }
+    }
+
+    private BCType convertPrimitiveType(ASTType type) {
+        BCTypeType typeType;
+        if (ASTType.BOOLEAN.equals(type)) {
+            typeType = BCTypeType.BOOLEAN;
+        } else if (ASTType.INTEGER.equals(type)) {
+            typeType = BCTypeType.INTEGER;
+        } else {
+            typeType = BCTypeType.NO;
+        }
+        return new BCType(typeType);
+    }
+
+    private BCType convertReferenceType(ASTType type) {
+        BCType bcType = new BCType(BCTypeType.REFERENCE_TYPE);
+        short typeNameIndex = constantPoolBuilder.getSymbolIndex(type.getTypeName());
+        bcType.setReferenceNameIndex(typeNameIndex);
+        return bcType;
     }
 
     private boolean branchDoesNotReturn(ASTBlock block) {
@@ -103,12 +186,6 @@ public class Translator extends BasicByteCodeProducer {
             String variableName = parameter.getIdentifier();
             currentLocalVariableStorage.addVariable(variableName, parameter.getType());
             currentLocalVariableStorage.markInitialized(variableName);
-        }
-    }
-
-    private void takeOverParams(ASTParameters parameters) throws IOException {
-        if (parameters.getParameterSize() > 0) {
-            writeOpCode(InstructionSet.OpCodes.POP_PARAMS, (short) parameters.getParameterSize());
         }
     }
 
@@ -178,9 +255,9 @@ public class Translator extends BasicByteCodeProducer {
 
     private void emitWhileStatement(ASTWhileStatement statement) throws IOException {
         // +3 = +1(if) +1(if address) +1 to be ahead of last instruction
-        short blockSize = (short) ((short) 3 + calculateInstructionSize(statement.getBlock()));
+        byte blockSize = (byte) ((byte) 3 + calculateInstructionSize(statement.getBlock()));
         // jump back = negative size for block + condition
-        short jumpBackSize = (short) (-calculateExpressionSize(statement.getConditionExpression()) - blockSize);
+        byte jumpBackSize = (byte) (-calculateExpressionSize(statement.getConditionExpression()) - blockSize);
         validateConditionalExpression(statement.getConditionExpression());
         emitExpression(statement.getConditionExpression());
         writeOpCode(InstructionSet.OpCodes.IF, blockSize);
@@ -207,12 +284,12 @@ public class Translator extends BasicByteCodeProducer {
                 validateConditionalExpression(ifStatement.getConditionExpression());
                 emitExpression(ifStatement.getConditionExpression());
 
-                short jumpSize = ifJumpTable.getIfJumpOffset(i);
+                byte jumpSize = ifJumpTable.getIfJumpOffset(i);
                 writeOpCode(InstructionSet.OpCodes.IF, jumpSize);
 
                 emitCode(ifStatement.getBlock());
 
-                short endJumpSize = ifJumpTable.getEndJumpOffset(i);
+                byte endJumpSize = ifJumpTable.getEndJumpOffset(i);
                 if (endJumpSize > 1) {
                     writeOpCode(InstructionSet.OpCodes.GOTO, endJumpSize);
                 }
@@ -230,13 +307,13 @@ public class Translator extends BasicByteCodeProducer {
 
             boolean last = i < ifStatements.size() - 1;
 
-            short blockSize = 0;
+            byte blockSize = 0;
             if (last) { // when last
                 blockSize += 2;
             }
             blockSize += calculateInstructionSize(ifStatement.getBlock());
 
-            short expressionSize = 0;
+            byte expressionSize = 0;
             if (last) {
                 expressionSize += 2;
             }
@@ -263,7 +340,7 @@ public class Translator extends BasicByteCodeProducer {
 
     private void emitLocalVariable(ASTLocalVariableDeclarationStatement localVariableDeclarationStatement) throws IOException {
         String variableName = localVariableDeclarationStatement.getIdentifier();
-        short index = currentLocalVariableStorage.addVariable(variableName, localVariableDeclarationStatement.getType());
+        byte index = currentLocalVariableStorage.addVariable(variableName, localVariableDeclarationStatement.getType());
         if (localVariableDeclarationStatement.getInitializationExpression() != null) {
             validateInitializationExpression(localVariableDeclarationStatement);
             emitExpression(localVariableDeclarationStatement.getInitializationExpression());
@@ -317,7 +394,7 @@ public class Translator extends BasicByteCodeProducer {
         ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getLeft();
         emitExpression(expression.getRight());
         currentLocalVariableStorage.markInitialized(variableExpression.getIdentifier());
-        short variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier());
+        byte variableIndex = currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier());
         writeOpCode(InstructionSet.OpCodes.STORE, variableIndex);
     }
 
@@ -327,13 +404,13 @@ public class Translator extends BasicByteCodeProducer {
         emitVariable(variableExpression);
         emitExpression(expression.getRight());
         if (expression.getOperator() == ASTOperator.ADDITION_ASSIGNMENT) {
-            writeOpCode(InstructionSet.OpCodes.ADD);
+            writeOpCode(InstructionSet.OpCodes.I_ADD);
         } else if (expression.getOperator() == ASTOperator.SUBTRACTION_ASSIGNMENT) {
-            writeOpCode(InstructionSet.OpCodes.SUB);
+            writeOpCode(InstructionSet.OpCodes.I_SUB);
         } else if (expression.getOperator() == ASTOperator.MULTIPLICATION_ASSIGNMENT) {
-            writeOpCode(InstructionSet.OpCodes.MUL);
+            writeOpCode(InstructionSet.OpCodes.I_MUL);
         } else if (expression.getOperator() == ASTOperator.DIVISION_ASSIGNMENT) {
-            writeOpCode(InstructionSet.OpCodes.DIV);
+            writeOpCode(InstructionSet.OpCodes.I_DIV);
         }
         writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
     }
@@ -351,12 +428,12 @@ public class Translator extends BasicByteCodeProducer {
         flattenConditions(expression, conditionExpressions, ASTOperator.CONDITIONAL_OR);
 
         int numExpression = conditionExpressions.size();
-        short[] jumpTable = new short[numExpression - 1];
+        byte[] jumpTable = new byte[numExpression - 1];
         for (int i = 0; i < numExpression - 1; i++) {
-            short jumpOffset = 1;
+            byte jumpOffset = 1;
             for (int j = i + 1; j < numExpression; j++) {
                 // last if has 5 instructions overhead, others 6
-                short overhead = j < numExpression - 1 ? (short) 5 : (short) 6;
+                byte overhead = j < numExpression - 1 ? (byte) 5 : (byte) 6;
                 jumpOffset += overhead + calculateExpressionSize(conditionExpressions.get(j));
             }
             jumpTable[i] = jumpOffset;
@@ -367,13 +444,13 @@ public class Translator extends BasicByteCodeProducer {
 
             validateConditionalExpression(conditionExpression);
             emitExpression(conditionExpression);
-            writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
+            writeOpCode(InstructionSet.OpCodes.IF, (byte) 4);
             writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
 
             if (i < numExpression - 1) {
                 writeOpCode(InstructionSet.OpCodes.GOTO, jumpTable[i]);
             } else {
-                writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
+                writeOpCode(InstructionSet.OpCodes.GOTO, (byte) 2);
                 writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
             }
         }
@@ -384,12 +461,12 @@ public class Translator extends BasicByteCodeProducer {
         flattenConditions(expression, conditionExpressions, ASTOperator.CONDITIONAL_AND);
 
         int numExpression = conditionExpressions.size();
-        short[] jumpTable = new short[numExpression - 1];
+        byte[] jumpTable = new byte[numExpression - 1];
         for (int i = 0; i < numExpression - 1; i++) {
-            short jumpOffset = 1;
+            byte jumpOffset = 1;
             for (int j = i + 1; j < numExpression; j++) {
                 // last if has 6 instructions overhead, others 2
-                short overhead = j < numExpression - 1 ? (short) 2 : (short) 5;
+                byte overhead = j < numExpression - 1 ? (byte) 2 : (byte) 5;
                 jumpOffset += overhead + calculateExpressionSize(conditionExpressions.get(j));
             }
             jumpTable[i] = jumpOffset;
@@ -404,9 +481,9 @@ public class Translator extends BasicByteCodeProducer {
             }
         }
 
-        writeOpCode(InstructionSet.OpCodes.IF, (short) 4);
+        writeOpCode(InstructionSet.OpCodes.IF, (byte) 4);
         writeOpCode(InstructionSet.OpCodes.B_CONST_TRUE);
-        writeOpCode(InstructionSet.OpCodes.GOTO, (short) 2);
+        writeOpCode(InstructionSet.OpCodes.GOTO, (byte) 2);
         writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
     }
 
@@ -427,27 +504,27 @@ public class Translator extends BasicByteCodeProducer {
         emitExpression(expression.getLeft());
         emitExpression(expression.getRight());
         if (expression.getOperator() == ASTOperator.ADDITION) {
-            writeOpCode(InstructionSet.OpCodes.ADD);
+            writeOpCode(InstructionSet.OpCodes.I_ADD);
         } else if (expression.getOperator() == ASTOperator.SUBTRACTION) {
-            writeOpCode(InstructionSet.OpCodes.SUB);
+            writeOpCode(InstructionSet.OpCodes.I_SUB);
         } else if (expression.getOperator() == ASTOperator.MULTIPLICATION) {
-            writeOpCode(InstructionSet.OpCodes.MUL);
+            writeOpCode(InstructionSet.OpCodes.I_MUL);
         } else if (expression.getOperator() == ASTOperator.DIVISION) {
-            writeOpCode(InstructionSet.OpCodes.DIV);
+            writeOpCode(InstructionSet.OpCodes.I_DIV);
         } else if (expression.getOperator() == ASTOperator.MODULO) {
-            writeOpCode(InstructionSet.OpCodes.MOD);
+            writeOpCode(InstructionSet.OpCodes.I_MOD);
         } else if (expression.getOperator() == ASTOperator.EQUAL) {
-            writeOpCode(InstructionSet.OpCodes.CMP_EQ);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_EQ);
         } else if (expression.getOperator() == ASTOperator.NOT_EQUAL) {
-            writeOpCode(InstructionSet.OpCodes.CMP_NE);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_NE);
         } else if (expression.getOperator() == ASTOperator.LESS_THAN) {
-            writeOpCode(InstructionSet.OpCodes.CMP_LT);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_LT);
         } else if (expression.getOperator() == ASTOperator.LESS_THAN_OR_EQUAL) {
-            writeOpCode(InstructionSet.OpCodes.CMP_LTE);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_LTE);
         } else if (expression.getOperator() == ASTOperator.GREATER_THAN) {
-            writeOpCode(InstructionSet.OpCodes.CMP_GT);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_GT);
         } else if (expression.getOperator() == ASTOperator.GREATER_THAN_OR_EQUAL) {
-            writeOpCode(InstructionSet.OpCodes.CMP_GTE);
+            writeOpCode(InstructionSet.OpCodes.I_CMP_GTE);
         } else if (expression.getOperator() == ASTOperator.BITWISE_AND) {
             writeOpCode(InstructionSet.OpCodes.AND);
         } else if (expression.getOperator() == ASTOperator.BITWISE_OR) {
@@ -461,11 +538,11 @@ public class Translator extends BasicByteCodeProducer {
             validateNumericExpression(expression.getSubExpression());
             ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getSubExpression();
             emitVariable(variableExpression);
-            writeOpCode(InstructionSet.OpCodes.I_CONST, (short) 1);
+            writeOpCode(InstructionSet.OpCodes.I_CONST_1);
             if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_INCREMENT) {
-                writeOpCode(InstructionSet.OpCodes.ADD);
+                writeOpCode(InstructionSet.OpCodes.I_ADD);
             } else if (expression.getUnaryOperator() == ASTUnaryOperator.PRE_DECREMENT) {
-                writeOpCode(InstructionSet.OpCodes.SUB);
+                writeOpCode(InstructionSet.OpCodes.I_SUB);
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
             emitVariable(variableExpression);
@@ -475,18 +552,18 @@ public class Translator extends BasicByteCodeProducer {
             ASTVariableExpression variableExpression = (ASTVariableExpression) expression.getSubExpression();
             emitVariable(variableExpression);
             emitVariable(variableExpression);
-            writeOpCode(InstructionSet.OpCodes.I_CONST, (short) 1);
+            writeOpCode(InstructionSet.OpCodes.I_CONST_1);
             if (expression.getUnaryOperator() == ASTUnaryOperator.POST_INCREMENT) {
-                writeOpCode(InstructionSet.OpCodes.ADD);
+                writeOpCode(InstructionSet.OpCodes.I_ADD);
             } else if (expression.getUnaryOperator() == ASTUnaryOperator.POST_DECREMENT) {
-                writeOpCode(InstructionSet.OpCodes.SUB);
+                writeOpCode(InstructionSet.OpCodes.I_SUB);
             }
             writeOpCode(InstructionSet.OpCodes.STORE, currentLocalVariableStorage.getVariableIndex(variableExpression.getIdentifier()));
 
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.NEGATE) {
             validateNumericExpression(expression.getSubExpression());
             emitExpression(expression.getSubExpression());
-            writeOpCode(InstructionSet.OpCodes.NEG);
+            writeOpCode(InstructionSet.OpCodes.I_NEG);
         } else if (expression.getUnaryOperator() == ASTUnaryOperator.BITWISE_NOT) {
             validateConditionalExpression(expression.getSubExpression());
             emitExpression(expression.getSubExpression());
@@ -501,7 +578,7 @@ public class Translator extends BasicByteCodeProducer {
         }
     }
 
-    private void emitLiteral(ASTLiteralExpression expression) throws IOException {
+    private void emitLiteral(ASTLiteralExpression expression) {
         if (expression.getValue() instanceof Boolean) {
             Boolean value = (Boolean) expression.getValue();
             if (value) {
@@ -510,8 +587,25 @@ public class Translator extends BasicByteCodeProducer {
                 writeOpCode(InstructionSet.OpCodes.B_CONST_FALSE);
             }
         } else if (expression.getValue() instanceof Integer) {
-            int value = (int) expression.getValue();
-            writeOpCode(InstructionSet.OpCodes.I_CONST, (short) value);
+            emitIntegerLiteral(expression);
+        }
+    }
+
+    private void emitIntegerLiteral(ASTLiteralExpression expression) {
+        int value = (int) expression.getValue();
+
+        if (value == 0) {
+            writeOpCode(InstructionSet.OpCodes.I_CONST_0);
+        } else if (value == 1) {
+            writeOpCode(InstructionSet.OpCodes.I_CONST_1);
+        } else {
+            short largeIntegerIndex = constantPoolBuilder.getIntegerIndex(value);
+            if (largeIntegerIndex <= 0xFF) {
+                byte smallIntegerIndex = (byte) largeIntegerIndex;
+                writeOpCode(InstructionSet.OpCodes.CONST_P1B, smallIntegerIndex);
+            } else {
+                writeOpCodeTwoBytesParameter(InstructionSet.OpCodes.CONST_P2B, largeIntegerIndex);
+            }
         }
     }
 
@@ -526,12 +620,14 @@ public class Translator extends BasicByteCodeProducer {
             emitFunctionArguments(expression, basicFunction);
         }
 
-        ASTBuiltinFunction builtinFunction = functionStorage.getBuiltinFunction(functionName);
-        Short functionIndex = functionStorage.getFunctionIndex(functionName);
-        if (builtinFunction != null) {
-            writeOpCode(InstructionSet.OpCodes.INVOKE_BUILTIN, builtinFunction.getFunctionCode());
-        } else if (functionIndex != null) {
-            writeOpCode(InstructionSet.OpCodes.INVOKE, functionIndex);
+        if (basicFunction instanceof ASTBuiltinFunction) {
+            ASTBuiltinFunction builtinFunction = (ASTBuiltinFunction) basicFunction;
+            short builtinFunctionIndex = constantPoolBuilder.getSymbolIndex(builtinFunction.getBindName());
+            writeOpCodeTwoBytesParameter(InstructionSet.OpCodes.INVOKE_BUILTIN, builtinFunctionIndex);
+        } else if (basicFunction instanceof ASTFunction) {
+            ASTFunction functionCall = (ASTFunction) basicFunction;
+            short functionIndex = constantPoolBuilder.getSymbolIndex(functionCall.getIdentifier());
+            writeOpCodeTwoBytesParameter(InstructionSet.OpCodes.INVOKE, functionIndex);
         }
     }
 
@@ -556,30 +652,47 @@ public class Translator extends BasicByteCodeProducer {
         }
     }
 
-    private short calculateExpressionSize(ASTExpression expression) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Translator temp = new Translator(script, out);
-        temp.currentLocalVariableStorage = this.currentLocalVariableStorage;
-        temp.functionStorage = this.functionStorage;
-        temp.typeRegistry = this.typeRegistry;
-        temp.currentFunction = this.currentFunction;
+    private byte calculateExpressionSize(ASTExpression expression) throws IOException {
+        ByteArrayOutputStream subOut = new ByteArrayOutputStream();
+        Translator temp = setUpSubTranslator(subOut);
         temp.emitExpression(expression);
-        return (short) (out.size() / 2); //2bytes -> 1 short
+        return temp.codeBuilder.getSize();
     }
 
-    private short calculateInstructionSize(ASTBlock block) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Translator temp = new Translator(script, out);
-        temp.currentLocalVariableStorage = this.currentLocalVariableStorage;
+    private byte calculateInstructionSize(ASTBlock block) throws IOException {
+        ByteArrayOutputStream subOut = new ByteArrayOutputStream();
+        Translator temp = setUpSubTranslator(subOut);
+        temp.emitCode(block);
+        return temp.codeBuilder.getSize();
+    }
+
+    private Translator setUpSubTranslator(ByteArrayOutputStream subOut) {
+        Translator temp = new Translator(script, subOut);
+        temp.currentLocalVariableStorage = currentLocalVariableStorage;
         temp.functionStorage = this.functionStorage;
         temp.typeRegistry = this.typeRegistry;
         temp.currentFunction = this.currentFunction;
-        temp.emitCode(block);
-        return (short) (out.size() / 2); //2bytes -> 1 short
+        temp.codeBuilder = new BCCodeBuilder();
+        temp.constantPoolBuilder = this.constantPoolBuilder;
+        return temp;
     }
 
-    private void emitVariable(ASTVariableExpression variable) throws IOException {
-        short variableIndex = currentLocalVariableStorage.getVariableIndex(variable.getIdentifier());
+    private void emitVariable(ASTVariableExpression variable) {
+        byte variableIndex = currentLocalVariableStorage.getVariableIndex(variable.getIdentifier());
         writeOpCode(InstructionSet.OpCodes.LOAD, variableIndex);
+    }
+
+    private void writeOpCode(InstructionSet.OpCodes opCode) {
+        this.codeBuilder.writeOpCode(opCode);
+    }
+
+    private void writeOpCode(InstructionSet.OpCodes opCode, byte parameter) {
+        this.codeBuilder.writeOpCode(opCode, parameter);
+    }
+
+    private void writeOpCodeTwoBytesParameter(InstructionSet.OpCodes opCode, short parameter) {
+        byte index1 = (byte) ((parameter >>> 8) & 0xFF);
+        byte index2 = (byte) (parameter & 0xFF);
+        this.codeBuilder.writeOpCode(opCode, index1, index2);
     }
 }

@@ -19,7 +19,7 @@ too big. The aim is to write code and execute it platform independently.
  - \+ Functional language part completely implemented
  - \+ Validation on a higher level (Type safety, duplications, proper return flow, ...)
  - \- Object oriented part of the language is missing (no classes, no inheritance, no generics, ...)
- - \- No concept to organize code (modules, name spaces, packages) -\> necessary for runtime!
+ - \- No concept to organize code (units, name spaces, packages) -\> necessary for runtime!
  - \- Advanced validation missing (Don't skip compilation on first error, bring proper error messages with line number, ...)
  
 **Language (control structure)**
@@ -263,7 +263,7 @@ Parser Rules
 <BuiltInFunctionDeclaration>
                        ::= 'builtin' 'function' Identifier Parameters [Colon Type]
 <BuiltInFunctionDeclarationAssignment>
-                       ::= BuiltInFunctionDeclarationOperator Identifier ParStart {Digit} ParEnd
+                       ::= BuiltInFunctionDeclarationOperator Identifier
 <FunctionDeclaration>  ::= 'function' Identifier Parameters [Colon Type] Block
 <Parameters>           ::= ParStart [ParameterDeclarations] ParEnd
 <ParameterDeclarations>::= ParameterDeclaration {Comma ParameterDeclaration}

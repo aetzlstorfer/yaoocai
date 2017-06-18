@@ -51,14 +51,14 @@ public class LanguageIntegrationTest extends BaseLangTest {
     @Test
     public void test_validComparisonExpressions_noFailCall() throws IOException {
         VM vm = compileAndGetTestVM("/test-language-integration/positive/comparison-test.yaoocai");
-        inputFunction.setValue((short) 1);
+        inputFunction.setValue(1);
         vm.execute();
     }
 
     @Test
     public void test_validCodeWithIfBranch_noFailCall() throws IOException {
         VM vm = compileAndGetTestVM("/test-language-integration/positive/if-branches-test.yaoocai");
-        inputFunction.setValue((short) 1);
+        inputFunction.setValue(1);
         vm.execute();
     }
 
@@ -67,10 +67,10 @@ public class LanguageIntegrationTest extends BaseLangTest {
         execute("/test-language-integration/positive/local-variable-test.yaoocai");
 
         List<Object> reportResult = outputFunction.getValues();
-        assertThat(reportResult.get(0), Matchers.equalTo((short) 5));
-        assertThat(reportResult.get(1), Matchers.equalTo((short) 5));
-        assertThat(reportResult.get(2), Matchers.equalTo((short) 7));
-        assertThat(reportResult.get(3), Matchers.equalTo((short) 6));
+        assertThat(reportResult.get(0), Matchers.equalTo(5));
+        assertThat(reportResult.get(1), Matchers.equalTo(5));
+        assertThat(reportResult.get(2), Matchers.equalTo(7));
+        assertThat(reportResult.get(3), Matchers.equalTo(6));
     }
 
     @Test
@@ -120,7 +120,7 @@ public class LanguageIntegrationTest extends BaseLangTest {
         execute("/test-language-integration/positive/conditional-precedence-test.yaoocai");
 
         assertThat(outputFunction.getValues(), is(equalTo(
-                Arrays.asList((short) 1, (short) 2, (short) 3, (short) 4, (short) 5, (short) 6))));
+                Arrays.asList(1, 2, 3, 4, 5, 6))));
     }
 
     @Test

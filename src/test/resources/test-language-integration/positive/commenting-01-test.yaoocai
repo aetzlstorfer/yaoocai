@@ -1,7 +1,7 @@
 
 
 // built in functions
-builtin function fail()                     -> vmfunc(32002)
+builtin function fail()                     -> test_fail
 
 // this is a test, outside of a function
 /* this is a test, outside of a function */

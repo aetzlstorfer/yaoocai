@@ -1,6 +1,6 @@
-builtin function testOutput(value: integer) -> vmfunc(32001)
-builtin function assertTrue  (condition: boolean) -> vmfunc(32004)
-builtin function assertFalse (condition: boolean) -> vmfunc(32005)
+builtin function testOutput(value: integer) -> test_out
+builtin function assertTrue  (condition: boolean) -> test_assertTrue
+builtin function assertFalse (condition: boolean) -> test_assertFalse
 
 function valueA(): boolean {
  testOutput(1);

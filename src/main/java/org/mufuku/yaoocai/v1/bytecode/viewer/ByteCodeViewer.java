@@ -1,77 +1,180 @@
 package org.mufuku.yaoocai.v1.bytecode.viewer;
 
-import org.mufuku.yaoocai.v1.bytecode.BasicByteCodeConsumer;
+import org.mufuku.yaoocai.v1.bytecode.ByteCodeReader;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
+import org.mufuku.yaoocai.v1.bytecode.data.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.text.MessageFormat;
+import java.util.List;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ByteCodeViewer extends BasicByteCodeConsumer {
+public class ByteCodeViewer {
 
+    private final ByteCodeReader byteCodeReader;
     private final PrintStream out;
-    private int instructionIndex = 0;
+    private BCFile file;
 
-    public ByteCodeViewer(InputStream in, short expectedMajorVersion, short expectedMinorVersion, PrintStream out) {
-        super(in, expectedMajorVersion, expectedMinorVersion);
-        this.out = new PrintStream(out);
+    public ByteCodeViewer(InputStream in, PrintStream out) {
+        this.byteCodeReader = new ByteCodeReader(in);
+        this.out = out;
     }
 
     public void convert() throws IOException {
-        this.instructionIndex = 0;
-        readHeader();
-        int functionIndex = 0;
-        Short currentOpCode = getNext();
-        while (in.available() > 0 && currentOpCode != null && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
-            out.println("Function: #" + functionIndex + (mainFunctionIndex == functionIndex ? " (main)" : ""));
-            currentOpCode = getNext();
-            while (currentOpCode != null && currentOpCode != InstructionSet.OpCodes.FUNCTION.code()) {
-                checkOpCode(currentOpCode);
-                currentOpCode = getNext();
-            }
-            functionIndex++;
+        this.file = byteCodeReader.readByteCode();
+        printConstantPool();
+        printUnits(file.getUnits());
+    }
+
+    private void printConstantPool() {
+        out.println("constant pool {");
+        List<BCConstantPoolItem> items = file.getConstantPool().getItems();
+        for (BCConstantPoolItem item : items) {
+            String cpValue = MessageFormat.format("#{0}: {1} -> {2}",
+                    item.getIndex(),
+                    item.getType().getDisplayName(),
+                    item.getValue());
+            out.println("  " + cpValue);
+        }
+        out.println("}");
+    }
+
+    private void printUnits(BCUnits units) {
+        for (BCUnit unit : units.getUnits()) {
+            printUnit(unit);
         }
     }
 
+    private void printUnit(BCUnit unit) {
+        String unitName = ByteCodeReader.getConstantPoolString(file.getConstantPool(), unit.getNameIndex());
+        out.println("unit " + unitName + " {");
+        for (BCUnitItem unitItem : unit.getItems()) {
+            printUnitItem(unitItem);
+        }
+        out.println("}");
+    }
 
-    private void checkOpCode(short currentOpCode) throws IOException {
+    private void printUnitItem(BCUnitItem unitItem) {
+        if (unitItem.getType() == BCUnitItemType.FUNCTION) {
+            printUnitItemFunction((BCUnitItemFunction) unitItem);
+        }
+    }
+
+    private void printUnitItemFunction(BCUnitItemFunction function) {
+        String functionName = ByteCodeReader.getConstantPoolString(file.getConstantPool(), function.getFunctionNameIndex());
+        String parameterString = getParameterString(function.getParameters());
+        String returnTypeString = getTypeString(function.getReturnType());
+        out.println("  function " + functionName + "(" + parameterString + ")" + (returnTypeString != null ? ": " + returnTypeString : "") + " {");
+        printCode(function);
+        out.println("  }");
+    }
+
+    private String getParameterString(BCParameters parameters) {
+        List<BCNameAndType> nameAndTypes = parameters.getNameAndTypes();
+        StringBuilder sb = new StringBuilder(parameters.getNameAndTypes().size() * 7);
+        for (int i = 0; i < nameAndTypes.size(); i++) {
+            BCNameAndType nameAndType = nameAndTypes.get(i);
+            String type = getTypeString(nameAndType.getType());
+            String parameterName = ByteCodeReader.getConstantPoolString(file.getConstantPool(), nameAndType.getNameIndex());
+            if (i > 1) {
+                sb.append(", ");
+            }
+            sb.append(parameterName).append(": ").append(type);
+        }
+        return sb.toString();
+    }
+
+    private String getTypeString(BCType type) {
+        if (type.getType() == BCTypeType.REFERENCE_TYPE) {
+            return ByteCodeReader.getConstantPoolString(file.getConstantPool(), type.getReferenceNameIndex());
+        } else if (type.getType() == BCTypeType.NO) {
+            return null;
+        } else {
+            return type.getType().getDisplayName();
+        }
+    }
+
+    private void printCode(BCUnitItemFunction function) {
+        byte[] code = function.getCode().getCode();
+        int codeIndex = 0;
+        while (codeIndex < code.length) {
+            codeIndex = printOpCode(code, codeIndex, function);
+        }
+    }
+
+    private int printOpCode(byte[] code, int codeIndex, BCUnitItemFunction function) {
+        int newCodeIndex = codeIndex;
+        byte currentOpCode = code[newCodeIndex];
         InstructionSet.OpCodes opCode = InstructionSet.OpCodes.get(currentOpCode);
         if (opCode != null) {
-            out.print("  ");
-            out.print(this.instructionIndex++);
+            out.print("    ");
+            out.print(newCodeIndex++);
             out.print(": " + opCode.disassembleCode());
             if (opCode.opCodeParam() > 0) {
-                out.print(" [");
-                for (int i = 0; i < opCode.opCodeParam(); i++) {
-                    if (i > 0) {
-                        out.print(", ");
-                    }
-                    short opCodeOtherByte = in.readShort();
-                    if (opCode.isAddressOpCode()) {
-                        out.print(toAddress(opCodeOtherByte));
-                    } else {
-                        out.print(toHex(opCodeOtherByte));
-                    }
-                    this.instructionIndex++;
-                }
-                out.print("]");
+                newCodeIndex = printOpCodeParams(opCode, code, newCodeIndex, function);
             }
             out.println();
         }
+        return newCodeIndex;
     }
 
-    private String toHex(short opCode) {
-        return String.format("0x%04x", (int) opCode);
+    private int printOpCodeParams(InstructionSet.OpCodes opCode, byte[] code, int codeIndex, BCUnitItemFunction function) {
+        int newCodeIndex = codeIndex;
+        out.print(" [");
+        for (int i = 0; i < opCode.opCodeParam(); i++) {
+            if (i > 0) {
+                out.print(", ");
+            }
+            if (opCode.isAddressOpCode()) {
+                out.print(toAddress(code[newCodeIndex]));
+            } else {
+                out.print(toHex(code[newCodeIndex]));
+            }
+            newCodeIndex++;
+        }
+        out.print("]");
+
+        if (InstructionSet.OpCodes.LOCAL_VARIABLES_TABLE_AWARE.contains(opCode)) {
+            BCNameAndType nameAndType = function.getLocalVariableTable().getNameAndTypes().get(code[codeIndex]);
+            short localVariableNameIndex = nameAndType.getNameIndex();
+            String localVariableName = ByteCodeReader.getConstantPoolString(file.getConstantPool(), localVariableNameIndex);
+            String localVariableType = getTypeString(nameAndType.getType());
+            out.print("\t\t// " + localVariableName + ": " + localVariableType);
+        } else if (InstructionSet.OpCodes.CONSTANT_POOL_SINGLE.contains(opCode)) {
+            BCConstantPoolItem constantPoolItem = file.getConstantPool().getItems().get(code[codeIndex]);
+            String value = getConstantPoolString(constantPoolItem);
+            out.print(value);
+        } else if (InstructionSet.OpCodes.CONSTANT_POOL_WIDE.contains(opCode)) {
+            byte high = code[codeIndex];
+            byte low = code[codeIndex + 1];
+            int index = (high << 8) | low & 0xff;
+            BCConstantPoolItem constantPoolItem = file.getConstantPool().getItems().get(index);
+            String value = getConstantPoolString(constantPoolItem);
+            out.print(value);
+        }
+
+        return newCodeIndex;
     }
 
-    private String toAddress(short address) {
+    private String getConstantPoolString(BCConstantPoolItem constantPoolItem) {
+        return MessageFormat.format("\t\t// {0}: {1}",
+                constantPoolItem.getType().getDisplayName(),
+                constantPoolItem.getValue());
+    }
+
+    private String toHex(byte opCode) {
+        return String.format("0x%02x", (int) opCode);
+    }
+
+    private String toAddress(byte address) {
         if (address >= 0) {
             return "+" + address;
         } else {
-            return Short.toString(address);
+            return Byte.toString(address);
         }
     }
 }

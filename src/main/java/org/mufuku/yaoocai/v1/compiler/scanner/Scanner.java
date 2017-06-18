@@ -324,10 +324,6 @@ public class Scanner {
         return currentIdentifier;
     }
 
-    public short getNumberAsShort() {
-        return Short.parseShort(currentNumber);
-    }
-
     public int getNumberAsInteger() {
         return Integer.parseInt(currentNumber);
     }

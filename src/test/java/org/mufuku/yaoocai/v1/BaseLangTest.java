@@ -6,8 +6,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.mufuku.yaoocai.v1.assembler.AssemblerCompiler;
-import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.Compiler;
 import org.mufuku.yaoocai.v1.compiler.LanguageIntegrationTest;
@@ -48,7 +46,7 @@ public abstract class BaseLangTest {
     protected final Test_Output outputFunction = new Test_Output();
 
     private final BuiltInVMFunction fail = new Fail();
-    private final AssertEquals equals = new AssertEquals();
+    private final AssertEquals assertEquals = new AssertEquals();
     private final AssertTrue assertTrue = new AssertTrue();
     private final AssertFalse assertFalse = new AssertFalse();
 
@@ -117,6 +115,7 @@ public abstract class BaseLangTest {
 
     private void checkIfVmWasClearedUpCorrectly() {
         if (lastVM != null) {
+            assertThat(lastVM.getCallStack(), is(empty()));
             assertThat(lastVM.getStack(), is(empty()));
             assertThat(lastVM.getLocalVariableStack(), is(empty()));
         }
@@ -135,17 +134,17 @@ public abstract class BaseLangTest {
         }
     }
 
-    protected void compile(String source, OutputStream byteOut) throws IOException {
+    private void compile(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         Compiler compiler = new Compiler(sourceIn, byteOut);
         compiler.compile();
     }
 
-    protected void assemble(String source, OutputStream byteOut) throws IOException {
-        InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
-        AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
-        compiler.compile();
-    }
+//    protected void assemble(String source, OutputStream byteOut) throws IOException {
+//        InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
+//        AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
+//        compiler.compile();
+//    }
 
     protected VM compileAndGetTestVM(String source) throws IOException {
         executedFiles.add(source);
@@ -174,21 +173,21 @@ public abstract class BaseLangTest {
         }
 
         if (PRINT_BYTECODE) {
-            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION, System.out);
+            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, System.out);
             byteCodeViewer.convert();
             byteIn.reset();
         }
 
-        Map<Short, BuiltInVMFunction> testBuiltIns = new HashMap<>();
+        Map<String, BuiltInVMFunction> testBuiltIns = new HashMap<>();
 
         testBuiltIns.putAll(DefaultBuiltIns.STANDARD_BUILT_INS);
 
-        testBuiltIns.put((short) 32000, inputFunction);
-        testBuiltIns.put((short) 32001, outputFunction);
-        testBuiltIns.put((short) 32002, fail);
-        testBuiltIns.put((short) 32003, equals);
-        testBuiltIns.put((short) 32004, assertTrue);
-        testBuiltIns.put((short) 32005, assertFalse);
+        testBuiltIns.put("test_in", inputFunction);
+        testBuiltIns.put("test_out", outputFunction);
+        testBuiltIns.put("test_fail", fail);
+        testBuiltIns.put("test_assertEquals", assertEquals);
+        testBuiltIns.put("test_assertTrue", assertTrue);
+        testBuiltIns.put("test_assertFalse", assertFalse);
 
         this.lastVM = new TestVM(byteIn, testBuiltIns);
         return this.lastVM;

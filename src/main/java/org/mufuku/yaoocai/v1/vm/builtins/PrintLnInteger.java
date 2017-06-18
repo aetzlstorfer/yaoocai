@@ -4,7 +4,7 @@ import org.mufuku.yaoocai.v1.vm.VirtualMachine;
 
 import java.util.Deque;
 
-public class PrintInteger implements BuiltInVMFunction {
+public class PrintLnInteger implements BuiltInVMFunction {
 
     @Override
     public void handle(Deque<Object> stack, VirtualMachine vm) {

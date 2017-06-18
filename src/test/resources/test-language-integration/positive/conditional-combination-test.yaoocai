@@ -1,6 +1,6 @@
 
-builtin function assertTrue (condition: boolean) -> vmfunc(32004)
-builtin function assertFalse(condition: boolean) -> vmfunc(32005)
+builtin function assertTrue (condition: boolean) -> test_assertTrue
+builtin function assertFalse(condition: boolean) -> test_assertFalse
 
 function testCombination(a: boolean, b: boolean, c: boolean): boolean {
   return a && b || c;

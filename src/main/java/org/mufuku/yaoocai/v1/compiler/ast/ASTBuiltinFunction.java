@@ -5,14 +5,14 @@ package org.mufuku.yaoocai.v1.compiler.ast;
  */
 public class ASTBuiltinFunction extends ASTBasicFunction {
 
-    private final short functionCode;
+    private final String bindName;
 
-    public ASTBuiltinFunction(String identifier, short functionCode) {
+    public ASTBuiltinFunction(String identifier, String bindName) {
         super(identifier);
-        this.functionCode = functionCode;
+        this.bindName = bindName;
     }
 
-    public short getFunctionCode() {
-        return functionCode;
+    public String getBindName() {
+        return bindName;
     }
 }

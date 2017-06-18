@@ -5,7 +5,6 @@ import org.mufuku.yaoocai.v1.compiler.ast.ASTBuiltinFunction;
 import org.mufuku.yaoocai.v1.compiler.ast.ASTFunction;
 import org.mufuku.yaoocai.v1.compiler.ast.ASTType;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,29 +13,15 @@ import java.util.Map;
  */
 class FunctionStorage {
 
-    private final Map<String, ASTBuiltinFunction> builtinIndex = new HashMap<>();
-    private final Map<String, Short> functionIndex = new LinkedHashMap<>();
-
+    private final Map<String, ASTBuiltinFunction> builtinIndex = new LinkedHashMap<>();
     private final Map<String, ASTFunction> functions = new LinkedHashMap<>();
-
-    private short functionCount = 0;
 
     void addBuiltinFunction(ASTBuiltinFunction function) {
         builtinIndex.put(function.getIdentifier(), function);
     }
 
-    ASTBuiltinFunction getBuiltinFunction(String name) {
-        return builtinIndex.get(name);
-    }
-
     void addFunction(ASTFunction astFunction) {
-        String name = astFunction.getIdentifier();
-        functionIndex.put(name, functionCount++);
-        functions.put(name, astFunction);
-    }
-
-    Short getFunctionIndex(String name) {
-        return functionIndex.get(name);
+        functions.put(astFunction.getIdentifier(), astFunction);
     }
 
     ASTType getFunctionReturnType(String functionName) {

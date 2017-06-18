@@ -58,17 +58,9 @@ public class Parser {
         }
 
         checkAndProceed(ScannerSymbols.BUILTIN_ASSIGNMENT);
-        String type = checkIdentifierAndProceed();
-        if (!"vmfunc".equals(type)) {
-            throw new ParsingException("Currently only virtual machine functions (vm_func) is allowed");
-        }
-        checkAndProceed(ScannerSymbols.PAR_START);
-        check(ScannerSymbols.INTEGER_LITERAL);
-        short functionCode = scanner.getNumberAsShort(); // can't be negative because of grammar
-        scanner.moveToNextSymbol();
-        checkAndProceed(ScannerSymbols.PAR_END);
+        String bindName = checkIdentifierAndProceed();
 
-        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, functionCode);
+        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, bindName);
         function.setParameters(parameters);
         function.setReturnType(returnType);
         return function;

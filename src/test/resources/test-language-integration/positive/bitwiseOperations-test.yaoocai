@@ -1,6 +1,6 @@
 
-builtin function assertTrue(condition: boolean)      -> vmfunc(32004)
-builtin function assertFalse(antiCondition: boolean) -> vmfunc(32005)
+builtin function assertTrue(condition: boolean)      -> test_assertTrue
+builtin function assertFalse(antiCondition: boolean) -> test_assertFalse
 
 function basicTests() {
   assertTrue(true);

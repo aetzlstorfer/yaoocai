@@ -1,5 +1,5 @@
 
-builtin function assertEquals(expected: integer, actual: integer) -> vmfunc(32003)
+builtin function assertEquals(expected: integer, actual: integer) -> test_assertEquals
 
 function testWithVariables() {
   var a:integer = 1;

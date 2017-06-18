@@ -1,6 +1,6 @@
-builtin function testInput(): integer       -> vmfunc(32000)
-builtin function testOutput(value: integer) -> vmfunc(32001)
-builtin function fail()                     -> vmfunc(32002)
+builtin function testInput(): integer       -> test_in
+builtin function testOutput(value: integer) -> test_out
+builtin function fail()                     -> test_fail
 
 function add(a: integer, b: integer) : integer {
   return a + b;

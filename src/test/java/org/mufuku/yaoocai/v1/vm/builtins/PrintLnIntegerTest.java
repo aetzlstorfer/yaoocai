@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class PrintIntegerTest extends BaseLangTest {
+public class PrintLnIntegerTest extends BaseLangTest {
 
     @Test
     public void test_testProgram_expectedOutput() throws IOException {

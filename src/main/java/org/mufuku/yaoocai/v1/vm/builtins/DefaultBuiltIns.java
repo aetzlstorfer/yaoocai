@@ -9,8 +9,8 @@ import java.util.Map;
  */
 @SuppressWarnings("squid:S1214")
 public interface DefaultBuiltIns {
-    Map<Short, BuiltInVMFunction> STANDARD_BUILT_INS = ImmutableMap
-            .<Short, BuiltInVMFunction>builder()
-            .put((short) 1, new PrintInteger())
+    Map<String, BuiltInVMFunction> STANDARD_BUILT_INS = ImmutableMap
+            .<String, BuiltInVMFunction>builder()
+            .put("printlnInteger", new PrintLnInteger())
             .build();
 }

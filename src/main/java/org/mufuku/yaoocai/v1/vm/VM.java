@@ -1,7 +1,10 @@
 package org.mufuku.yaoocai.v1.vm;
 
-import org.mufuku.yaoocai.v1.bytecode.BasicByteCodeConsumer;
+import org.mufuku.yaoocai.v1.bytecode.ByteCodeReader;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
+import org.mufuku.yaoocai.v1.bytecode.data.BCFile;
+import org.mufuku.yaoocai.v1.bytecode.data.BCUnit;
+import org.mufuku.yaoocai.v1.bytecode.data.BCUnitItemFunction;
 import org.mufuku.yaoocai.v1.vm.builtins.BuiltInVMFunction;
 import org.mufuku.yaoocai.v1.vm.builtins.DefaultBuiltIns;
 
@@ -13,18 +16,14 @@ import java.util.*;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class VM extends BasicByteCodeConsumer implements VirtualMachine {
+public class VM implements VirtualMachine {
 
     final Deque<Object> stack = new ArrayDeque<>();
-
+    final Deque<CallStackElement> callStack = new ArrayDeque<>();
     final Deque<LocalVariableStack> localVariableStack = new ArrayDeque<>();
-
-    private final Deque<Integer> callStack = new ArrayDeque<>();
-    private final List<Integer> functionPointer = new ArrayList<>();
-    private final Map<Short, BuiltInVMFunction> builtIns;
-    short[] code;
-    int codePointer = 0;
-
+    private final Map<String, BuiltInVMFunction> builtIns;
+    private final ByteCodeReader byteCodeReader;
+    BCFile file;
     private PrintStream out = System.out;   // NOSONAR we want ot use out put stream on purpose at
     // it is the access to the outside world
     private boolean execution = true;
@@ -33,122 +32,123 @@ public class VM extends BasicByteCodeConsumer implements VirtualMachine {
         this(in, DefaultBuiltIns.STANDARD_BUILT_INS);
     }
 
-    VM(InputStream in, Map<Short, BuiltInVMFunction> builtIns) {
-        super(in, InstructionSet.MAJOR_VERSION, InstructionSet.MINOR_VERSION);
+    public VM(InputStream in, Map<String, BuiltInVMFunction> builtIns) {
+        this.byteCodeReader = new ByteCodeReader(in);
         this.builtIns = builtIns;
     }
 
     @Override
     public void execute() throws IOException {
-        readHeader();
         readCode();
-        executeCode();
+        BCUnitItemFunction mainFunction = findFunction("main");
+        executeCode(mainFunction);
     }
 
-    void readCode() throws IOException {
-        this.code = new short[in.available() / 2];
-        this.codePointer = 0;
-        Short currentOpCode = storeAndGetNext();
-        while (currentOpCode != null && currentOpCode == InstructionSet.OpCodes.FUNCTION.code()) {
-            functionPointer.add(this.codePointer - 1);
-            currentOpCode = storeAndGetNext();
-            while (currentOpCode != null && currentOpCode != InstructionSet.OpCodes.FUNCTION.code()) {
-                consumeOpCode(currentOpCode);
-                currentOpCode = storeAndGetNext();
-            }
-        }
-        this.codePointer = 0;
+    protected void readCode() throws IOException {
+        this.file = byteCodeReader.readByteCode();
     }
 
-    private Short storeAndGetNext() throws IOException {
-        Short currentCode = super.getNext();
-        if (currentCode != null) {
-            this.code[this.codePointer++] = currentCode;
-        }
-        return currentCode;
+    private BCUnitItemFunction findFunction(String name) {
+        BCUnit unit = file.getUnits().getUnits().iterator().next();
+        return unit.getItems()
+                .stream()
+                .filter(f -> f instanceof BCUnitItemFunction)
+                .map(f -> (BCUnitItemFunction) f)
+                .filter(f -> name.equals(this.file.getConstantPool().getItems().get(f.getFunctionNameIndex()).getValue()))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalStateException("Cannot find function: " + name));
     }
 
-    private void consumeOpCode(short currentOpCode) throws IOException {
-        InstructionSet.OpCodes opCode = InstructionSet.OpCodes.get(currentOpCode);
-        if (opCode.opCodeParam() > 0) {
-            for (int i = 0; i < opCode.opCodeParam(); i++) {
-                storeAndGetNext();
-            }
-        }
-    }
-
-    private void executeCode() {
-        this.codePointer = this.functionPointer.get(this.mainFunctionIndex);
+    private void executeCode(BCUnitItemFunction function) throws IOException {
+        CallStackElement callStackElement = new CallStackElement(function.getCode().getCode());
+        this.callStack.push(callStackElement);
+        this.localVariableStack.push(new LocalVariableStack());
+        pushArguments(function);
         while (execution) {
             executeNextInstruction();
         }
     }
 
-    void executeNextInstruction() {
+    private void pushArguments(BCUnitItemFunction function) {
+        int params = function.getParameters().getNameAndTypes().size();
+        List<Object> tempParams = new ArrayList<>();
+        for (byte i = 0; i < params; i++) {
+            tempParams.add(stack.pop());
+        }
+        for (byte i = 0; i < params; i++) {
+            localVariableStack.peek().setValue(i, tempParams.get(params - i - 1));
+        }
+    }
 
-        short opCode = this.code[this.codePointer];
+    void executeNextInstruction() throws IOException {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        byte opCode = callStackElement.getCode();
         InstructionSet.OpCodes instruction = InstructionSet.OpCodes.get(opCode);
-
         switch (instruction) {
-            case FUNCTION:
-                localVariableStack.push(new LocalVariableStack());
-                this.codePointer++;
-                break;
-            case I_CONST:
-                this.codePointer++;
-                stack.push(code[codePointer]);
-                this.codePointer++;
-                break;
             case B_CONST_TRUE:
                 stack.push(true);
-                this.codePointer++;
+                callStackElement.move();
                 break;
             case B_CONST_FALSE:
                 stack.push(false);
-                this.codePointer++;
+                callStackElement.move();
+                break;
+            case I_CONST_0:
+                stack.push(0);
+                callStackElement.move();
+                break;
+            case I_CONST_1:
+                stack.push(1);
+                callStackElement.move();
+                break;
+            case CONST_P1B:
+                callStackElement.move();
+                byte cpIndex = callStackElement.getCode();
+                callStackElement.move();
+                Object cpValue = file.getConstantPool().getItems().get(cpIndex).getValue();
+                stack.push(cpValue);
                 break;
             case STORE:
                 performStore();
                 break;
             case LOAD:
-                performLoad();
+                performLoad(callStackElement);
                 break;
             case POP:
-                this.codePointer++;
+                callStackElement.move();
                 stack.pop();
                 break;
             case INVOKE:
                 performInvoke();
                 break;
             case INVOKE_BUILTIN:
-                performInvokationBuiltIn();
+                performInvocationBuiltIn();
                 break;
             case RETURN:
                 localVariableStack.pop();
+                callStack.pop();
                 execution = !localVariableStack.isEmpty();
-                if (execution) {
-                    this.codePointer = callStack.pop();
-                }
                 break;
-            case ADD:
-                performAddition();
+            case I_ADD:
+                performIntegerAddition();
                 break;
-            case SUB:
-                performSubtraction();
+            case I_SUB:
+                performIntegerSubtraction();
                 break;
-            case MUL:
-                performMultiplication();
+            case I_MUL:
+                performIntegerMultiplication();
                 break;
-            case DIV:
-                performDivision();
+            case I_DIV:
+                performIntegerDivision();
                 break;
-            case MOD:
-                performModulo();
+            case I_MOD:
+                performIntegerModulo();
                 break;
-            case NEG:
-                Short val = (Short) stack.pop();
-                stack.push((short) (-val));
-                this.codePointer++;
+            case I_NEG:
+                Integer val = (Integer) stack.pop();
+                stack.push(-val);
+                callStackElement.move();
                 break;
             case AND:
                 performBitwiseAnd();
@@ -159,25 +159,25 @@ public class VM extends BasicByteCodeConsumer implements VirtualMachine {
             case NOT:
                 Boolean v = (Boolean) stack.pop();
                 stack.push(!v);
-                this.codePointer++;
+                callStackElement.move();
                 break;
-            case CMP_LT:
-                performCompareLessThan();
+            case I_CMP_LT:
+                performIntegerCompareLessThan();
                 break;
-            case CMP_LTE:
-                performCompareLessThanOrEqual();
+            case I_CMP_LTE:
+                performIntegerCompareLessThanOrEqual();
                 break;
-            case CMP_GT:
-                performCompareGreaterThan();
+            case I_CMP_GT:
+                performIntegerCompareGreaterThan();
                 break;
-            case CMP_GTE:
-                performCompareGreaterThanOrEqual();
+            case I_CMP_GTE:
+                performIntegerCompareGreaterThanOrEqual();
                 break;
-            case CMP_EQ:
-                performCompareEqual();
+            case I_CMP_EQ:
+                performIntegerCompareEqual();
                 break;
-            case CMP_NE:
-                performCompareNotEqual();
+            case I_CMP_NE:
+                performIntegerCompareNotEqual();
                 break;
             case IF:
                 performIf();
@@ -185,162 +185,176 @@ public class VM extends BasicByteCodeConsumer implements VirtualMachine {
             case GOTO:
                 performGoto();
                 break;
-            case POP_PARAMS:
-                performPopParameters();
-                break;
+            default:
+                throw new IOException("Invalid byte code: " + opCode);
         }
     }
 
     private void performStore() {
-        this.codePointer++;
-        short variableIndex = code[codePointer];
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        callStackElement.move();
+        byte variableIndex = callStackElement.getCode();
         Object value = stack.pop();
         localVariableStack.peek().setValue(variableIndex, value);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performLoad() {
-        this.codePointer++;
-        short variableIndex = code[codePointer];
+    CallStackElement getCurrentCallStackElement() {
+        return this.callStack.peek();
+    }
+
+    private void performLoad(CallStackElement callStackElement) {
+        callStackElement.move();
+        byte variableIndex = callStackElement.getCode();
         Object value = localVariableStack.peek().getValue(variableIndex);
         stack.push(value);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performInvoke() {
-        this.codePointer++;
-        short functionIndex = code[codePointer];
-        callStack.push(codePointer + 1);
-        this.codePointer = functionPointer.get(functionIndex);
+    private void performInvoke() throws IOException {
+        String functionName = getFunctionName();
+        BCUnitItemFunction function = findFunction(functionName);
+        executeCode(function);
     }
 
-    private void performInvokationBuiltIn() {
-        codePointer++;
-        short functionIndex = code[codePointer];
-        codePointer++;
-        BuiltInVMFunction builtInVMFunction = builtIns.get(functionIndex);
+    private void performInvocationBuiltIn() {
+        String functionName = getFunctionName();
+        BuiltInVMFunction builtInVMFunction = builtIns.get(functionName);
         builtInVMFunction.handle(stack, this);
     }
 
-    private void performAddition() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
-        stack.push((short) (val1 + val2));
-        this.codePointer++;
+    private String getFunctionName() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        callStackElement.move();
+        byte functionIndexHigh = callStackElement.getCode();
+        callStackElement.move();
+        byte functionIndexLow = callStackElement.getCode();
+        callStackElement.move();
+        int functionNameIndex = functionIndexHigh << 8 | (functionIndexLow & 0xff);
+        return (String) this.file.getConstantPool().getItems().get(functionNameIndex).getValue();
     }
 
-    private void performSubtraction() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
-        stack.push((short) (val1 - val2));
-        this.codePointer++;
+    private void performIntegerAddition() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
+        stack.push(val1 + val2);
+        callStackElement.move();
     }
 
-    private void performMultiplication() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
-        stack.push((short) (val1 * val2));
-        this.codePointer++;
+    private void performIntegerSubtraction() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
+        stack.push(val1 - val2);
+        callStackElement.move();
     }
 
-    private void performDivision() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
-        stack.push((short) (val1 / val2));
-        this.codePointer++;
+    private void performIntegerMultiplication() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
+        stack.push(val1 * val2);
+        callStackElement.move();
     }
 
-    private void performModulo() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
-        stack.push((short) (val1 % val2));
-        this.codePointer++;
+    private void performIntegerDivision() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
+        stack.push(val1 / val2);
+        callStackElement.move();
+    }
+
+    private void performIntegerModulo() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
+        stack.push(val1 % val2);
+        callStackElement.move();
     }
 
     private void performBitwiseAnd() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
         Boolean v2 = (Boolean) stack.pop();
         Boolean v1 = (Boolean) stack.pop();
         stack.push(v2 & v1); // NOSONAR we want bitwise and on purpose here
-        this.codePointer++;
+        callStackElement.move();
     }
 
     private void performBitwiseOr() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
         Boolean v2 = (Boolean) stack.pop();
         Boolean v1 = (Boolean) stack.pop();
         stack.push(v2 | v1); // NOSONAR we want bitwise or on purpose here
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareLessThan() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareLessThan() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(val1 < val2);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareLessThanOrEqual() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareLessThanOrEqual() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(val1 <= val2);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareGreaterThan() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareGreaterThan() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(val1 > val2);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareGreaterThanOrEqual() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareGreaterThanOrEqual() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(val1 >= val2);
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareEqual() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareEqual() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(Objects.equals(val1, val2));
-        this.codePointer++;
+        callStackElement.move();
     }
 
-    private void performCompareNotEqual() {
-        Short val2 = (Short) stack.pop();
-        Short val1 = (Short) stack.pop();
+    private void performIntegerCompareNotEqual() {
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        Integer val2 = (Integer) stack.pop();
+        Integer val1 = (Integer) stack.pop();
         stack.push(!Objects.equals(val1, val2));
-        this.codePointer++;
+        callStackElement.move();
     }
 
     private void performIf() {
-        this.codePointer++;
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        callStackElement.move();
         Boolean condition = (Boolean) stack.pop();
         if (condition) {
-            this.codePointer++;
+            callStackElement.move();
         } else {
-            short elseJump = code[codePointer];
-            this.codePointer += elseJump;
+            byte elseJump = callStackElement.getCode();
+            callStackElement.move(elseJump);
         }
     }
 
     private void performGoto() {
-        this.codePointer++;
-        short jump = code[codePointer];
-        this.codePointer += jump;
-    }
-
-    private void performPopParameters() {
-        this.codePointer++;
-        short params = code[codePointer];
-        List<Object> tempParams = new ArrayList<>();
-        for (short i = 0; i < params; i++) {
-            tempParams.add(stack.pop());
-        }
-        for (short i = 0; i < params; i++) {
-            localVariableStack.peek().setValue(i, tempParams.get(params - i - 1));
-        }
-        this.codePointer++;
+        CallStackElement callStackElement = getCurrentCallStackElement();
+        callStackElement.move();
+        byte jump = callStackElement.getCode();
+        callStackElement.move(jump);
     }
 
     @Override

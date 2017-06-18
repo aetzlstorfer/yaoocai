@@ -13,11 +13,11 @@ public class ASTScript {
 
     private final Map<String, ASTBasicFunction> declaredFunctions = new LinkedHashMap<>();
 
-    private final short majorVersion;
+    private final byte majorVersion;
 
-    private final short minorVersion;
+    private final byte minorVersion;
 
-    public ASTScript(short majorVersion, short minorVersion) {
+    public ASTScript(byte majorVersion, byte minorVersion) {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
     }
@@ -33,11 +33,11 @@ public class ASTScript {
         return declaredFunctions.values();
     }
 
-    public short getMajorVersion() {
+    public byte getMajorVersion() {
         return majorVersion;
     }
 
-    public short getMinorVersion() {
+    public byte getMinorVersion() {
         return minorVersion;
     }
 }

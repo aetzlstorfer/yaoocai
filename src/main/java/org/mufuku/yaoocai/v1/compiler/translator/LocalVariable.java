@@ -8,10 +8,10 @@ import org.mufuku.yaoocai.v1.compiler.ast.ASTType;
 class LocalVariable {
 
     private final ASTType type;
-    private final short index;
+    private final byte index;
     private boolean initialized;
 
-    LocalVariable(ASTType type, short index) {
+    LocalVariable(ASTType type, byte index) {
         this.type = type;
         this.index = index;
     }
@@ -20,7 +20,7 @@ class LocalVariable {
         return type;
     }
 
-    short getIndex() {
+    byte getIndex() {
         return index;
     }
 

@@ -1,6 +1,6 @@
 
-builtin function fail()                                         -> vmfunc(32002)
-builtin function assertEquals(expected:integer, actual:integer) -> vmfunc(32003)
+builtin function fail()                                         -> test_fail
+builtin function assertEquals(expected:integer, actual:integer) -> test_assertEquals
 
 function test1() {
   var a:boolean = true;

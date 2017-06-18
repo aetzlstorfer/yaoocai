@@ -3,6 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.translator;
 import org.mufuku.yaoocai.v1.compiler.ast.ASTType;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,10 +12,14 @@ import java.util.Map;
  */
 class LocalVariableStorage {
 
-    private final Map<String, LocalVariable> localVariables = new LinkedHashMap<>();
-    private short counter = 0;
+    private final Map<String, LocalVariable> localVariables;
+    private byte counter = 0;
 
-    short addVariable(String name, ASTType type) {
+    LocalVariableStorage() {
+        this.localVariables = new LinkedHashMap<>();
+    }
+
+    byte addVariable(String name, ASTType type) {
         if (localVariables.containsKey(name)) {
             throw new ParsingException("Duplicate variable: " + name);
         }
@@ -23,7 +28,7 @@ class LocalVariableStorage {
         return localVariable.getIndex();
     }
 
-    short getVariableIndex(String name) {
+    byte getVariableIndex(String name) {
         LocalVariable localVariable = getLocalVariable(name);
         if (!localVariable.isInitialized()) {
             throw new ParsingException("Variable " + name + " not initialized");
@@ -45,5 +50,9 @@ class LocalVariableStorage {
 
     void markInitialized(String variableName) {
         localVariables.get(variableName).setInitialized();
+    }
+
+    Collection<Map.Entry<String, LocalVariable>> getRealLocalVariables() {
+        return localVariables.entrySet();
     }
 }

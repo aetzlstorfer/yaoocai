@@ -1,5 +1,5 @@
 
-builtin function fail()                     -> vmfunc(32002)
+builtin function fail()                     -> test_fail
 
 function noReturn(): integer {
 }

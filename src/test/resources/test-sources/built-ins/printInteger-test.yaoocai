@@ -1,5 +1,5 @@
 
-builtin function printInteger(value: integer)            -> vmfunc(1)
+builtin function printInteger(value: integer)            -> printlnInteger
 
 function main() {
   var a:integer = 123;

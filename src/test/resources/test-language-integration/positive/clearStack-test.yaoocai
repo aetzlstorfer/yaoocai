@@ -1,5 +1,5 @@
 
-builtin function testInput(): integer       -> vmfunc(32000)
+builtin function testInput(): integer       -> test_in
 
 function testIncrementalOperators1() {
   var a: integer = 0;

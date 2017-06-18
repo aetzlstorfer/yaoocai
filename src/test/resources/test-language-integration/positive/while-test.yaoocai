@@ -1,7 +1,7 @@
 
-builtin function printInteger(value:integer) -> vmfunc(1)
-builtin function fail() -> vmfunc(32002)
-builtin function assertEquals(expected:integer, actual:integer) -> vmfunc(32003)
+builtin function printInteger(value:integer) -> printlnInteger
+builtin function fail() -> test_fail
+builtin function assertEquals(expected:integer, actual:integer) -> test_assertEquals
 
 function endlessLoopTest(): integer {
   var count:integer = 0;
