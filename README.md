@@ -431,6 +431,8 @@ data can be executed with a _Virtual Machine_ which is a simple stack machine wh
 set (see following section). Each sequence is a Word (2 Bytes) long.
 
 ### 4.2 Instruction set
+TODO update this
+
 Mnemonic          | OpCode (hex)   | Params         | Stack change                        | Description
 ------------------|----------------|----------------|-------------------------------------|---
 `function`        | `0x0000`       |                |                                     | Indicator for the _Virtual Machine_ to determine where a function starts within the sequence.
@@ -464,17 +466,134 @@ Mnemonic          | OpCode (hex)   | Params         | Stack change              
 
 
 
-### 3.3 Byte code grammar
-**Byte code**
-
-See [2.2.1. Convention](#221-convention) for convention styles.
+### 3.3 Binary file structure
 ```
-<Script>              ::= 'yaoocai' ScriptHeader ScriptBody
-<ScriptHeader>        ::= VersionData MainFunctionIndex
-<VersionData>         ::= Word Word    // major/minor version
-<MainFunctionIndex>   ::= Word
-<ScriptBody>          ::= {Function}
-<Function>            ::= FunctionOpCode {Instruction}
+file {
+  header {
+    preamble: u7 // fixed yaoocai
+    majorCompilerVersion: u1
+    minorCompilerVersion: u1
+  }
+  constant_pool {
+    size: u2
+    items: constant_pool_item[size]
+  }
+  modules {
+    size: u2
+    items: module[size]
+  }
+}
+
+module {
+  moduleNameIndex: u2
+  module_items {
+    size: u2
+    items: module_item[size]
+  }
+}
+
+module_item {
+  type: u1 // 1 = interface
+           // 2 = class
+           // 3 = enum
+           // 4 = function
+}
+
+module_item_interface : module_item {
+  methods {
+    size: u2
+    items: method[size]
+  }
+}
+
+module_item_function : module_item {
+  functionNameIndex: u2
+  parameters: parameters
+  return_type: type
+  localVariableTable: localVariableTable
+  code: code
+}
+
+type {
+  type: u1 // 1 = boolean
+           // 2 = byte
+           // 3 = character
+           // 4 = integer
+           // 5 = decimal
+           // 6 = long integer
+           // 7 = long decimal
+           // 8 = reference type
+}
+
+type_reference : type {
+  typeNameIndex: u2
+}
+
+parameters {
+  size: u1
+  types: type_and_name[size]
+}
+
+type_and_name {
+  type: type
+  nameIndex: u2
+}
+
+code {
+  length: u2
+  code: byte[length]
+}
+
+localVariableTable {
+  size: u1
+  variableIndex: u2[size]
+}
+
+constant_pool_item {
+  type: u1  // 1 = utf8Char
+            // 2 = integer
+            // 3 = decimal
+            // 4 = long integer
+            // 5 = long decimal
+            // 6 = string
+            // 7 = symbol
+}
+
+constant_pool_item_utf8Char : constant_pool_item {
+  value: u2
+}
+
+constant_pool_item_integer : constant_pool_item {
+  value: u4
+}
+
+constant_pool_item_decimal : constant_pool_item {
+  value: u4
+}
+
+constant_pool_item_longInteger : constant_pool_item {
+  value: u8
+}
+
+constant_pool_item_longDecimal : constant_pool_item {
+  value: u8
+}
+
+constant_pool_item_decimal : constant_pool_item {
+  value: u4
+}
+
+constant_pool_item_string : constant_pool_item {
+  length: u2
+  chars: u2[length]
+}
+```
+
+### 3.3 Byte code grammar
+**Byte code** (See [2.2.1. Convention](#221-convention) for convention styles)
+
+TODO update this
+```
 <Instruction>         ::= (
                               ConstantOperations |
                               StackOperations |
