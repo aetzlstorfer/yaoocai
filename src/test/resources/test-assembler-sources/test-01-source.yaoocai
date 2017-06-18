@@ -1,10 +1,16 @@
 builtin function printInteger(value: integer)            -> printlnInteger
 
-function doSomething():integer {
-  return 1 + 2;
+function add(a: integer, b: integer): integer {
+  return a + b;
+}
+
+function doSomething():boolean {
+  return add(1, 2) > 0;
 }
 
 function main() {
-  var result: integer = doSomething();
-  printInteger(result);
+  var result: boolean = doSomething();
+  if(result) {
+    printInteger(1);
+  }
 }

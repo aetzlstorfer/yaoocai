@@ -1,12 +1,34 @@
-Function: #0
-  00: i_const [0x0001]
-  01: i_const [0x0002]
-  02: add
-  03: return
+constant_pool {
+  00: symbol -> doSomething
+  01: integer -> 2
+  02: symbol -> add
+  03: symbol -> printlnInteger
+}
 
-Function: #1 (main)
-  00: invoke [0x0000]
-  01: store [0x0000]
-  02: load [0x0000]
-  03: invoke_builtin [0x0001]
-  04: return
+unit main_unit {
+  function add(a: integer, b: integer): integer {
+    00: load [0x00]
+    01: load [0x01]
+    02: i_add
+    03: return
+  }
+
+  function doSomething(): boolean {
+    00: i_const_1
+    01: cp1b [0x01] // 2
+    02: invoke [0x00, 0x02] // add
+    03: i_const_0
+    04: i_cmp_gt
+    05: return
+  }
+
+  function main() {
+    00: invoke [0x00, 0x00] // do something
+    01: store [0x00]
+    02: load [0x00]
+    03: if [4]
+    04: i_const_1
+    03: invoke_builtin [0x00, 0x03] // print integer
+    04: return
+  }
+}

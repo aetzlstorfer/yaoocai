@@ -95,7 +95,11 @@ public class ByteCodeWriter {
     }
 
     private void writeLocalVariableTable(BCLocalVariableTable localVariableTable) throws IOException {
-        writeNameAndTypes(localVariableTable.getNameAndTypes());
+        if (localVariableTable == null) {
+            out.writeByte(0);
+        } else {
+            writeNameAndTypes(localVariableTable.getNameAndTypes());
+        }
     }
 
     private void writeType(BCType type) throws IOException {

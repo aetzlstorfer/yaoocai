@@ -4,6 +4,9 @@ package org.mufuku.yaoocai.v1.bytecode.data;
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
 public class BCType {
+
+    public static final BCType NO_TYPE = new BCType(BCTypeType.NO);
+
     private final BCTypeType type;
     private Short referenceNameIndex;
 

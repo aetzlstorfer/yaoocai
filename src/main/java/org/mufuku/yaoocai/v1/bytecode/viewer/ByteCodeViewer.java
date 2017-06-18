@@ -31,16 +31,20 @@ public class ByteCodeViewer {
     }
 
     private void printConstantPool() {
-        out.println("constant pool {");
+        out.println("constant_pool {");
         List<BCConstantPoolItem> items = file.getConstantPool().getItems();
         for (BCConstantPoolItem item : items) {
-            String cpValue = MessageFormat.format("#{0}: {1} -> {2}",
+            String cpValue = MessageFormat.format("{0,number,00}: {1} -> {2}",
                     item.getIndex(),
                     item.getType().getDisplayName(),
-                    item.getValue());
+                    getConstantPoolValueString(item));
             out.println("  " + cpValue);
         }
         out.println("}");
+    }
+
+    private String getConstantPoolValueString(BCConstantPoolItem item) {
+        return item.getValue().toString();
     }
 
     private void printUnits(BCUnits units) {
@@ -80,7 +84,7 @@ public class ByteCodeViewer {
             BCNameAndType nameAndType = nameAndTypes.get(i);
             String type = getTypeString(nameAndType.getType());
             String parameterName = ByteCodeReader.getConstantPoolString(file.getConstantPool(), nameAndType.getNameIndex());
-            if (i > 1) {
+            if (i > 0) {
                 sb.append(", ");
             }
             sb.append(parameterName).append(": ").append(type);
@@ -111,9 +115,11 @@ public class ByteCodeViewer {
         byte currentOpCode = code[newCodeIndex];
         InstructionSet.OpCodes opCode = InstructionSet.OpCodes.get(currentOpCode);
         if (opCode != null) {
-            out.print("    ");
-            out.print(newCodeIndex++);
-            out.print(": " + opCode.disassembleCode());
+            String byteCodeIndex = MessageFormat.format("    {0,number,00}: {1}",
+                    newCodeIndex++,
+                    opCode.disassembleCode()
+            );
+            out.print(byteCodeIndex);
             if (opCode.opCodeParam() > 0) {
                 newCodeIndex = printOpCodeParams(opCode, code, newCodeIndex, function);
             }
@@ -167,13 +173,7 @@ public class ByteCodeViewer {
     }
 
     private String toHex(short opCode) {
-        String hexValue;
-        if (opCode < 0) {
-            hexValue = "-" + String.format("0x%02x", Math.abs(opCode));
-        } else {
-            hexValue = String.format("0x%02x", opCode);
-        }
-        return hexValue;
+        return String.format("0x%02x", opCode);
     }
 
     private String toAddress(byte address) {

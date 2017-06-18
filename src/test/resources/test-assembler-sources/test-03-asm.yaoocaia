@@ -1,9 +1,1 @@
-Function: #0 (main)
-  00: i_const [1]
-  01: i_const [2]
-  02: add
-  03: return
-
-Function: #1 (main)
-  00: invoke [0]
-  01: return
+00

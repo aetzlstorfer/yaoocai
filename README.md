@@ -7,6 +7,7 @@
 * [2. Language](#2-language)
 * [3. Compiler](#3-compiler)
 * [4. Runtime](#4-runtime)
+* [5. Assembler](#4-assembler)
 
 ## 1. Introduction
 _YAOOCAI_ is the short form for **Y**et **a**nother **o**bject **o**riented **c**ompiler **a**nd **i**nterpreter.
@@ -727,3 +728,5 @@ TODO update this
 ## 4. Runtime
 TODO This is completely open
 
+## 5. Assembler
+TODO document this

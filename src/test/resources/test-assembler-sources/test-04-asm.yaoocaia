@@ -1,5 +1,0 @@
-Function: #0 (blah)
-  00: i_const [1]
-  01: i_const [2]
-  02: add
-  03: return

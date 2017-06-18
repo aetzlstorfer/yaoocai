@@ -10,11 +10,20 @@ import java.util.Map;
  */
 public class BCConstantPoolBuilder {
 
-    private final List<BCConstantPoolItem> items = new ArrayList<>();
+    private final List<BCConstantPoolItem> items;
     private final Map<Integer, BCConstantPoolItem<Integer>> integerItemsIndex = new HashMap<>();
     private final Map<String, BCConstantPoolItem<String>> stringItemsIndex = new HashMap<>();
     private final Map<String, BCConstantPoolItem<String>> symbolItemsIndex = new HashMap<>();
     private short index = 0;
+
+    public BCConstantPoolBuilder(List<BCConstantPoolItem> items, short index) {
+        this.items = items;
+        this.index = index;
+    }
+
+    public BCConstantPoolBuilder() {
+        this.items = new ArrayList<>();
+    }
 
     public short getIntegerIndex(int value) {
         return createOrGetIndex(value, integerItemsIndex, BCConstantPoolItemType.INTEGER);

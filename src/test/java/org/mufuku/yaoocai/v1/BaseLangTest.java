@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.mufuku.yaoocai.v1.assembler.AssemblerCompiler;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.Compiler;
 import org.mufuku.yaoocai.v1.compiler.LanguageIntegrationTest;
@@ -134,17 +135,17 @@ public abstract class BaseLangTest {
         }
     }
 
-    private void compile(String source, OutputStream byteOut) throws IOException {
+    protected void compile(String source, OutputStream byteOut) throws IOException {
         InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
         Compiler compiler = new Compiler(sourceIn, byteOut);
         compiler.compile();
     }
 
-//    protected void assemble(String source, OutputStream byteOut) throws IOException {
-//        InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
-//        AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
-//        compiler.compile();
-//    }
+    protected void assemble(String source, OutputStream byteOut) throws IOException {
+        InputStream sourceIn = LanguageIntegrationTest.class.getResourceAsStream(source);
+        AssemblerCompiler compiler = new AssemblerCompiler(sourceIn, byteOut);
+        compiler.compile();
+    }
 
     protected VM compileAndGetTestVM(String source) throws IOException {
         executedFiles.add(source);
@@ -178,6 +179,11 @@ public abstract class BaseLangTest {
             byteIn.reset();
         }
 
+        this.lastVM = getTestVM(byteIn);
+        return this.lastVM;
+    }
+
+    private TestVM getTestVM(ByteArrayInputStream byteIn) {
         Map<String, BuiltInVMFunction> testBuiltIns = new HashMap<>();
 
         testBuiltIns.putAll(DefaultBuiltIns.STANDARD_BUILT_INS);
@@ -189,8 +195,7 @@ public abstract class BaseLangTest {
         testBuiltIns.put("test_assertTrue", assertTrue);
         testBuiltIns.put("test_assertFalse", assertFalse);
 
-        this.lastVM = new TestVM(byteIn, testBuiltIns);
-        return this.lastVM;
+        return new TestVM(byteIn, testBuiltIns);
     }
 
     protected void execute(String source) throws IOException {

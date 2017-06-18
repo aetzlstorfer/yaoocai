@@ -1,5 +1,0 @@
-Function: #1 (main)
- 0x001: i_const [1]
- 0x002: i_const [2]
- 0x003: add
- 0x004; return
