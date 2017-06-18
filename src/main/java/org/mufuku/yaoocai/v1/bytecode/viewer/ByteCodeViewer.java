@@ -64,7 +64,13 @@ public class ByteCodeViewer extends BasicByteCodeConsumer {
     }
 
     private String toHex(short opCode) {
-        return String.format("0x%04x", (int) opCode);
+        String hexValue;
+        if (opCode < 0) {
+            hexValue = "-" + String.format("0x%04x", Math.abs(opCode));
+        } else {
+            hexValue = String.format("0x%04x", opCode);
+        }
+        return hexValue;
     }
 
     private String toAddress(short address) {

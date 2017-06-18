@@ -356,7 +356,15 @@ public class Parser {
     private ASTExpression parsePrefixExpression() throws IOException {
         ASTExpression expr;
         if (checkOptionalAndProceed(ScannerSymbols.SUBTRACTION_OPERATOR)) {
-            expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.NEGATE);
+            ASTExpression subExpression = parsePrefixExpression();
+            // optimization for literals to negate them on the fly
+            if (subExpression instanceof ASTLiteralExpression) {
+                ASTLiteralExpression subLiteralExpression = (ASTLiteralExpression) subExpression;
+                Integer originalValue = (Integer) subLiteralExpression.getValue();
+                expr = new ASTLiteralExpression<>(-originalValue, subLiteralExpression.getType());
+            } else {
+                expr = new ASTUnaryExpression(subExpression, ASTUnaryOperator.NEGATE);
+            }
         } else if (checkOptionalAndProceed(ScannerSymbols.BITWISE_NEGATION_OPERATOR)) {
             expr = new ASTUnaryExpression(parsePrefixExpression(), ASTUnaryOperator.BITWISE_NOT);
         } else {

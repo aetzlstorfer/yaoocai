@@ -1,0 +1,4 @@
+
+function main() {
+  var x: integer = -32769;
+}
