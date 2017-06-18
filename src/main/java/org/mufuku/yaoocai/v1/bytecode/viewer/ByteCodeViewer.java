@@ -166,8 +166,14 @@ public class ByteCodeViewer {
                 constantPoolItem.getValue());
     }
 
-    private String toHex(byte opCode) {
-        return String.format("0x%02x", (int) opCode);
+    private String toHex(short opCode) {
+        String hexValue;
+        if (opCode < 0) {
+            hexValue = "-" + String.format("0x%02x", Math.abs(opCode));
+        } else {
+            hexValue = String.format("0x%02x", opCode);
+        }
+        return hexValue;
     }
 
     private String toAddress(byte address) {

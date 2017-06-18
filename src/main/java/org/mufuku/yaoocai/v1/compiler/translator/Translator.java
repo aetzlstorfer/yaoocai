@@ -594,6 +594,10 @@ public class Translator {
     private void emitIntegerLiteral(ASTLiteralExpression expression) {
         int value = (int) expression.getValue();
 
+        if (value > Short.MAX_VALUE || value < Short.MIN_VALUE) {
+            throw new ParsingException("Integer must be in the range of " + Short.MIN_VALUE + " and " + Short.MAX_VALUE);
+        }
+
         if (value == 0) {
             writeOpCode(InstructionSet.OpCodes.I_CONST_0);
         } else if (value == 1) {

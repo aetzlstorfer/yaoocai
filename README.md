@@ -1,4 +1,6 @@
 # YAOOCAI Programming language
+[![Build Status](https://travis-ci.org/aetzlstorfer/yaoocai.svg?branch=master)](https://travis-ci.org/aetzlstorfer/yaoocai)
+[![Coverage Status](https://coveralls.io/repos/github/aetzlstorfer/yaoocai/badge.svg?branch=master)](https://coveralls.io/github/aetzlstorfer/yaoocai?branch=master)
 
 ## Table of contents
 * [1. Introduction](#1-introduction)
@@ -12,8 +14,6 @@ This is just a fun and educational project where a small compiler and a _Virtual
 too big. The aim is to write code and execute it platform independently.
 
 ### 1.1 Project status
-**Build**:
-![Build status](https://api.travis-ci.org/aetzlstorfer/yaoocai.svg?branch=master)
 
 **Language (high level)**:
  - \+ Functional language part completely implemented

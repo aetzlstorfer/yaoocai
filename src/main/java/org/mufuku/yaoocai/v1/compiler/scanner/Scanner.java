@@ -3,6 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.scanner;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -19,7 +20,7 @@ public class Scanner {
     private boolean comment;
 
     public Scanner(InputStream in) {
-        this.reader = new BufferedReader(new InputStreamReader(in));
+        this.reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
     }
 
     private void nextChar() throws IOException {
