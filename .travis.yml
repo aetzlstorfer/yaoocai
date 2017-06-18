@@ -3,7 +3,7 @@ jdk:
   - oraclejdk8
 sudo: false
 script:
-  mvn clean test
+  mvn clean test jacoco:report coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
 cache:
   directories:
     - $HOME/.m2
