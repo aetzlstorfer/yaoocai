@@ -29,7 +29,7 @@ public enum BCConstantPoolItemType {
         this.displayName = displayName;
     }
 
-    public static BCConstantPoolItemType getBydisplayName(String displayName) {
+    public static BCConstantPoolItemType getByDisplayName(String displayName) {
         return byDisplayName.get(displayName);
     }
 

@@ -231,7 +231,7 @@ Note: It could be that this mechanism could be used for other origins in the fut
 
 **Function index**: The function index is a reference to the function within the origin.
 
-**VM-Funcs**
+**VM-Function**
 
 | Name           | Description | Declaration              |
 |----------------|----------------------------------------|---------------------|
@@ -458,8 +458,8 @@ Mnemonic          | OpCode (hex)   | Params         | Stack change              
 `cmp_eq`          | `0x0504`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is equal to `v2`. Pushes `true` or `false` onto the stack as `result`
 `cmp_ne`          | `0x0505`       |                | `v1`, `v2` &rarr; `result`          | Pops two integers `v1` and `v2` and checks that that `v1` is not equal to `v2`. Pushes `true` or `false` onto the stack as `result`
 `if`              | `0x0600`       | `1: elseJump`  | `condition` &rarr;                  | Pops the `condition` from stack. If `condition` does met the _Virtual Machine_ jumps one instruction further. If the `condition` does not met the _Virtual Machine_ jumps `elseJump` instructions further or back (relative).
-`goto`            | `0x0601`       | `1: jump`      |                                     | Jumps `jump` instructions further or back (ative).
-`return`          | `0x0602`       |                |                                     | Indicator for the _Virtual Machine_ that the execution of current relfunction ends. Jumps back to last function or if not possible ends the execution of the code.
+`goto`            | `0x0601`       | `1: jump`      |                                     | Jumps `jump` instructions further or back (active).
+`return`          | `0x0602`       |                |                                     | Indicator for the _Virtual Machine_ that the execution of current function ends. Jumps back to last function or if not possible ends the execution of the code.
 `pop_params`      | `0x0603`       | `1: params`    | `[arg1, arg2, ...]` &rarr;          | Pops `params` number of items (`arg1, arg2, ...`) from the stack and adds them to the local variable register.
 `and`             | `0x0700`       |                | `v1`, `v2` &rarr; `result`          | Pops two booleans `v1` and `v2` performs bitwise *and* operation and pushes the `result` onto the stack.   
 `or`              | `0x0701`       |                | `v1`, `v2` &rarr; `result`          | Pops two booleans `v1` and `v2` performs bitwise *or* operation and pushes the `result` onto the stack.

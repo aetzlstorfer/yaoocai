@@ -51,7 +51,7 @@ public class AssemblerParser {
             long index = scanner.getCurrentNumber();
             String constantPoolItemTypeDisplayName = checkIdentifierAndProceed();
             BCConstantPoolItemType constantPoolItemType =
-                    BCConstantPoolItemType.getBydisplayName(constantPoolItemTypeDisplayName);
+                    BCConstantPoolItemType.getByDisplayName(constantPoolItemTypeDisplayName);
             checkAndProceed(AssemblerScannerSymbols.CONSTANT_POOL_LINK);
             if (constantPoolItemType == BCConstantPoolItemType.INTEGER) {
                 checkAndProceed(AssemblerScannerSymbols.NUMBER);
