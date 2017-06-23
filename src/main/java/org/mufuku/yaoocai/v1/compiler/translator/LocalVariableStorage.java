@@ -13,7 +13,7 @@ import java.util.Map;
 class LocalVariableStorage {
 
     private final Map<String, LocalVariable> localVariables;
-    private byte counter = 0;
+    private short counter = 0;
 
     LocalVariableStorage() {
         this.localVariables = new LinkedHashMap<>();
@@ -25,7 +25,7 @@ class LocalVariableStorage {
         }
         LocalVariable localVariable = new LocalVariable(type, counter++);
         localVariables.put(name, localVariable);
-        return localVariable.getIndex();
+        return (byte) localVariable.getIndex();
     }
 
     byte getVariableIndex(String name) {
@@ -33,7 +33,7 @@ class LocalVariableStorage {
         if (!localVariable.isInitialized()) {
             throw new ParsingException("Variable " + name + " not initialized");
         }
-        return localVariable.getIndex();
+        return (byte) localVariable.getIndex();
     }
 
     ASTType getVariableType(String name) {

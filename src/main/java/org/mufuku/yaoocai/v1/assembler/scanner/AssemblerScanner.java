@@ -13,7 +13,6 @@ public class AssemblerScanner {
     private final Reader reader;
     private char currentCharacter;
     private AssemblerScannerSymbols currentSymbol;
-
     private String currentString;
     private String currentNumber;
     private byte currentByte;
@@ -88,10 +87,14 @@ public class AssemblerScanner {
             case '-':
                 handleMinusOrComment();
                 break;
+            case '\"':
+                handleString();
+                break;
             default:
                 handleOther();
         }
     }
+
 
     private void handleMinusOrComment() throws IOException {
         nextChar();
@@ -100,6 +103,24 @@ public class AssemblerScanner {
             nextChar();
         } else {
             scanAddressOffsetOrLineNumber();
+        }
+    }
+
+
+    private void handleString() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(currentCharacter);
+        nextChar();
+        while (currentCharacter != '\"' && currentCharacter != '\n') {
+            sb.append(currentCharacter);
+            nextChar();
+        }
+        if (currentCharacter == '\"') {
+            this.currentSymbol = AssemblerScannerSymbols.STRING;
+            this.currentString = sb.toString();
+            nextChar();
+        } else {
+            throw new ParsingException("String must end with quotes (\")");
         }
     }
 
@@ -126,9 +147,6 @@ public class AssemblerScanner {
             nextChar();
         }
         if (currentCharacter == ':') {
-            if (hex) {
-                throw new ParsingException("Hex number is not allowed as line number");
-            }
             this.currentNumber = number.toString();
             this.currentSymbol = AssemblerScannerSymbols.LINE_NUMBER;
             nextChar();

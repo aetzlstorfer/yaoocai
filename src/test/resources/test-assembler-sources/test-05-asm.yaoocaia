@@ -1,0 +1,10 @@
+
+constant_pool {
+  01: string -> "incomplete string
+}
+
+unit main {
+  function main() {
+
+  }
+}

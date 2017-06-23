@@ -1,0 +1,4 @@
+
+function main() {
+  var a:integer = 55; // put 55 on the constant pool
+}

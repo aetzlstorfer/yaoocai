@@ -32,9 +32,13 @@ public class ByteCodeWriter {
     }
 
     private void writeConstantPool(BCConstantPool constantPool) throws IOException {
-        out.writeShort(constantPool.getItems().size());
-        for (BCConstantPoolItem constantPoolItem : constantPool.getItems()) {
-            writeConstantPoolItem(constantPoolItem);
+        if (constantPool != null) {
+            out.writeShort(constantPool.getItems().size());
+            for (BCConstantPoolItem constantPoolItem : constantPool.getItems()) {
+                writeConstantPoolItem(constantPoolItem);
+            }
+        } else {
+            out.writeShort(0);
         }
     }
 

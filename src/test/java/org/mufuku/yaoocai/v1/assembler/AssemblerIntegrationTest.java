@@ -5,9 +5,7 @@ import org.junit.Test;
 import org.mufuku.yaoocai.v1.BaseLangTest;
 import org.mufuku.yaoocai.v1.bytecode.ByteCodeReader;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
-import org.mufuku.yaoocai.v1.bytecode.data.BCCode;
-import org.mufuku.yaoocai.v1.bytecode.data.BCFile;
-import org.mufuku.yaoocai.v1.bytecode.data.BCUnitItemFunction;
+import org.mufuku.yaoocai.v1.bytecode.data.*;
 import org.mufuku.yaoocai.v1.bytecode.viewer.ByteCodeViewer;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
@@ -20,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,6 +42,78 @@ public class AssemblerIntegrationTest extends BaseLangTest {
         BCFile sourceByteCode = sourceCodeReader.readByteCode();
 
         assertFunctionsMatches(sourceByteCode, assembleByteCode);
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_invalidAssemblerCode_error() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assemble("/test-assembler-sources/test-02-asm.yaoocaia", out);
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_invalidAssemblerCodeInvalidStructure_error() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assemble("/test-assembler-sources/test-03-asm.yaoocaia", out);
+    }
+
+    @Test
+    public void test_functionWithReferenceType_correctByteCode() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assemble("/test-assembler-sources/test-04-asm.yaoocaia", out);
+        ByteCodeReader byteCodeReader = new ByteCodeReader(new ByteArrayInputStream(out.toByteArray()));
+
+        BCFile file = byteCodeReader.readByteCode();
+        Map<String, BCUnitItemFunction> functionMap = getFunctionMap(file);
+        BCUnitItemFunction testFunction = functionMap.get("test");
+
+        BCType returnType = testFunction.getReturnType();
+        BCConstantPoolItem returnTypeSymbol = file.getConstantPool().getItems().get(returnType.getReferenceNameIndex());
+
+        assertThat(testFunction, notNullValue());
+        assertThat(returnTypeSymbol, notNullValue());
+        assertThat(returnTypeSymbol.getType(), equalTo(BCConstantPoolItemType.SYMBOL));
+        assertThat(returnTypeSymbol.getValue(), equalTo("String"));
+        assertThat(returnType.getType(), equalTo(BCTypeType.REFERENCE_TYPE));
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_incompleteConstantPoolString_error() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assemble("/test-assembler-sources/test-05-asm.yaoocaia", out);
+    }
+
+    @Test(expected = ParsingException.class)
+    public void test_invalidSymbols_error() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assemble("/test-assembler-sources/test-06-asm.yaoocaia", out);
+    }
+
+    @Test
+    public void massTest_compiledByteCodesConvertedWithByteCodeViewerConvertedBack_noError() throws IOException {
+        List<String> sourceFiles = getTestFiles("/test-language-integration/positive");
+        for (String sourceFile : sourceFiles) {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            compile(sourceFile, byteOut);
+
+            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+            ByteArrayOutputStream byteCodeHumanReadableOut = new ByteArrayOutputStream();
+            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, new PrintStream(byteCodeHumanReadableOut));
+            byteCodeViewer.convert();
+
+            ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
+            ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
+            AssemblerCompiler assemblerCompiler = new AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
+            assemblerCompiler.compile();
+
+
+            ByteCodeReader assembleCodeReader = new ByteCodeReader(new ByteArrayInputStream(byteOut.toByteArray()));
+            ByteCodeReader sourceCodeReader = new ByteCodeReader(new ByteArrayInputStream(byteOut2.toByteArray()));
+
+            BCFile assembleByteCode = assembleCodeReader.readByteCode();
+            BCFile sourceByteCode = sourceCodeReader.readByteCode();
+
+            assertFunctionsMatches(sourceByteCode, assembleByteCode);
+        }
     }
 
     private void assertFunctionsMatches(BCFile a, BCFile b) {
@@ -79,50 +152,5 @@ public class AssemblerIntegrationTest extends BaseLangTest {
                         f -> (String) file.getConstantPool().getItems().get(f.getFunctionNameIndex()).getValue(),
                         f -> f
                 ));
-    }
-
-
-    @Test(expected = ParsingException.class)
-    public void test_invalidAssemblerCode_error() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        assemble("/test-assembler-sources/test-02-asm.yaoocaia", out);
-    }
-
-    @Test(expected = ParsingException.class)
-    public void test_invalidAssemblerCodeInvalidStructure1_error() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        assemble("/test-assembler-sources/test-03-asm.yaoocaia", out);
-    }
-
-    @Test
-    public void massTest_compiledByteCodesConvertedWithByteCodeViewerConvertedBack_noError() throws IOException {
-        List<String> sourceFiles = getTestFiles("/test-language-integration/positive");
-        for (String sourceFile : sourceFiles) {
-            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-            compile(sourceFile, byteOut);
-
-            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-            ByteArrayOutputStream byteCodeHumanReadableOut = new ByteArrayOutputStream();
-            ByteCodeViewer byteCodeViewer = new ByteCodeViewer(byteIn, new PrintStream(byteCodeHumanReadableOut));
-            byteCodeViewer.convert();
-
-            ByteArrayOutputStream byteOut2 = new ByteArrayOutputStream();
-            ByteArrayInputStream byteCodeHumanReadableIn = new ByteArrayInputStream(byteCodeHumanReadableOut.toByteArray());
-            AssemblerCompiler assemblerCompiler = new AssemblerCompiler(byteCodeHumanReadableIn, byteOut2);
-            try {
-                assemblerCompiler.compile();
-            } catch (Exception e) {
-                System.out.println("source file: " + sourceFile);
-                throw e;
-            }
-
-            ByteCodeReader assembleCodeReader = new ByteCodeReader(new ByteArrayInputStream(byteOut.toByteArray()));
-            ByteCodeReader sourceCodeReader = new ByteCodeReader(new ByteArrayInputStream(byteOut2.toByteArray()));
-
-            BCFile assembleByteCode = assembleCodeReader.readByteCode();
-            BCFile sourceByteCode = sourceCodeReader.readByteCode();
-
-            assertFunctionsMatches(sourceByteCode, assembleByteCode);
-        }
     }
 }

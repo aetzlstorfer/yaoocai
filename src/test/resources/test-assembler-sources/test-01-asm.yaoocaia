@@ -3,6 +3,7 @@ constant_pool {
   01: integer -> 2
   02: symbol -> add
   03: symbol -> printlnInteger
+  04: string -> "that is a test" // for later use
 }
 
 unit main_unit {

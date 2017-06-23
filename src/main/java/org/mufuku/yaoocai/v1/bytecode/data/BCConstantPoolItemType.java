@@ -10,13 +10,12 @@ import java.util.stream.Collectors;
 public enum BCConstantPoolItemType {
 
     EMPTY((byte) 0, "empty"),
-    CHARACTER((byte) 1, "character"),
-    INTEGER((byte) 2, "integer"),
-    DECIMAL((byte) 3, "decimal"),
-    LONG_INTEGER((byte) 4, "long integer"),
-    LONG_DECIMAL((byte) 5, "long decimal"),
-    STRING((byte) 6, "string"),
-    SYMBOL((byte) 7, "symbol");
+    INTEGER((byte) 1, "integer"),
+    DECIMAL((byte) 2, "decimal"),
+    LONG_INTEGER((byte) 3, "long integer"),
+    LONG_DECIMAL((byte) 4, "long decimal"),
+    STRING((byte) 5, "string"),
+    SYMBOL((byte) 6, "symbol");
 
     private static final Map<String, BCConstantPoolItemType> byDisplayName =
             Arrays.stream(BCConstantPoolItemType.values())

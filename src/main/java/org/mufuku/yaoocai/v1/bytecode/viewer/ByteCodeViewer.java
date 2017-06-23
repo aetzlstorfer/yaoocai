@@ -93,9 +93,7 @@ public class ByteCodeViewer {
     }
 
     private String getTypeString(BCType type) {
-        if (type.getType() == BCTypeType.REFERENCE_TYPE) {
-            return ByteCodeReader.getConstantPoolString(file.getConstantPool(), type.getReferenceNameIndex());
-        } else if (type.getType() == BCTypeType.NO) {
+        if (type.getType() == BCTypeType.NO) {
             return null;
         } else {
             return type.getType().getDisplayName();
@@ -155,9 +153,9 @@ public class ByteCodeViewer {
             String value = getConstantPoolString(constantPoolItem);
             out.print(value);
         } else if (InstructionSet.OpCodes.CONSTANT_POOL_WIDE.contains(opCode)) {
-            byte high = code[codeIndex];
-            byte low = code[codeIndex + 1];
-            int index = (high << 8) | low & 0xff;
+            byte highByte = code[codeIndex];
+            byte lowByte = code[codeIndex + 1];
+            int index = (highByte << 8) | lowByte & 0xff;
             BCConstantPoolItem constantPoolItem = file.getConstantPool().getItems().get(index);
             String value = getConstantPoolString(constantPoolItem);
             out.print(value);

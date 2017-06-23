@@ -153,7 +153,7 @@ public abstract class BaseLangTest {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         compile(source, byteOut);
 
-        ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+        ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray(), 0, byteOut.size());
         if (PERFORM_STATISTICS) {
             System.out.println("handling file: " + source);
 

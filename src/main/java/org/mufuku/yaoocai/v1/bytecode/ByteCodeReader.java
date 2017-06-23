@@ -29,11 +29,15 @@ public class ByteCodeReader {
         readHeader(file);
         readConstantPool(file);
         readUnits(file);
+        validateNoTrailingContent();
         return file;
     }
 
     private void readHeader(BCFile file) throws IOException {
         String preamble = readString(InstructionSet.PREAMBLE.length());
+        if (!preamble.equals(InstructionSet.PREAMBLE)) {
+            throw new IOException("Preamble didn't match");
+        }
         file.setPreamble(preamble);
         file.setMajorVersion(in.readByte());
         file.setMinorVersion(in.readByte());
@@ -43,34 +47,33 @@ public class ByteCodeReader {
         List<BCConstantPoolItem> constantPoolItems = new ArrayList<>();
         short length = in.readShort();
         for (short index = 0; index < length; index++) {
-            BCConstantPoolItem item = readConstantPoolItem(index);
+            BCConstantPoolItem item = readConstantPoolItem();
+            item.setIndex(index);
             constantPoolItems.add(item);
         }
         BCConstantPool constantPool = new BCConstantPool(constantPoolItems);
         file.setConstantPool(constantPool);
     }
 
-    private BCConstantPoolItem readConstantPoolItem(short index) throws IOException {
+    private BCConstantPoolItem readConstantPoolItem() throws IOException {
         byte type = in.readByte();
         if (type == BCConstantPoolItemType.INTEGER.getValue()) {
             BCConstantPoolItem<Integer> item = new BCConstantPoolItem<>();
-            item.setIndex(index);
             item.setType(BCConstantPoolItemType.INTEGER);
             item.setValue(in.readInt());
             return item;
         } else if (type == BCConstantPoolItemType.STRING.getValue()) {
-            return convertStringyItem(index, BCConstantPoolItemType.STRING);
+            return convertStringyItem(BCConstantPoolItemType.STRING);
         } else if (type == BCConstantPoolItemType.SYMBOL.getValue()) {
-            return convertStringyItem(index, BCConstantPoolItemType.SYMBOL);
+            return convertStringyItem(BCConstantPoolItemType.SYMBOL);
         }
-        throw new IOException("Invalid constant pool item type: " + type);
+        throw new IOException("Invalid constant pool item type: " + Byte.toString(type));
     }
 
-    private BCConstantPoolItem convertStringyItem(short index, BCConstantPoolItemType type) throws IOException {
+    private BCConstantPoolItem convertStringyItem(BCConstantPoolItemType type) throws IOException {
         short length = in.readShort();
         String string = readString(length);
         BCConstantPoolItem<String> item = new BCConstantPoolItem<>();
-        item.setIndex(index);
         item.setType(type);
         item.setValue(string);
         return item;
@@ -170,5 +173,11 @@ public class ByteCodeReader {
             sb.append(in.readChar());
         }
         return sb.toString();
+    }
+
+    private void validateNoTrailingContent() throws IOException {
+        if (in.read() != -1) {
+            throw new IOException("Trailing content");
+        }
     }
 }

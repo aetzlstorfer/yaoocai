@@ -1,7 +1,10 @@
-package org.mufuku.yaoocai.v1.bytecode.data;
+package org.mufuku.yaoocai.v1.bytecode;
 
 import org.junit.Test;
-import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
+import org.mufuku.yaoocai.v1.bytecode.data.BCCodeBuilder;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -23,5 +26,6 @@ public class BCCodeBuilderTest {
                 InstructionSet.OpCodes.LOAD.code(),
                 2
         };
+        assertThat(code, equalTo(expectedCode));
     }
 }

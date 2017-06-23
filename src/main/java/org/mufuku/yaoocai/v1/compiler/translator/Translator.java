@@ -81,6 +81,9 @@ public class Translator {
     }
 
     private void emitFunction(ASTFunction function) throws IOException {
+
+        short functionNameIndex = constantPoolBuilder.getSymbolIndex(function.getIdentifier());
+
         this.codeBuilder = new BCCodeBuilder();
         populateParametersOnLocalVariableStorage(function.getParameters());
         emitCode(function.getBlock());
@@ -91,8 +94,6 @@ public class Translator {
                 throw new ParsingException("Function does not return properly");
             }
         }
-
-        short functionNameIndex = constantPoolBuilder.getSymbolIndex(function.getIdentifier());
 
         BCUnitItemFunction unitItemFunction = new BCUnitItemFunction(functionNameIndex);
         unitItemFunction.setCode(codeBuilder.build());
@@ -131,32 +132,23 @@ public class Translator {
     }
 
     private BCType convertType(ASTType type) {
+        BCType bcType = BCType.NO_TYPE;
         if (type == null) {
-            return new BCType(BCTypeType.NO);
+            bcType = new BCType(BCTypeType.NO);
         } else if (type.isPrimitive()) {
-            return convertPrimitiveType(type);
-        } else {
-            return convertReferenceType(type);
+            bcType = convertPrimitiveType(type);
         }
+        return bcType;
     }
 
     private BCType convertPrimitiveType(ASTType type) {
-        BCTypeType typeType;
+        BCTypeType typeType = BCTypeType.NO;
         if (ASTType.BOOLEAN.equals(type)) {
             typeType = BCTypeType.BOOLEAN;
         } else if (ASTType.INTEGER.equals(type)) {
             typeType = BCTypeType.INTEGER;
-        } else {
-            typeType = BCTypeType.NO;
         }
         return new BCType(typeType);
-    }
-
-    private BCType convertReferenceType(ASTType type) {
-        BCType bcType = new BCType(BCTypeType.REFERENCE_TYPE);
-        short typeNameIndex = constantPoolBuilder.getSymbolIndex(type.getTypeName());
-        bcType.setReferenceNameIndex(typeNameIndex);
-        return bcType;
     }
 
     private boolean branchDoesNotReturn(ASTBlock block) {
@@ -179,7 +171,6 @@ public class Translator {
             }
         }
     }
-
 
     private void populateParametersOnLocalVariableStorage(ASTParameters parameters) {
         for (ASTParameter parameter : parameters) {
@@ -296,7 +287,6 @@ public class Translator {
             } else { // write else block
                 emitCode(ifStatement.getBlock());
             }
-
         }
     }
 

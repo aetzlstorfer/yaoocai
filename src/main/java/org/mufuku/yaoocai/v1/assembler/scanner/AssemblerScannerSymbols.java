@@ -8,6 +8,7 @@ public enum AssemblerScannerSymbols {
     UNKNOWN,
 
     IDENTIFIER,
+    STRING,
 
     CONSTANT_POOL,
     CONSTANT_POOL_LINK,

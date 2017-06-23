@@ -63,7 +63,14 @@ public class AssemblerParser {
                 item.setType(constantPoolItemType);
 
                 items.add(item);
-            } else if (constantPoolItemType == BCConstantPoolItemType.STRING || constantPoolItemType == BCConstantPoolItemType.SYMBOL) {
+            } else if (constantPoolItemType == BCConstantPoolItemType.STRING) {
+                checkAndProceed(AssemblerScannerSymbols.STRING);
+                String stringLiteral = scanner.getCurrentString();
+                BCConstantPoolItem<String> item = new BCConstantPoolItem<>();
+                item.setValue(stringLiteral);
+                item.setType(constantPoolItemType);
+                items.add(item);
+            } else if (constantPoolItemType == BCConstantPoolItemType.SYMBOL) {
                 checkAndProceed(AssemblerScannerSymbols.IDENTIFIER);
                 String stringLiteral = scanner.getCurrentString();
                 BCConstantPoolItem<String> item = new BCConstantPoolItem<>();

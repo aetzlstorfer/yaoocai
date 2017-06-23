@@ -1,0 +1,9 @@
+
+unit main {
+
+  function test(): String {
+    01: return
+  }
+
+
+}

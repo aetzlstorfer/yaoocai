@@ -3,6 +3,7 @@ package org.mufuku.yaoocai.v1.bytecode.data;
 import org.mufuku.yaoocai.v1.bytecode.InstructionSet;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
@@ -20,7 +21,7 @@ public class BCCodeBuilder {
     }
 
     public BCCode build() {
-        return new BCCode(this.codeContent.toByteArray());
+        return new BCCode(Arrays.copyOf(this.codeContent.toByteArray(), this.codeContent.size()));
     }
 
     public byte getSize() {

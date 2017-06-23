@@ -333,4 +333,9 @@ public class LanguageIntegrationTest extends BaseLangTest {
     public void test_flowReturn04_validRun() throws IOException {
         execute("/test-language-integration/negative/flow-return-04-test.yaoocai");
     }
+
+    @Test
+    public void test_constantPoolWideAreaTest_validRun() throws IOException {
+        execute("/test-language-integration/positive/bigConstantPoolArea.yaoocai");
+    }
 }
