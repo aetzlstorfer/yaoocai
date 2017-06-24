@@ -13,11 +13,10 @@ public class Scanner {
     private final Reader reader;
     private char currentCharacter;
     private ScannerSymbols currentSymbol;
-
     private String currentIdentifier;
-
     private String currentNumber;
     private boolean comment;
+    private int currentLine = 1;
 
     public Scanner(InputStream in) {
         this.reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -26,6 +25,9 @@ public class Scanner {
     private void nextChar() throws IOException {
         int ch = reader.read();
         if (ch >= 0) {
+            if (currentCharacter == '\n') {
+                currentLine++;
+            }
             currentCharacter = (char) ch;
         } else {
             currentCharacter = 0;
@@ -327,5 +329,9 @@ public class Scanner {
 
     public long getNumberAsLong() {
         return Long.parseLong(currentNumber);
+    }
+
+    public int getCurrentLine() {
+        return currentLine;
     }
 }

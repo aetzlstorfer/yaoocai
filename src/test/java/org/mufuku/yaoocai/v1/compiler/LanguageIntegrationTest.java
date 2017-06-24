@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -158,24 +159,18 @@ public class LanguageIntegrationTest extends BaseLangTest {
         execute("/test-language-integration/positive/goodIntegerRanges-test.yaoocai");
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_declaringIntegersWithBadRange_01_parsingException() throws IOException {
-        execute("/test-language-integration/negative/badIntegerRanges-01-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/badIntegerRanges-01-test.yaoocai"))
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Integer must be in the range")
+                .hasFieldOrPropertyWithValue("lineNumber", 3);
     }
 
     @Test(expected = ParsingException.class)
     public void test_declaringIntegersWithBadRange_02_parsingException() throws IOException {
         execute("/test-language-integration/negative/badIntegerRanges-02-test.yaoocai");
-    }
-
-    @Test(expected = ParsingException.class)
-    public void test_declareBuiltInFunctionWithNegativeIndex_parsingException() throws IOException {
-        execute("/test-language-integration/negative/badFunctionIndex-01-test.yaoocai");
-    }
-
-    @Test(expected = ParsingException.class)
-    public void test_declareBuiltInFunctionWithOutOfRangeIndex_parsingException() throws IOException {
-        execute("/test-language-integration/negative/badFunctionIndex-02-test.yaoocai");
     }
 
     @Test
@@ -189,29 +184,54 @@ public class LanguageIntegrationTest extends BaseLangTest {
         execute("/test-language-integration/positive/advancedIdentifiers-test.yaoocai");
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_duplicateIdentifier_ParsingException() throws IOException {
-        execute("/test-language-integration/negative/duplicate-function-01-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/duplicate-function-01-test.yaoocai")
+        )
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Already defined function: ")
+                .hasFieldOrPropertyWithValue("lineNumber", 5);
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_duplicateIdentifierOneFunctionOtherBuiltIn_ParsingException() throws IOException {
-        execute("/test-language-integration/negative/duplicate-function-02-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/duplicate-function-02-test.yaoocai")
+        )
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Already defined function: ")
+                .hasFieldOrPropertyWithValue("lineNumber", 4);
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_duplicateParameters_ParsingException() throws IOException {
-        execute("/test-language-integration/negative/duplicate-variables-01-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/duplicate-variables-01-test.yaoocai")
+        )
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Duplicate variable")
+                .hasFieldOrPropertyWithValue("lineNumber", 2);
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_duplicateParameterAndVariable_ParsingException() throws IOException {
-        execute("/test-language-integration/negative/duplicate-variables-02-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/duplicate-variables-02-test.yaoocai")
+        )
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Duplicate variable")
+                .hasFieldOrPropertyWithValue("lineNumber", 3);
     }
 
-    @Test(expected = ParsingException.class)
+    @Test
     public void test_duplicateVariables_ParsingException() throws IOException {
-        execute("/test-language-integration/negative/duplicate-variables-03-test.yaoocai");
+        assertThatThrownBy(() ->
+                execute("/test-language-integration/negative/duplicate-variables-03-test.yaoocai")
+        )
+                .isInstanceOf(ParsingException.class)
+                .hasMessageContaining("Duplicate variable")
+                .hasFieldOrPropertyWithValue("lineNumber", 4);
     }
 
     @Test(expected = ParsingException.class)

@@ -60,13 +60,15 @@ public class Parser {
         checkAndProceed(ScannerSymbols.BUILTIN_ASSIGNMENT);
         String bindName = checkIdentifierAndProceed();
 
-        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, bindName);
+        ASTBuiltinFunction function = new ASTBuiltinFunction(functionName, bindName, scanner.getCurrentLine());
         function.setParameters(parameters);
         function.setReturnType(returnType);
         return function;
     }
 
     private ASTFunction parseFunctionDeclaration() throws IOException {
+        int functionLineNumber = scanner.getCurrentLine();
+
         checkAndProceed(ScannerSymbols.FUNCTION);
         String functionName = checkIdentifierAndProceed();
 
@@ -76,7 +78,7 @@ public class Parser {
             returnType = parseType();
         }
         ASTBlock block = parseBlock();
-        ASTFunction function = new ASTFunction(functionName);
+        ASTFunction function = new ASTFunction(functionName, functionLineNumber);
         function.setParameters(parameters);
         function.setReturnType(returnType);
         function.setBlock(block);
@@ -101,7 +103,8 @@ public class Parser {
         String parameterName = checkIdentifierAndProceed();
         checkAndProceed(ScannerSymbols.COLON);
         ASTType parameterType = parseType();
-        return new ASTParameter(parameterName, parameterType);
+        return new ASTParameter(scanner.getCurrentLine(),
+                parameterName, parameterType);
     }
 
     private ASTBlock parseBlock() throws IOException {
@@ -125,6 +128,7 @@ public class Parser {
     }
 
     private ASTLocalVariableDeclarationStatement parseLocalVariableDeclarationStatement() throws IOException {
+        int variableLine = scanner.getCurrentLine();
         checkAndProceed(ScannerSymbols.VARIABLE);
         String variableName = checkIdentifierAndProceed();
         checkAndProceed(ScannerSymbols.COLON);
@@ -135,7 +139,7 @@ public class Parser {
         }
         checkAndProceed(ScannerSymbols.SEMICOLON);
         ASTLocalVariableDeclarationStatement localVariableDeclarationStatement =
-                new ASTLocalVariableDeclarationStatement(variableName, type);
+                new ASTLocalVariableDeclarationStatement(variableLine, variableName, type);
         localVariableDeclarationStatement.setInitializationExpression(expression);
         return localVariableDeclarationStatement;
     }
@@ -353,7 +357,7 @@ public class Parser {
             if (subExpression instanceof ASTLiteralExpression) {
                 ASTLiteralExpression subLiteralExpression = (ASTLiteralExpression) subExpression;
                 Long originalValue = (Long) subLiteralExpression.getValue();
-                expr = new ASTLiteralExpression<>(-originalValue, subLiteralExpression.getType());
+                expr = new ASTLiteralExpression<>(-originalValue, subLiteralExpression.getType(), scanner.getCurrentLine());
             } else {
                 expr = new ASTUnaryExpression(subExpression, ASTUnaryOperator.NEGATE);
             }
@@ -372,7 +376,7 @@ public class Parser {
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.IDENTIFIER) {
             String identifier = checkIdentifierAndProceed();
             if (scanner.getCurrentSymbol() != ScannerSymbols.PAR_START) {
-                expression = new ASTVariableExpression(identifier);
+                expression = new ASTVariableExpression(identifier, scanner.getCurrentLine());
                 expression = parsePostIncrementExpression(expression);
             } else {
                 expression = parseFunctionCall(identifier);
@@ -393,7 +397,7 @@ public class Parser {
     }
 
     private ASTExpression parseFunctionCall(String identifier) throws IOException {
-        ASTFunctionCallExpression function = new ASTFunctionCallExpression(identifier);
+        ASTFunctionCallExpression function = new ASTFunctionCallExpression(identifier, scanner.getCurrentLine());
         checkAndProceed(ScannerSymbols.PAR_START);
         if (scanner.getCurrentSymbol() != ScannerSymbols.PAR_END) {
             ASTArguments arguments = parseArguments();
@@ -419,12 +423,12 @@ public class Parser {
         ASTLiteralExpression expression;
         if (scanner.getCurrentSymbol() == ScannerSymbols.INTEGER_LITERAL) {
             long value = scanner.getNumberAsLong();
-            expression = new ASTLiteralExpression<>(value, ASTType.INTEGER);
+            expression = new ASTLiteralExpression<>(value, ASTType.INTEGER, scanner.getCurrentLine());
         } else if (scanner.getCurrentSymbol() == ScannerSymbols.TRUE) {
-            expression = new ASTLiteralExpression<>(true, ASTType.BOOLEAN);
+            expression = new ASTLiteralExpression<>(true, ASTType.BOOLEAN, scanner.getCurrentLine());
         } else {
             check(ScannerSymbols.FALSE);
-            expression = new ASTLiteralExpression<>(false, ASTType.BOOLEAN);
+            expression = new ASTLiteralExpression<>(false, ASTType.BOOLEAN, scanner.getCurrentLine());
         }
         scanner.moveToNextSymbol();
         return expression;

@@ -3,25 +3,12 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTLocalVariableDeclarationStatement implements ASTStatement {
-
-    private final String identifier;
-
-    private final ASTType type;
+public class ASTLocalVariableDeclarationStatement extends ASTNamedAndTypedElement implements ASTStatement {
 
     private ASTExpression initializationExpression;
 
-    public ASTLocalVariableDeclarationStatement(String identifier, ASTType type) {
-        this.identifier = identifier;
-        this.type = type;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public ASTType getType() {
-        return type;
+    public ASTLocalVariableDeclarationStatement(Integer lineNumber, String identifier, ASTType type) {
+        super(lineNumber, identifier, type);
     }
 
     public ASTExpression getInitializationExpression() {

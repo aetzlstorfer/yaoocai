@@ -175,7 +175,7 @@ public class Translator {
     private void populateParametersOnLocalVariableStorage(ASTParameters parameters) {
         for (ASTParameter parameter : parameters) {
             String variableName = parameter.getIdentifier();
-            currentLocalVariableStorage.addVariable(variableName, parameter.getType());
+            currentLocalVariableStorage.addVariable(parameter);
             currentLocalVariableStorage.markInitialized(variableName);
         }
     }
@@ -330,7 +330,7 @@ public class Translator {
 
     private void emitLocalVariable(ASTLocalVariableDeclarationStatement localVariableDeclarationStatement) throws IOException {
         String variableName = localVariableDeclarationStatement.getIdentifier();
-        byte index = currentLocalVariableStorage.addVariable(variableName, localVariableDeclarationStatement.getType());
+        byte index = currentLocalVariableStorage.addVariable(localVariableDeclarationStatement);
         if (localVariableDeclarationStatement.getInitializationExpression() != null) {
             validateInitializationExpression(localVariableDeclarationStatement);
             emitExpression(localVariableDeclarationStatement.getInitializationExpression());
@@ -585,7 +585,12 @@ public class Translator {
         long value = (long) expression.getValue();
 
         if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE) {
-            throw new ParsingException("Integer must be in the range of " + Integer.MIN_VALUE + " and " + Integer.MAX_VALUE);
+            throw new ParsingException("Integer must be in the range of " +
+                    Integer.MIN_VALUE +
+                    " and " +
+                    Integer.MAX_VALUE,
+                    expression.getLineNumber()
+            );
         }
 
         if (value == 0) {
@@ -594,12 +599,9 @@ public class Translator {
             writeOpCode(InstructionSet.OpCodes.I_CONST_1);
         } else {
             short largeIntegerIndex = constantPoolBuilder.getIntegerIndex((int) value);
-            if (largeIntegerIndex <= 0xFF) {
-                byte smallIntegerIndex = (byte) largeIntegerIndex;
-                writeOpCode(InstructionSet.OpCodes.CONST_P1B, smallIntegerIndex);
-            } else {
-                writeOpCodeTwoBytesParameter(InstructionSet.OpCodes.CONST_P2B, largeIntegerIndex);
-            }
+            byte smallIntegerIndex = (byte) largeIntegerIndex;
+            writeOpCode(InstructionSet.OpCodes.CONST_P1B, smallIntegerIndex);
+            // FUTURE IMPROVEMENT restructure the vm necessary to support CONST_P2B
         }
     }
 

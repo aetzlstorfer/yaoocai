@@ -24,7 +24,9 @@ public class ASTScript {
 
     public void addDeclaredFunction(ASTBasicFunction declaredFunction) {
         if (declaredFunctions.containsKey(declaredFunction.getIdentifier())) {
-            throw new ParsingException("Already defined function: " + declaredFunction.getIdentifier());
+            throw new ParsingException(
+                    "Already defined function: " + declaredFunction.getIdentifier(),
+                    declaredFunction.getLineNumber());
         }
         declaredFunctions.put(declaredFunction.getIdentifier(), declaredFunction);
     }

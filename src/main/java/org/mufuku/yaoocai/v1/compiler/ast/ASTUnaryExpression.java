@@ -3,13 +3,14 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTUnaryExpression implements ASTExpression {
+public class ASTUnaryExpression extends ASTExpression {
 
     private final ASTExpression subExpression;
 
     private final ASTUnaryOperator unaryOperator;
 
     public ASTUnaryExpression(ASTExpression subExpression, ASTUnaryOperator unaryOperator) {
+        super(null);
         this.subExpression = subExpression;
         this.unaryOperator = unaryOperator;
     }

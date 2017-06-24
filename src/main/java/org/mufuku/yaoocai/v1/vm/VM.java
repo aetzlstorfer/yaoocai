@@ -185,8 +185,6 @@ public class VM implements VirtualMachine {
             case GOTO:
                 performGoto();
                 break;
-            default:
-                throw new IOException("Invalid byte code: " + opCode);
         }
     }
 

@@ -3,12 +3,13 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTFunctionCallExpression implements ASTExpression {
+public class ASTFunctionCallExpression extends ASTExpression {
 
     private final String functionName;
     private ASTArguments arguments;
 
-    public ASTFunctionCallExpression(String functionName) {
+    public ASTFunctionCallExpression(String functionName, int lineNumber) {
+        super(lineNumber);
         this.functionName = functionName;
     }
 

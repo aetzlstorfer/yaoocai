@@ -23,7 +23,7 @@ public interface InstructionSet {
         I_CONST_1(0x03, "i_const_1", 0),
         // 1.3 constant pool
         CONST_P1B(0x04, "cp1b", 1),
-        CONST_P2B(0x05, "cp2b", 2),
+        // restructure necessary: CONST_P2B(0x05, "cp2b", 2),
 
         // 2. stack
         STORE(0x06, "store", 1),
@@ -68,7 +68,7 @@ public interface InstructionSet {
                 CONST_P1B
         ));
         public static final Set<OpCodes> CONSTANT_POOL_WIDE = Collections.unmodifiableSet(EnumSet.of(
-                CONST_P2B,
+//                CONST_P2B,
                 INVOKE,
                 INVOKE_BUILTIN
         ));
@@ -96,7 +96,9 @@ public interface InstructionSet {
                     mapping.put(opCodes.code, opCodes);
                 }
             }
-            return mapping.get(opCode);
+            return mapping.computeIfAbsent(opCode, k -> {
+                throw new IllegalStateException("Invalid op code: " + opCode);
+            });
         }
 
         public static OpCodes getByMnemonic(String mnemonic) {

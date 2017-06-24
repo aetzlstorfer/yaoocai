@@ -1,5 +1,5 @@
 
-builtin function f1(a: integer): boolean -> vm_func(0)
+builtin function f1(a: integer): boolean -> f1
 
 function f1(a: boolean):integer {
 }

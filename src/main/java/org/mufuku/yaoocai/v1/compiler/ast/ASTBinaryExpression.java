@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTBinaryExpression implements ASTExpression {
+public class ASTBinaryExpression extends ASTExpression {
 
     private final ASTExpression left;
 
@@ -12,6 +12,7 @@ public class ASTBinaryExpression implements ASTExpression {
     private ASTOperator operator;
 
     public ASTBinaryExpression(ASTExpression left) {
+        super(null);
         this.left = left;
     }
 

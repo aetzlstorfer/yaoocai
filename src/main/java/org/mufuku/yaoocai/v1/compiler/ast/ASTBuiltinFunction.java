@@ -7,8 +7,8 @@ public class ASTBuiltinFunction extends ASTBasicFunction {
 
     private final String bindName;
 
-    public ASTBuiltinFunction(String identifier, String bindName) {
-        super(identifier);
+    public ASTBuiltinFunction(String identifier, String bindName, int lineNumber) {
+        super(identifier, lineNumber);
         this.bindName = bindName;
     }
 

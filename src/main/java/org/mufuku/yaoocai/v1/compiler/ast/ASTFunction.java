@@ -7,8 +7,8 @@ public class ASTFunction extends ASTBasicFunction {
 
     private ASTBlock block;
 
-    public ASTFunction(String identifier) {
-        super(identifier);
+    public ASTFunction(String identifier, int lineNumber) {
+        super(identifier, lineNumber);
     }
 
     public ASTBlock getBlock() {

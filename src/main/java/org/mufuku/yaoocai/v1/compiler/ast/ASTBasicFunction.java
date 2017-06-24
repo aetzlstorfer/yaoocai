@@ -3,7 +3,7 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public abstract class ASTBasicFunction {
+public abstract class ASTBasicFunction extends ASTElement {
 
     private final String identifier;
 
@@ -11,7 +11,9 @@ public abstract class ASTBasicFunction {
 
     private ASTParameters parameters;
 
-    ASTBasicFunction(String identifier) {
+
+    ASTBasicFunction(String identifier, int lineNumber) {
+        super(lineNumber);
         this.identifier = identifier;
     }
 

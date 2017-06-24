@@ -1,5 +1,0 @@
-
-builtin function test() -> vm_func(-1)
-
-function main() {
-}

@@ -3,11 +3,11 @@ package org.mufuku.yaoocai.v1.compiler.ast;
 /**
  * @author Andreas Etzlstorfer (a.etzlstorfer@gmail.com)
  */
-public class ASTVariableExpression extends ASTExpression {
+public class ASTNamedElement extends ASTElement {
 
     private final String identifier;
 
-    public ASTVariableExpression(String identifier, int lineNumber) {
+    ASTNamedElement(Integer lineNumber, String identifier) {
         super(lineNumber);
         this.identifier = identifier;
     }

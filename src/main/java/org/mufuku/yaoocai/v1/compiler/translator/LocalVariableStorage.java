@@ -1,5 +1,6 @@
 package org.mufuku.yaoocai.v1.compiler.translator;
 
+import org.mufuku.yaoocai.v1.compiler.ast.ASTNamedAndTypedElement;
 import org.mufuku.yaoocai.v1.compiler.ast.ASTType;
 import org.mufuku.yaoocai.v1.compiler.parser.ParsingException;
 
@@ -19,13 +20,15 @@ class LocalVariableStorage {
         this.localVariables = new LinkedHashMap<>();
     }
 
-    byte addVariable(String name, ASTType type) {
-        if (localVariables.containsKey(name)) {
-            throw new ParsingException("Duplicate variable: " + name);
+    byte addVariable(ASTNamedAndTypedElement localVariable) {
+        String identifier = localVariable.getIdentifier();
+        if (localVariables.containsKey(identifier)) {
+            throw new ParsingException("Duplicate variable: " + identifier, localVariable.getLineNumber());
         }
-        LocalVariable localVariable = new LocalVariable(type, counter++);
-        localVariables.put(name, localVariable);
-        return (byte) localVariable.getIndex();
+
+        LocalVariable localVariableWrapper = new LocalVariable(localVariable.getType(), counter++);
+        localVariables.put(identifier, localVariableWrapper);
+        return (byte) localVariableWrapper.getIndex();
     }
 
     byte getVariableIndex(String name) {
